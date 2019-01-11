@@ -15,7 +15,6 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 %% Settings
 overwrite_old_files = 1;   % Overwirte old files 0=false or 1=true
 
-
 %% Import
 % Loop through subjects
 for ii = 1:length(subs)
