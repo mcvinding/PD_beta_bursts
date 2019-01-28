@@ -1,25 +1,22 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Do MNE on resting state data
+Do MNE on resting state data. 
 @author: mikkel
 """
 import matplotlib
 matplotlib.use('Agg')
 from os import listdir
 import os.path as op
-import numpy as np
 from mne import read_forward_solution, read_bem_solution, read_source_spaces, read_trans, read_cov
 from mne import make_bem_model, make_bem_solution, make_forward_solution
 from mne import write_bem_solution, write_forward_solution
-from mne import find_events, read_labels_from_annot
 from mne.io import Raw
 from mne.minimum_norm import make_inverse_operator, write_inverse_operator, apply_inverse_raw, read_inverse_operator
-import matplotlib.pyplot as plt
 import time
 
 #%% Overwrite
-overwrite = False
+overwrite = True
 
 #%% Paths, etc.
 data_path       = '/home/mikkel/PD_motor/rest_ec/meg_data'         
@@ -35,7 +32,7 @@ subjects = list(set(subjects_meg).intersection(subjects_mri))
 subjects.sort()
 
 # Manual input for single subjects
-#subjects = ['0320','0313']
+subjects = ['0406']
 
 #%% Initiate values
 startTrigger = 1
@@ -44,7 +41,7 @@ stopTrigger  = 64
 conductivity = (0.3,)                               # for single layer
 #lambda2 = 0.0000001
 
-snr = 3.0  # Standard assumption for average data but using it for rest
+snr = 2.0                           # Standard assumption for average data is 3.0
 lambda2 = 1.0 / snr ** 2
 
 #%% SUBJECT LOOP HERE ####
@@ -129,7 +126,7 @@ for ii, sub in enumerate(subjects):
         if not op.isfile(fwdFile) or overwrite:
             fwd = make_forward_solution(raw_crop.info, trans=trans, src=src, bem=bem,
                                         meg=True, eeg=False,
-                                        mindist=3.0, n_jobs=3)
+                                        mindist=0.0, n_jobs=3)
             write_forward_solution(fwdFile, fwd, overwrite=True)
         else:
             fwd = read_forward_solution(fwdFile)
@@ -144,42 +141,12 @@ for ii, sub in enumerate(subjects):
         # Do source recon
         t0 = time.time()
         stc_dSPM    = apply_inverse_raw(raw_crop, inv, lambda2, method="dSPM")
-        stc_MNE     = apply_inverse_raw(raw_crop, inv, lambda2, method="MNE")
+#        stc_MNE     = apply_inverse_raw(raw_crop, inv, lambda2, method="MNE")
         dt = time.time() - t0
         print('Time elapsed: '+str(dt/60.0)+' min')
         
-    #    stc_dSPM.
+
+#       Save
         stc_dSPM.save(outFile_dSPM)
 #        stc_MNE.save(outFile_MNE)
-    
-    
-#%% plot
-#clin = dict(kind:'value', lims)
-plt.figure()
-stc_dSPM.plot(subject='0406', subjects_dir=subjects_dir, time_viewer=True, spacing='oct4', hemi='both')
-plt.figure()
-stc_MNE.plot(subject='0406', subjects_dir=subjects_dir, time_viewer=True, spacing='oct4', hemi='both')
 
-
-#%%
-labels = read_labels_from_annot(sub, parc='aparc.DKTatlas40', subjects_dir=subjects_dir, hemi='both')
-src = inv['src']
-label = [lab for lab in labels if 'precentral-lh' in lab.name]
-
-label_tc = stc_dSPM.extract_label_time_course(label,src,mode='mean_flip')[0,:]
-t=np.arange(0,label_tc.size)/1000.0
-plt.plot(t,label_tc)
-
-lbft = mne.filter.filter_data(label_tc,1000,14,35)
-
-plt.plot(t,lbft)
-
-from scipy.signal import hilbert
-analytic_signal = hilbert(lbft)
-amplitude_envelope = np.abs(analytic_signal)
-instantaneous_phase = np.unwrap(np.angle(analytic_signal))
-instantaneous_frequency = (np.diff(instantaneous_phase) /
-                            (2.0*np.pi) * fs)
-
-plt.plot(t,lbft)
-plt.plot(t,amplitude_envelope)
