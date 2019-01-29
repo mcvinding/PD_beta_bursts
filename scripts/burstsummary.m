@@ -15,52 +15,54 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 [ctrl_subs, ctrlidx] = intersect(subs, subjs.ctrl);
 
 %% N tirals
-nevent = zeros(length(subs), 51);   % subjects x number of steps
+steps = subvals{1}.steps;
+nevent = nan(length(subs), 51);   % subjects x number of steps
 
 for i = 1:length(subs)
-    load(fullfile(dirs.megDir,subs{i},'subvals.mat'))
-    
-    for j = 1:length(subvals.steps)
-        nevent(i,j) = length(subvals.bdat{j}.evelen);
+    % Skip for now
+    if strcmp('0327',subs{i})
+        continue
     end
+    load(fullfile(dirs.megDir,subs{i},'subvals2.mat'))
     
+    for j = 1:length(subvals{1}.steps)
+        nevent(i,j) = length(subvals{1}.bdat(j).evelen);
+    end
 %     clear subvals
 end
 
-lala = mean(nevent)
+lala = nanmean(nevent)
 PDn = nevent(PDidx,:);
 ctrln = nevent(ctrlidx,:);
 
-PDnavg = mean(PDn)
-ctrlnavg = mean(ctrln)
-PDnsd = std(PDn)
-ctrlnsd = std(ctrln)
+PDnavg = nanmean(PDn)
+ctrlnavg = nanmean(ctrln)
+PDnsd = nanstd(PDn)
+ctrlnsd = nanstd(ctrln)
 
-plot(subvals.steps,lala,'o-')
+plot(steps,lala,'o-')
 
-plot(subvals.steps,PDnavg,'or-'); hold on
-plot(subvals.steps,ctrlnavg,'ob-'); hold off
+plot(steps,PDnavg,'or-'); hold on
+plot(steps,ctrlnavg,'ob-'); hold off
 
-for i = 1:length(subvals.steps)
-    [~, pt(i)] = ttest2(PDn(:,i),ctrln(:,i))
+for i = 1:length(steps)
+    [~, pt(i),~,t] = ttest2(PDn(:,i),ctrln(:,i));
 end
 
-plot(subvals.steps,pt)
+plot(steps,pt)
 
-h1 = histogram(PDn(:,12),10); hold on
-h2 = histogram(ctrln(:,12),10);
+h1 = histogram(PDn(:,17),20); hold on
+h2 = histogram(ctrln(:,17),20);
 
 
-plot(subvals.steps,pt)
-
-mns = [PDnavg(12), ctrlnavg(12)];
-sds = [PDnsd(12), ctrlnsd(12)];
-sem = [PDnsd(12)/sqrt(length(PD_subs)), ctrlnsd(12)/sqrt(length(ctrl_subs))];
+mns = [PDnavg(17), ctrlnavg(17)];
+sds = [PDnsd(17), ctrlnsd(17)];
+sem = [PDnsd(17)/sqrt(length(PD_subs)), ctrlnsd(17)/sqrt(length(ctrl_subs))];
 
 figure
 hold on
 bar(1:2,mns,0.6,'b','grouped')
-errorbar(1:2,mns,sem,'r.')
+errorbar(1:2,mns,sem*2,'r.')
 set(gca,'xtick',[])
 
 %% Duration

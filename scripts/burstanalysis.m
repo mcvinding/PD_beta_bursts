@@ -156,14 +156,14 @@ for ss = 1:length(subs)
 end
 disp('done')
 %% Compare methods
-plot(steps,mean(rho1mat)); hold on
-plot(steps,mean(rho2mat),'r'); 
-plot(steps,mean(rho3mat),'k'); 
-plot(steps,mean(rho4mat),'m'); hold off
+plot(steps,mean(mean(rho1mat,1),3)); hold on
+plot(steps,mean(mean(rho2mat,1),3),'r'); 
+plot(steps,mean(mean(rho3mat,1),3),'k'); 
+plot(steps,mean(mean(rho4mat,1),3),'m'); hold off
 
-plot(steps,rho1mat); 
+plot(steps,mean(rho3mat,3)); 
 
-rhoavg = mean(rho1mat)
+rhoavg = mean(rho1mat,3)
 rhosd = std(rho1mat)
 
 plot(steps,rhoavg); hold on
