@@ -43,44 +43,27 @@ for sub in subjects:
     src = mne.read_source_spaces(srcFile)
 
     for con in ['RsEc1','RsEc2']:
-        outmatfname = op.join(data_path,sub,sub+'_'+con+'-hilbt.mat')
+        outhilbt = op.join(data_path,sub,sub+'_'+con+'-hilbt.mat')
+        outrawtc = op.join(data_path,sub,sub+'_'+con+'-rawtc.mat')
         hilb = dict()
+        rawtc = dict()
         
         for hemi in ['lh','rh']:
             fname = op.join(data_path,sub,sub+'_'+con+'-dSPM-lh.stc')
             stc = mne.read_source_estimate(fname)
             
             lab = make_sensorymotorROI(sub, subjects_dir, hemi=hemi) 
-#
-#            label_tcM = stc.extract_label_time_course(lab, src ,mode='mean')
-#            label_tcM = np.float64(label_tcM)
-#            label_tcMF = stc.extract_label_time_course(lab, src ,mode='mean_flip')[0,:]
+
             label_tcPCA = stc.extract_label_time_course(lab, src ,mode='pca_flip')[0,:]
             label_tcPCA  = np.float64(label_tcPCA)
-#            label_tcX = stc.extract_label_time_course(lab, src ,mode='max')[0,:]
-#            label_tcX  = np.float64(label_tcX)
 
-#            t=np.arange(0,label_tcM.size)/1000.0
-#            plt.plot(t,label_tcM)
-#            plt.plot(t,label_tcMF)
-#            plt.plot(t,label_tcPCA)
-#            plt.plot(t,label_tcX)
-
-#            lbftM = mne.filter.filter_data(label_tcM, 1000,10,30,method='iir')
             lbftPCA = mne.filter.filter_data(label_tcPCA, 1000, 10, 30, method='iir')
-#            lbftX = mne.filter.filter_data(label_tcX, 1000,10,30,method='iir')
 
-
-#            plt.plot(t,lbftM[0,:], 'r--')
-#            plt.plot(t,lbftPCA, 'b--')
-#            plt.plot(t,lbftX, 'k--')
-            
-#            analytic = hilbert(lbftM)
-#            envelope = np.abs(analytic)6
             analyticPCA = hilbert(lbftPCA)
             envelopePCA = np.abs(analyticPCA)            
             
-            hilb[hemi] = envelopePCA;
+            hilb[hemi] = envelopePCA
+            rawtc[hemi] = label_tcPCA
 #            analyticX = hilbert(lbftX)
 #            envelopeX = np.abs(analyticX)
             
@@ -91,7 +74,9 @@ for sub in subjects:
 #            plt.hist(envelope[0,:],50, alpha=0.5)
 #            plt.hist(envelopePCA,50, alpha=0.5)
 #            plt.hist(envelopeX,50, alpha=0.5)
-            
-        sio.savemat(outmatfname, dict(hilb_rh=hilb['rh'],hilb_lh=hilb['lh']))
+        if not op.exists(outhilbt) or overwrite:    
+            sio.savemat(outhilbt, dict(hilb_rh=hilb['rh'],hilb_lh=hilb['lh']))
+        if not op.exists(outrawtc) or overwrite:
+            sio.savemat(outrawtc, dict(raw_rh=rawtc['rh'],raw_lh=rawtc['lh']))
         
 #END

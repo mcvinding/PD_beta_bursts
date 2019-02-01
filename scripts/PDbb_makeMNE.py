@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 from os import listdir
 import os.path as op
+import mne
 from mne import read_forward_solution, read_bem_solution, read_source_spaces, read_trans, read_cov
 from mne import make_bem_model, make_bem_solution, make_forward_solution
 from mne import write_bem_solution, write_forward_solution
@@ -16,7 +17,8 @@ from mne.minimum_norm import make_inverse_operator, write_inverse_operator, appl
 import time
 
 #%% Overwrite
-overwrite = True
+overwrite_pre = False       #Overwrite the initial preprocessing steps (BEM, fwd, etc)
+overwrite_out = True
 
 #%% Paths, etc.
 data_path       = '/home/mikkel/PD_motor/rest_ec/meg_data'         
@@ -32,7 +34,7 @@ subjects = list(set(subjects_meg).intersection(subjects_mri))
 subjects.sort()
 
 # Manual input for single subjects
-subjects = ['0406']
+#subjects = ['0406']
 
 #%% Initiate values
 startTrigger = 1
@@ -57,12 +59,12 @@ for ii, sub in enumerate(subjects):
     covFile = op.join(cov_dir,sub,sub+'_combi-cov.fif')
     
     exisitngfiles = [op.join(subDir,f) for f in listdir(subDir) if 'dSPM' in f]
-    if len(exisitngfiles) and not overwrite:
+    if len(exisitngfiles) and not overwrite_out:
         print 'Output already exists. Will not overwrite!'
         continue
     
     ### Make bem (or read)
-    if not op.isfile(bemFile) or overwrite:
+    if not op.isfile(bemFile) or overwrite_pre:
         model = make_bem_model(subject=sub, ico=4, conductivity=conductivity, subjects_dir=subjects_dir)
         bem = make_bem_solution(model)
         write_bem_solution(op.join(subjects_dir,sub,'bem','bem-sol.fif'),bem)
@@ -81,8 +83,9 @@ for ii, sub in enumerate(subjects):
     
     #### LOOP THROUGH RAWFILES
     for ff, rawFile in enumerate(rawfiles):
-        print(rawFile)
         
+        #%%
+        print(rawFile)
         # Initiate filenames for loading and saving    
         fwdFile = rawFile[:-12]+'-fwd.fif'
         invFile = rawFile[:-12]+'-inv.fif'
@@ -92,30 +95,31 @@ for ii, sub in enumerate(subjects):
         outFile_MNE  = rawFile[:-11]+'MNE'                             
 
         # Read raw data
-        if not op.isfile(outFile_raw) or overwrite:
+        if not op.isfile(outFile_raw) or overwrite_out:
             raw = Raw(rawFile, preload=True)
-            eve = find_events(raw)
+            eve = mne.find_events(raw)
             
-            try:
+            if '0327_RsEc1' in rawFile:                 # Missing triggers
+                startSam = 30000+raw.first_samp
+                stopSam = 180102+startSam+raw.first_samp
+            elif '0333_RsEc2' in rawFile:               # Missing triggers
+                startSam = 20000+raw.first_samp
+                stopSam = 180102+startSam+raw.first_samp          
+            else:
                 startSam = eve[eve[:,2] == startTrigger,0][0]
-            except:
-                startSam = raw.first_samp
-
-            try:
-                stopSam = eve[eve[:,2] == stopTrigger,0][0]
-            except:
-                stopSam = raw.last_samp 
-
-#            if not startSam:
+#            except:
 #                startSam = raw.first_samp
-#            if not stopSam:
+                stopSam = eve[eve[:,2] == stopTrigger,0][0]
+#            except:
 #                stopSam = raw.last_samp 
+
+            # Add one second as buffer for filter [remeber to remove in analysis]
+            startSam = startSam-1000
+            stopSam = stopSam+1000
             
             raw_crop = raw.crop(tmin=(startSam - raw.first_samp ) / raw.info['sfreq'],
                                 tmax=(stopSam - raw.first_samp ) / raw.info['sfreq'])
-            
-#            raw_crop.filter(14,25)
-            
+                        
             raw_crop.save(outFile_raw, overwrite=True)
             
             del raw             # Clear memory
@@ -123,7 +127,7 @@ for ii, sub in enumerate(subjects):
         raw_crop =  Raw(outFile_raw, preload=False)
     
         # Make forward model
-        if not op.isfile(fwdFile) or overwrite:
+        if not op.isfile(fwdFile) or overwrite_pre:
             fwd = make_forward_solution(raw_crop.info, trans=trans, src=src, bem=bem,
                                         meg=True, eeg=False,
                                         mindist=0.0, n_jobs=3)
@@ -132,7 +136,7 @@ for ii, sub in enumerate(subjects):
             fwd = read_forward_solution(fwdFile)
 
         # Make (or read) inverse operator
-        if not op.isfile(invFile) or overwrite:
+        if not op.isfile(invFile) or overwrite_pre:
             inv = make_inverse_operator(raw_crop.info, fwd, noise_cov)
             write_inverse_operator(invFile,inv)
         else:
@@ -150,3 +154,4 @@ for ii, sub in enumerate(subjects):
         stc_dSPM.save(outFile_dSPM)
 #        stc_MNE.save(outFile_MNE)
 
+#END

@@ -1,4 +1,6 @@
 % Get beta bursts
+% * Clean up: decide on cutoff algorithm.
+% * save decision curves
 % set paths
 clear all
 close all
@@ -13,7 +15,7 @@ subs = {subs([subs.isdir]).name};                       %Make list
 subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 
 %% Settings
-overwrite = 0;   % Overwirte old files 0=false or 1=true
+overwrite = 1;   % Overwirte old files 0=false or 1=true
 
 %% Find peaks: testing multiple methods based on the litterature
 % * Correalte epoch pow with N-peaks in epoch base on whole data peak
@@ -184,7 +186,7 @@ for ss = 1:length(subs)
         subvals{f}.bdat = bdat;
         subvals{f}.rho = rho1';
     end
-    save(fullfile(sub_dir,'subvals2.mat'),'subvals')
+%     save(fullfile(sub_dir,'subvals2.mat'),'subvals')
     clear bdat subvals
 end
 disp('done')
