@@ -114,8 +114,8 @@ for ii, sub in enumerate(subjects):
 #                stopSam = raw.last_samp 
 
             # Add one second as buffer for filter [remeber to remove in analysis]
-            startSam = startSam-1000
-            stopSam = stopSam+1000
+#            startSam = startSam-1000
+#            stopSam = stopSam+1000
             
             raw_crop = raw.crop(tmin=(startSam - raw.first_samp ) / raw.info['sfreq'],
                                 tmax=(stopSam - raw.first_samp ) / raw.info['sfreq'])
