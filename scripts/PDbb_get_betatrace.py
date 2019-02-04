@@ -18,7 +18,7 @@ import scipy.io as sio
 
 
 #%% Overwrite
-overwrite = False
+overwrite = True
 
 #%% Paths, etc.
 data_path       = '/home/mikkel/PD_motor/rest_ec/meg_data'         
@@ -48,32 +48,24 @@ for sub in subjects:
         hilb = dict()
         rawtc = dict()
         
+        fname = op.join(data_path,sub,sub+'_'+con+'-dSPM-lh.stc')
+        stc = mne.read_source_estimate(fname)
+        
         for hemi in ['lh','rh']:
-            fname = op.join(data_path,sub,sub+'_'+con+'-dSPM-lh.stc')
-            stc = mne.read_source_estimate(fname)
-            
+
             lab = make_sensorymotorROI(sub, subjects_dir, hemi=hemi) 
 
-            label_tcPCA = stc.extract_label_time_course(lab, src ,mode='pca_flip')[0,:]
-            label_tcPCA  = np.float64(label_tcPCA)
+            label_tc = stc.extract_label_time_course(lab, src ,mode='pca_flip')[0,:]
+            label_tc  = np.float64(label_tc)
 
-            lbftPCA = mne.filter.filter_data(label_tcPCA, 1000, 10, 30, method='iir')
+            lbft = mne.filter.filter_data(label_tc, 1000, 13, 30, method='fir',n_jobs=3)
 
-            analyticPCA = hilbert(lbftPCA)
-            envelopePCA = np.abs(analyticPCA)            
+            analytic = hilbert(lbft)
+            envelope = np.abs(analytic)         
             
-            hilb[hemi] = envelopePCA
-            rawtc[hemi] = label_tcPCA
-#            analyticX = hilbert(lbftX)
-#            envelopeX = np.abs(analyticX)
+            hilb[hemi] = envelope
+            rawtc[hemi] = label_tc
             
-#            plt.plot(t,envelope[0,:],'r-')
-#            plt.plot(t,envelopePCA,'b-')
-#            plt.plot(t,envelopeX,'k-')
-
-#            plt.hist(envelope[0,:],50, alpha=0.5)
-#            plt.hist(envelopePCA,50, alpha=0.5)
-#            plt.hist(envelopeX,50, alpha=0.5)
         if not op.exists(outhilbt) or overwrite:    
             sio.savemat(outhilbt, dict(hilb_rh=hilb['rh'],hilb_lh=hilb['lh']))
         if not op.exists(outrawtc) or overwrite:

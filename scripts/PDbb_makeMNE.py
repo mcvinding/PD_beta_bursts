@@ -82,9 +82,7 @@ for ii, sub in enumerate(subjects):
     noise_cov = read_cov(covFile)    
     
     #### LOOP THROUGH RAWFILES
-    for ff, rawFile in enumerate(rawfiles):
-        
-        #%%
+    for ff, rawFile in enumerate(rawfiles):        
         print(rawFile)
         # Initiate filenames for loading and saving    
         fwdFile = rawFile[:-12]+'-fwd.fif'
@@ -101,10 +99,10 @@ for ii, sub in enumerate(subjects):
             
             if '0327_RsEc1' in rawFile:                 # Missing triggers
                 startSam = 30000+raw.first_samp
-                stopSam = 180102+startSam+raw.first_samp
+                stopSam = 180102+startSam
             elif '0333_RsEc2' in rawFile:               # Missing triggers
                 startSam = 20000+raw.first_samp
-                stopSam = 180102+startSam+raw.first_samp          
+                stopSam = 180102+startSam         
             else:
                 startSam = eve[eve[:,2] == startTrigger,0][0]
 #            except:
@@ -149,7 +147,6 @@ for ii, sub in enumerate(subjects):
         dt = time.time() - t0
         print('Time elapsed: '+str(dt/60.0)+' min')
         
-
 #       Save
         stc_dSPM.save(outFile_dSPM)
 #        stc_MNE.save(outFile_MNE)
