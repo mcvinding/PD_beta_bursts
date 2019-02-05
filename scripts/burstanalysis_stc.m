@@ -17,17 +17,18 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 %% Settings
 overwrite = 1;   % Overwirte old files 0=false or 1=true
 
+steps = 0:0.1:5;
+
 %% Find peaks: testing multiple methods based on the litterature
 % * Correalte epoch pow with N-peaks in epoch base on whole data peak
 %   threshold: both sd and median based cutoffs
 % * Correalte epoch pow with N-peaks in epoch base on epoch based peak
 %   threshold: both sd and median based cutoffs
 
-steps = 0:0.1:5;
-rho1mat = zeros(length(subs),length(steps),2);
-rho2mat = zeros(length(subs),length(steps),2);
-rho3mat = zeros(length(subs),length(steps),2);
-rho4mat = zeros(length(subs),length(steps),2);
+rho1mat = nan(length(subs),length(steps),2);
+rho2mat = nan(length(subs),length(steps),2);
+rho3mat = nan(length(subs),length(steps),2);
+rho4mat = nan(length(subs),length(steps),2);
 
 for ss = 1:length(subs)
     subID = subs{ss};
@@ -39,28 +40,12 @@ for ss = 1:length(subs)
     if exist(outfname,'file') && ~overwrite
         continue
     end
-   
-    % Skip for now
-    if strcmp('0327',subID)
-        continue
-    end
-    % *Sensor level analysis*
-%     file_idx = find(~cellfun(@isempty,strfind(files,'-hil.mat'))); % Name of imported cropped file
-%     infiles = files(file_idx);
-    
-    % Load data... (LOOP HERE)
-%     load(fullfile(sub_dir,infiles{1}));
-    
-    % Select data
-%     cfg = [];
-%     cfg.channel = {'MEG0232+0233', 'MEG0442+0443', 'MEG1622+1623', 'MEG1812+1813'};
-%     cfg.avgoverchan = 'yes';
-%     datachan = ft_selectdata(cfg, data_hilbt);
 
     % *Source level analysis*    
     file_idx = find(~cellfun(@isempty,strfind(files,'-hilbt.mat'))); % Name of imported cropped file
     infiles = files(file_idx);
     infiles = sort(infiles);
+    
     for f = 1:length(infiles)
         fname = infiles{f};
         load(fullfile(sub_dir,fname))
@@ -73,86 +58,59 @@ for ss = 1:length(subs)
     
         % Make pseudo-tirals
         cfg = [];
-        cfg.length  = 4;
+        cfg.length  = 3;
         cfg.overlap = 0;
-        dat = ft_redefinetrial(cfg,lhdata);
+        epo = ft_redefinetrial(cfg,lhdata);
 
-        trl = dat.sampleinfo;
+        trl = epo.sampleinfo;
         trl = trl-trl(1,1)+1; %Corrent for non-zero sample offset
 
-        % Get PSD
-        cfg = [];
-        cfg.method      = 'mtmfft';
-        cfg.taper       = 'hanning';
-        cfg.foilim      = [10 30];
-        cfg.tapsmofrq   = 2;
-        cfg.keeptrials = 'yes';
-        cfg.output = 'pow';
-        pow = ft_freqanalysis(cfg,dat);
-        pow.avgpowspctrm = squeeze(mean(pow.powspctrm,1));
-
-        cfg = [];
-        cfg.avgoverfreq = 'yes';
-        powsum = ft_selectdata(cfg, pow);
-
-        % Plot PSD
-%         plot(pow.freq,pow.avgpowspctrm);
+        % Get epoch power and amplitude
+        epoamp = nan(length(epo.trial),1);
+        epopow = nan(length(epo.trial),1);
+        for k = 1:length(trl)
+            epoamp(k) = mean(epo.trial{k});
+            epopow(k) = mean(epo.trial{k}.^2);
+        end
 
         % Cutoffs
         data = hilb_lh;
-    %     tim = length(data)/1000;
-        pkmat = zeros(length(trl),1);
+        pkmat1 = zeros(length(trl),1);
         pkmat2 = zeros(length(trl),1);
-        pkmat3 = zeros(length(trl),1);
-        pkmat4 = zeros(length(trl),1);
+
         n_events = zeros(length(trl),1);
-%     bdat = struct();
 
         med = median(data);
         sd = std(data);
 
-        rho1 = zeros(length(steps),1);
-        rho2 = zeros(length(steps),1);
-        rho3 = zeros(length(steps),1);
-        rho4 = zeros(length(steps),1);
+        rho1 = nan(length(steps),1);
+        rho2 = nan(length(steps),1);
+        rho3 = nan(length(steps),1);
+        rho4 = nan(length(steps),1);
     
         bdat = struct();
-        for i = 1:length(steps)
-            burst = data >= med+sd*steps(i);   
-            burst2 = data >= med+med*steps(i);
+        for ii = 1:length(steps)
+            burst = data >= med+sd*steps(ii);   
+            burst2 = data >= med+med*steps(ii);
 
             for k = 1:length(trl)
+                % Little et al (2018)
                 tmp = burst(trl(k,1):trl(k,2));
-                pkmat(k) = sum((diff(tmp)==1));
+                pkmat1(k) = sum((diff(tmp)==1));
 
                 % units of median (cf. Chin et al)
                 tmp2 = burst2(trl(k,1):trl(k,2));
-                pkmat3(k) = sum((diff(tmp2)==1)); 
+                pkmat2(k) = sum((diff(tmp2)==1));
 
-                % Single tiral median
-                tmpdat = data(trl(k,1):trl(k,2));
-                tmpmed = median(tmpdat);
-                tmpsd = std(tmpdat);
-                tmpbst = tmpdat >= tmpmed+tmpsd*steps(i);
-%                 tim = 1:length(tmpdat);
-
-                pkmat2(k) = sum((diff(tmpbst)==1));
-
-                tmpbst2 = tmpdat >= tmpmed+tmpmed*steps(i);
-                pkmat4(k) = sum((diff(tmpbst2)==1));
-
-    %             plot(tim,tmpdat); hold on
-    %             plot(tim(tmpbst),tmpdat(tmpbst),'r');
-    %             plot(tim(tmp),tmpdat(tmp),'g');
             end
-            rho1(i) = corr(pkmat,powsum.powspctrm);
-            rho2(i) = corr(pkmat2,powsum.powspctrm);
-            rho3(i) = corr(pkmat3,powsum.powspctrm);
-            rho4(i) = corr(pkmat4,powsum.powspctrm);
+            rho1(ii) = corr(pkmat1, epoamp);
+            rho2(ii) = corr(pkmat2, epoamp);
+            rho3(ii) = corr(pkmat1, epopow);
+            rho4(ii) = corr(pkmat2, epopow);
         
             % Get summaries
             dburst = diff([0 burst 0]);
-            n_events(i) = sum(dburst==1);
+            n_events(ii) = sum(dburst==1);
 
             startb  = find(dburst==1);      % Start of burst
             endb    = find(dburst==-1);     % End of burst´
@@ -162,24 +120,18 @@ for ss = 1:length(subs)
                 error('negative length')
             end
 
-            evelen   = blen/dat.fsample;      % Length of burst is seconds  
+            evelen   = blen/epo.fsample;      % Length of burst is seconds  
 
             % Arrange data
-            bdat(i).begsam = startb;
-            bdat(i).endsam = endb;
-            bdat(i).evelen = evelen;
+            bdat(ii).begsam = startb;
+            bdat(ii).endsam = endb;
+            bdat(ii).evelen = evelen;
         end
         
         rho1mat(ss,:,f) = rho1;
         rho2mat(ss,:,f) = rho2;
         rho3mat(ss,:,f) = rho3;
         rho4mat(ss,:,f) = rho4;
-        
-%         if any(strfind(fname,'RsEc1'))
-%             ses = 'ses1'
-%         elseif any(strfind(fname,'RsEc2'))
-%             ses = 'ses2'
-%         end
     
         % Combine summary values in struct as save
         subvals{f}.steps = steps;
@@ -189,14 +141,15 @@ for ss = 1:length(subs)
 %     save(fullfile(sub_dir,'subvals2.mat'),'subvals')
     clear bdat subvals
 end
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/rhomats.mat','rho1mat','rho2mat','rho3mat','rho4mat')
 disp('done')
 
 %% Compare methods
 
-plot(steps,mean(rho1mat)); hold on
-plot(steps,mean(rho2mat),'r'); 
-plot(steps,mean(rho3mat),'k'); 
-plot(steps,mean(rho4mat),'m'); hold off
+figure; plot(steps,nanmean(rho1mat,3));
+figure; plot(steps,nanmean(rho2mat,3)); 
+figure; plot(steps,nanmean(rho3mat,3)); 
+figure; plot(steps,nanmean(rho4mat,3)); 
 
 plot(steps,rho1mat); 
 
@@ -227,8 +180,8 @@ plot(tim,data); hold on
 plot(tim(burst),burstdat, 'r');
 mline = refline([0 med]);
 mline.Color = 'r';
-for i = 1:5
-    sdline = refline([0 med+sd*i]);
+for ii = 1:5
+    sdline = refline([0 med+sd*ii]);
     sdline.Color = 'g';
 end
 
