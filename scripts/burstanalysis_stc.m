@@ -145,16 +145,23 @@ save('/home/mikkel/PD_motor/rest_ec/groupanalysis/rhomats.mat','rho1mat','rho2ma
 disp('done')
 
 %% Compare methods
+% Load data
+load('/home/mikkel/PD_motor/rest_ec/groupanalysis/rhomats.mat')
+disp('done')
+
+% Rho1: sd based threshold ~ mean amplitude of epoch
+% Rho2: median based threshold ~ mean amplitude of epoch
+% Rho3: sd based threshold ~ mean power (amp^2) of epoch
+% Rho4: median based threshold ~ mean power (amp^2) of epoch
 
 figure; plot(steps,nanmean(rho1mat,3));
 figure; plot(steps,nanmean(rho2mat,3)); 
 figure; plot(steps,nanmean(rho3mat,3)); 
 figure; plot(steps,nanmean(rho4mat,3)); 
 
-plot(steps,rho1mat); 
 
-rhoavg = mean(rho3mat)
-rhosd = std(rho1mat)
+rhoavg = nanmean(nanmean(rho1mat,3));
+rhosd = nanstd(nanmean(rho1mat,3));
 
 plot(steps,rhoavg); hold on
 plot(steps,rhoavg+rhosd, 'b--')
