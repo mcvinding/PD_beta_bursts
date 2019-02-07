@@ -14,26 +14,23 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 [PD_subs, PDidx] = intersect(subs,subjs.PD);
 [ctrl_subs, ctrlidx] = intersect(subs, subjs.ctrl);
 
+%% Load threshold 
+
 %% N tirals
 steps = subvals{1}.steps;
-nevent = nan(length(subs), 51);   % subjects x number of steps
+nevent1 = nan(length(subs), 1);
+nevent2 = nan(length(subs), 1);
 
 for ii = 1:length(subs)
-    % Skip for now
-    if strcmp('0327',subs{ii})
-        continue
-    end
     load(fullfile(dirs.megDir,subs{ii},'subvals2.mat'))
     
-    for j = 1:length(subvals{1}.steps)
-        nevent(ii,j) = length(subvals{1}.bdat(j).evelen);
-    end
-%     clear subvals
+    nevent1(ii) = subvals{1}.n_events;
+    nevent2(ii) = subvals{1}.n_events;
 end
 
-lala = nanmean(nevent)
-PDn = nevent(PDidx,:);
-ctrln = nevent(ctrlidx,:);
+lala = nanmean(nevent1)
+PDn = nevent1(PDidx,:);
+ctrln = nevent1(ctrlidx,:);
 
 PDnavg = nanmean(PDn)
 ctrlnavg = nanmean(ctrln)
@@ -51,13 +48,12 @@ plot(steps,ctrlnavg,'ob-'); hold off
 % 
 % plot(steps,pt)
 
-h1 = histogram(PDn(:,17),20); hold on
-h2 = histogram(ctrln(:,17),20);
+h1 = histogram(PDn,20); hold on
+h2 = histogram(ctrln,20); hold off
 
-
-mns = [PDnavg(17), ctrlnavg(17)];
-sds = [PDnsd(17), ctrlnsd(17)];
-sem = [PDnsd(17)/sqrt(length(PD_subs)), ctrlnsd(17)/sqrt(length(ctrl_subs))];
+mns = [PDnavg, ctrlnavg];
+sds = [PDnsd, ctrlnsd];
+sem = [PDnsd/sqrt(length(PD_subs)), ctrlnsd/sqrt(length(ctrl_subs))];
 
 figure; hold on
 bar(1:2,mns,0.6,'b','grouped')
@@ -65,8 +61,8 @@ errorbar(1:2,mns,sem*2,'r.')
 set(gca,'xtick',[])
 
 %% Duration
-lenmean = zeros(length(subs), 51);   % subjects x number of steps
-lenmedn = zeros(length(subs), 51);   % subjects x number of steps
+lenmean = zeros(length(subs), 1);   % subjects x number of steps
+lenmedn = zeros(length(subs), 1);   % subjects x number of steps
 
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))

@@ -1,18 +1,19 @@
 function [cutoff] = find_threshold(rhomat, steps, plots)
 % USE: [cutoff] = find_threshold(rhomat, steps, plots);
-%
-% rhomat =  N subjects x M steps (x J repetitions). Repetitions are averaged
-%           per subject before averagining across all subjects.
-% steps =   range of steps used for testing thresholds [Mx1].
+% Args:
+% rhomat = N subjects x M steps (x J repetitions). Repetitions are averaged
+%          per subject before averagining across all subjects.
+% steps  = range of steps used for testing thresholds [Mx1].
+% plots  = [logical] Plot curves steps x rho (default=0)
 
 if nargin < 3
     plots = 0;
 end
 
-dim = size(rho1mat);
+dim = size(rhomat);
 if length(dim) == 3
     fprintf('Assuming repeated measures across subjects:\n   Averaging %i repetitions per unit\n', dim(3))
-    rhomat = nammean(rhomat,3);
+    rhomat = nanmean(rhomat,3);
 elseif length(dim) > 3
     error('Cannot handle input with %i dimensions.', length(dim))
 end
