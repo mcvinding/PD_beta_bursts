@@ -17,43 +17,66 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 %% Load threshold 
 
 %% N tirals
+load(fullfile(dirs.megDir,subs{1},'subvals2.mat'))
+
 steps = subvals{1}.steps;
-nevent1 = nan(length(subs), 1);
-nevent2 = nan(length(subs), 1);
+nevent1 = nan(length(subs), length(steps));
+nevent2 = nan(length(subs), length(steps));
 
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals2.mat'))
     
-    nevent1(ii) = subvals{1}.n_events;
-    nevent2(ii) = subvals{1}.n_events;
+    for j = 1:length(steps)
+        nevent1(ii,:) = subvals{1}.n_events;
+        nevent2(ii,:) = subvals{2}.n_events;
+    end
 end
 
-lala = nanmean(nevent1)
-PDn = nevent1(PDidx,:);
-ctrln = nevent1(ctrlidx,:);
+PDn1 = nevent1(PDidx,:);
+ctrln1 = nevent1(ctrlidx,:);
+PDn2 = nevent2(PDidx,:);
+ctrln2 = nevent2(ctrlidx,:);
 
-PDnavg = nanmean(PDn)
-ctrlnavg = nanmean(ctrln)
-PDnsd = nanstd(PDn)
-ctrlnsd = nanstd(ctrln)
+PDnavg1 = nanmean(PDn1)
+ctrlnavg1 = nanmean(ctrln1)
+PDnsd1 = nanstd(PDn1)
+ctrlnsd1 = nanstd(ctrln1)
 
-plot(steps,lala,'o-')
+PDnavg2 = nanmean(PDn2)
+ctrlnavg2 = nanmean(ctrln2)
+PDnsd2 = nanstd(PDn2)
+ctrlnsd2 = nanstd(ctrln2)
 
-plot(steps,PDnavg,'or-'); hold on
-plot(steps,ctrlnavg,'ob-'); hold off
+% plot(steps,lala,'o-')
 
-% for i = 1:length(steps)
-%     [~, pt(i),~,t] = ttest2(PDn(:,i),ctrln(:,i));
-% end
-% 
-% plot(steps,pt)
+figure
+plot(steps,log(PDnavg1),'or-'); hold on
+plot(steps,log(ctrlnavg1),'ob-'); 
+plot(steps,log(PDnavg2),'xr-');
+plot(steps,log(ctrlnavg2),'xb-'); hold off
 
-h1 = histogram(PDn,20); hold on
-h2 = histogram(ctrln,20); hold off
+figure
+plot(steps,PDnavg1,'or-'); hold on
+plot(steps,ctrlnavg1,'ob-'); 
+plot(steps,PDnavg2,'xr-');
+plot(steps,ctrlnavg2,'xb-'); hold off
 
-mns = [PDnavg, ctrlnavg];
-sds = [PDnsd, ctrlnsd];
-sem = [PDnsd/sqrt(length(PD_subs)), ctrlnsd/sqrt(length(ctrl_subs))];
+for i = 1:length(steps)
+    [~, pt1(i),~,t] = ttest2(PDn1(:,i),ctrln1(:,i));
+    [~, pt2(i),~,t] = ttest2(PDn2(:,i),ctrln2(:,i));
+end
+
+figure;
+plot(steps,pt1, 'b'); hold on
+plot(steps,pt2, 'r'); hold on
+
+figure
+h1 = histogram(PDn1(:,17),10); hold on
+h2 = histogram(ctrln1(:,17),10); hold off
+
+mns = [PDnavg1, ctrlnavg1];
+sds = [PDnsd1, ctrlnsd1];
+sem = [PDnsd1/sqrt(length(PD_subs)), ctrlnsd1/sqrt(length(ctrl_subs))];
 
 figure; hold on
 bar(1:2,mns,0.6,'b','grouped')

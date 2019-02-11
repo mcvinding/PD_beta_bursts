@@ -11,11 +11,11 @@ function [output, rhomat] = find_betaevents(cfg, data)
 % cfg.cutofftype    = ['sd'/'med'] Should cutoff be determined relative to
 %                     x*standard deviations away from median (Little et al, 2018)
 %                     or x*medians away from median (Shin et al. 2016).
-%                     Default = 'sd'.
+%                     Default = 'med'.
 % cfg.corrtype      = ['amp'/'pow'] What to correalte: amplitude of epochs
 %                     vs. number of events or power (amp^2) of epoch vs.
 %                     number of beta events (Little et al, 2018).
-%                     Default='amp'. 
+%                     Default='amp'.
 % cfg.length        = [num] length of epoch window in seconds (default=3)
 % cfg.overlap       = [num] overlap between epochs (default=0, i.e. no overlap)
 
@@ -26,9 +26,7 @@ function [output, rhomat] = find_betaevents(cfg, data)
 cfg = ft_checkconfig(cfg, 'required', 'steps');
 steps = cfg.steps;
 
-cfg.length      = ft_getopt(cfg, 'length', 3);
-cfg.overlap     = ft_getopt(cfg, 'overlap', 0);
-cfg.cutofftype  = ft_getopt(cfg, 'cutofftype', 'sd');
+cfg.cutofftype  = ft_getopt(cfg, 'cutofftype', 'med');
 cfg.corrtype    = ft_getopt(cfg, 'corrtype', 'amp');
 
 % Check variables
@@ -40,7 +38,9 @@ if ~any(strcmp({'amp','pow'}, cfg.corrtype))
     error('Unknown cutoff method \"%s\".',cfg.cutofftype)
 end
 
-% Make pseudo-tirals
+% Make pseudo-tirals.
+cfg.length      = ft_getopt(cfg, 'length', 3);
+cfg.overlap     = ft_getopt(cfg, 'overlap', 0);
 epo = ft_redefinetrial(cfg, data);
 
 trl = epo.sampleinfo;
@@ -65,12 +65,15 @@ bdat = struct();
 dat = data.trial{:};
 med = median(dat);
 sd = std(dat);
+fprintf('Median of time-series: %.3f. sd: %.3f.\n', med, sd)
 
 for ii = 1:length(steps)
     if strcmp(cfg.cutofftype, 'sd')
-        burst = dat >= med+sd*steps(ii);   
+        cutoff = med+sd*steps(ii);
+        burst = dat >= cutoff;   
     elseif strcmp(cfg.cutofftype, 'med')
-        burst = dat >= med+med*steps(ii);
+        cutoff = med+med*steps(ii);
+        burst = dat >= cutoff;
     end
 
     for k = 1:length(trl)
@@ -94,7 +97,7 @@ for ii = 1:length(steps)
     blen    = endb-startb;          % Length of burst
 
     if any(blen<0)
-        error('negative length')
+        error('negative length of event')
     end
 
     evelen   = blen/data.fsample;      % Length of burst is seconds  
@@ -103,6 +106,7 @@ for ii = 1:length(steps)
     bdat(ii).begsam = startb;
     bdat(ii).endsam = endb;
     bdat(ii).evelen = evelen;
+    bdat(ii).cutoff = cutoff;
 end
 
 % Make output

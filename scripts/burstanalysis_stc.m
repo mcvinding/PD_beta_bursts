@@ -1,6 +1,5 @@
-% Get beta bursts
-% * Clean up: decide on cutoff algorithm.
-% * save decision curves
+% Get beta bursts: 1) find threshold 2) use threshold to determine beta
+% events.
 % set paths
 clear all
 close all
@@ -89,7 +88,7 @@ cutoff_mdpow = find_threshold(rho_mdpow, steps, 1); title('med pow')
 cfg = [];
 cfg.length      = 3;
 cfg.overlap     = 0;
-cfg.steps       = cutoff_sdamp;
+cfg.steps       = steps;
 cfg.corrtype    = 'amp';
 cfg.cutofftype  = 'sd'; 
         
@@ -102,7 +101,7 @@ for ss = 1:length(subs)
     file_idx = find(~cellfun(@isempty,strfind(files,'-hilbt.mat'))); % Name of imported cropped file
     infiles = files(file_idx);
     infiles = sort(infiles);
-    outfname = fullfile(sub_dir,'subvals2.mat');
+    outfname = fullfile(sub_dir,'subvalsSD.mat');
     if exist(outfname,'file') && ~overwrite
         continue
     end
