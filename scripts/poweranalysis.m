@@ -87,11 +87,17 @@ ctrl_dat2 = ctrl_dat2(~cellfun(@isempty,ctrl_dat2));
 
 %% Intermediate t-tests
 
-
 [h,p] = ttest2(log(ptns_relpow1),log(ctrl_relpow1))
 [h,p] = ttest2(log(ptns_relpow2),log(ctrl_relpow2))
 [h,p] = ttest(log(ptns_relpow1),log(ptns_relpow2))
 [h,p] = ttest(log(ctrl_relpow1),log(ctrl_relpow2))
+
+% Plot histograms
+figure; hold on
+subplot(1,2,1); h1 = histogram(log(ptns_relpow1),20); hold on
+subplot(1,2,1); h2 = histogram(log(ctrl_relpow1),20);
+subplot(1,2,2); h3 = histogram(log(ptns_relpow2),20); hold on 
+subplot(1,2,2); h4 = histogram(log(ctrl_relpow2),20);
 
 %% grand average
 cfg = [];
@@ -106,6 +112,7 @@ plot(GA_ptns1.freq,log(GA_ptns1.powspctrm),'b-')
 plot(GA_ptns2.freq,log(GA_ptns2.powspctrm),'b--')
 plot(GA_ctrl1.freq,log(GA_ctrl1.powspctrm),'r-')
 plot(GA_ctrl2.freq,log(GA_ctrl2.powspctrm),'r--'); hold off
+
 % 
 %     plot(pow.freq,pow.powspctrm); hold on;
 %     area(pow.freq(51:119),pow.powspctrm(51:119))
@@ -126,7 +133,6 @@ cfg.alpha               = .025;
 result1 = ft_freqstatistics(cfg, ptns_dat1{:}, ctrl_dat1{:});
 result2 = ft_freqstatistics(cfg, ptns_dat2{:}, ctrl_dat2{:});
 
-
 cfg.statistic = 'ft_statfun_depsamplesT';
 cfg.design = [ones(length(ptns_dat1),1); ones(length(ptns_dat2),1)*2];
 cfg.design = [cfg.design, repmat(1:length(ptns_dat1),1,2)'];
@@ -138,7 +144,6 @@ result_ptns = ft_freqstatistics(cfg, ptns_dat1{:}, ptns_dat2{:});
 cfg.design = [ones(length(ctrl_dat1),1); ones(length(ctrl_dat1),1)*2];
 cfg.design = [cfg.design, repmat(1:length(ctrl_dat1),1,2)'];
 result_ctrl = ft_freqstatistics(cfg, ctrl_dat1{:}, ctrl_dat2{:});
-
 
 
 
