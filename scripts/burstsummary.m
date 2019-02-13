@@ -16,26 +16,35 @@ subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 
 %% Load threshold 
 
-%% N tirals
+%% N events
 load(fullfile(dirs.megDir,subs{1},'subvals2.mat'))
 
 steps = subvals{1}.steps;
-nevent1 = nan(length(subs), length(steps));
-nevent2 = nan(length(subs), length(steps));
+nevent1sd = nan(length(subs), length(steps));
+nevent2sd = nan(length(subs), length(steps));
+nevent1md = nan(length(subs), length(steps));
+nevent2md = nan(length(subs), length(steps));
 
 for ii = 1:length(subs)
-    load(fullfile(dirs.megDir,subs{ii},'subvals2.mat'))
+    load(fullfile(dirs.megDir,subs{ii},'subvalsSD.mat'))
     
     for j = 1:length(steps)
-        nevent1(ii,:) = subvals{1}.n_events;
-        nevent2(ii,:) = subvals{2}.n_events;
+        nevent1sd(ii,:) = subvals{1}.bdat(j).cutoff;
+        nevent2sd(ii,:) = subvals{2}.n_events;
+    end
+    
+    load(fullfile(dirs.megDir,subs{ii},'subvalsMED.mat'))
+    
+    for j = 1:length(steps)
+        nevent1md(ii,:) = subvals{1}.n_events;
+        nevent2md(ii,:) = subvals{2}.n_events;
     end
 end
 
-PDn1 = nevent1(PDidx,:);
-ctrln1 = nevent1(ctrlidx,:);
-PDn2 = nevent2(PDidx,:);
-ctrln2 = nevent2(ctrlidx,:);
+PDn1 = nevent1sd(PDidx,:);
+ctrln1 = nevent1sd(ctrlidx,:);
+PDn2 = nevent2sd(PDidx,:);
+ctrln2 = nevent2sd(ctrlidx,:);
 
 PDnavg1 = nanmean(PDn1)
 ctrlnavg1 = nanmean(ctrln1)
@@ -83,7 +92,7 @@ bar(1:2,mns,0.6,'b','grouped')
 errorbar(1:2,mns,sem*2,'r.')
 set(gca,'xtick',[])
 
-%% Duration
+%% Event duration
 lenmean = zeros(length(subs), 1);   % subjects x number of steps
 lenmedn = zeros(length(subs), 1);   % subjects x number of steps
 
@@ -154,12 +163,9 @@ errorbar(1:2,mns,sem*2,'r.')
 set(gca,'xtick',[])
 
 %% Time to next event
-%% Duration
 toemedn = zeros(length(subs), 51);   % subjects x number of steps
 toemean = zeros(length(subs), 51);   % subjects x number of steps
 
-
-    
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
@@ -210,4 +216,11 @@ set(gca,'xtick',[])
 
 
 
-hist(
+hist()
+
+%% Max peak in events
+
+
+
+
+%% 

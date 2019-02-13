@@ -88,20 +88,20 @@ cutoff_mdpow = find_threshold(rho_mdpow, steps, 1); title('med pow')
 cfg = [];
 cfg.length      = 3;
 cfg.overlap     = 0;
-cfg.steps       = steps;
+cfg.steps       = cutoff_mdamp;
 cfg.corrtype    = 'amp';
-cfg.cutofftype  = 'sd'; 
-        
+cfg.cutofftype  = 'med'; 
+
 for ss = 1:length(subs)
-    subvals = [];
-    subID = subs{ss};
-    sub_dir = fullfile(dirs.megDir,subID);
-    files = dir(sub_dir);
-    files = {files.name};
+    subvals  = [];
+    subID    = subs{ss};
+    sub_dir  = fullfile(dirs.megDir,subID);
+    files    = dir(sub_dir);
+    files    = {files.name};
     file_idx = find(~cellfun(@isempty,strfind(files,'-hilbt.mat'))); % Name of imported cropped file
-    infiles = files(file_idx);
-    infiles = sort(infiles);
-    outfname = fullfile(sub_dir,'subvalsSD.mat');
+    infiles  = files(file_idx);
+    infiles  = sort(infiles);
+    outfname = fullfile(sub_dir,'subvals.mat');
     if exist(outfname,'file') && ~overwrite
         continue
     end
@@ -111,13 +111,12 @@ for ss = 1:length(subs)
         load(fullfile(sub_dir,fname))
         
         % Make ft style data
-        lhdata.trial = {[hilb_lh]};
-        lhdata.time = {[1:length(hilb_lh)]};
-        lhdata.label = {'lh_roi'};
+        lhdata.trial   = {hilb_lh};
+        lhdata.time    = {1:length(hilb_lh)};
+        lhdata.label   = {'lh_roi'};
         lhdata.fsample = 1000;
 
         [subvals{f}] = find_betaevents(cfg,lhdata);
     end
     save(outfname,'subvals')
-    clear subvals
 end

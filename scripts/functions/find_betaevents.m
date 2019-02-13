@@ -18,6 +18,9 @@ function [output, rhomat] = find_betaevents(cfg, data)
 %                     Default='amp'.
 % cfg.length        = [num] length of epoch window in seconds (default=3)
 % cfg.overlap       = [num] overlap between epochs (default=0, i.e. no overlap)
+%
+% OUTPUT:
+% ...
 
 % TO DO:
 % * Need a ft_checkdata section.
@@ -87,7 +90,7 @@ for ii = 1:length(steps)
     elseif strcmp('pow', cfg.corrtype)
         rhomat(ii) = corr(pkmat, epopow);
     end
-        
+    
     % Get summaries
     dburst = diff([0 burst 0]);
     n_events(ii) = sum(dburst==1);
