@@ -7,14 +7,10 @@ addpath /home/mikkel/PD_motor/global_scripts
 
 cd(dirs.megDir);
 
-subs = dir(dirs.megDir);                                %Find subjects in folder
-subs = {subs([subs.isdir]).name};                       %Make list
-subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
+subs = find_subs(dirs.megDir);                                %Find subjects in folder
 
 [PD_subs, PDidx] = intersect(subs,subjs.PD);
 [ctrl_subs, ctrlidx] = intersect(subs, subjs.ctrl);
-
-%% Load threshold 
 
 %% N events
 nevent1 = nan(length(subs), 1);
@@ -55,27 +51,34 @@ h2 = histogram(ctrln1,10); hold off
 mns = [PDnavg1, ctrlnavg1; PDnavg2, ctrlnavg2];
 sds = [PDnsd1, ctrlnsd1; PDnsd2, ctrlnsd2];
 
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/nevent.mat', ...
+    'PDn1', 'ctrln1', 'PDn2', 'ctrln2','PD_subs','ctrl_subs');
+
 %% Event duration
 lenmean1 = zeros(length(subs), 1);   % subjects x number of steps
 lenmedn1 = zeros(length(subs), 1);   % subjects x number of steps
 lenmean2 = zeros(length(subs), 1);   % subjects x number of steps
 lenmedn2 = zeros(length(subs), 1);   % subjects x number of steps
 
+len1 = [];
+len2 = [];
+sub1 = [];
+sub2 = [];
+
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
-    len1 = subvals{1}.bdat.evelen;
-    len2 = subvals{2}.bdat.evelen;
+    len1 = [len1 subvals{1}.bdat.evelen];
+    len2 = [len2 subvals{2}.bdat.evelen];
+    
+    sub1 = [sub1; repmat(subs{ii},length(subvals{1}.bdat.evelen),1)];
+    sub2 = [sub2; repmat(subs{ii},length(subvals{2}.bdat.evelen),1)];
 
     lenmedn1(ii) = median(subvals{1}.bdat.evelen);
     lenmean1(ii) = mean(subvals{1}.bdat.evelen);
     lenmedn2(ii) = median(subvals{2}.bdat.evelen);
     lenmean2(ii) = mean(subvals{2}.bdat.evelen);
 end
-
-
-mean(lenmean1)
-mean(lenmedn1)
 
 PDlenmn1 = lenmedn1(PDidx);
 ctrllenmn1 = lenmedn1(ctrlidx);
@@ -87,88 +90,108 @@ ctrllenavg1 = mean(ctrllenmn1);
 PDlenavg2 = mean(PDlenmn2);
 ctrllenavg2 = mean(ctrllenmn2);
 
+PDlensd1 = std(PDlenmn1);
+ctrllensd1 = std(ctrllenmn1);
+PDlensd2 = std(PDlenmn2);
+ctrllensd2 = std(ctrllenmn2);
+
 figure; 
 subplot(1,2,1); histogram(PDlenmn1,20); hold on
 subplot(1,2,1); histogram(ctrllenmn1,20); hold off
 subplot(1,2,2); histogram(PDlenmn2,20); hold on
 subplot(1,2,2); histogram(ctrllenmn2,20); hold off
 
-
+% Pooled errors t-test
 [~, pt1,~,t1] = ttest2(PDlenmn1,ctrllenmn1);
 [~, pt2,~,t2] = ttest2(PDlenmn2,ctrllenmn2);
-[~, ptPt,~,tPt] = ttest2(PDlenmn1,PDlenmn2);
-[~, ptCt,~,tCt] = ttest2(ctrllenmn1,ctrllenmn2);
+[~, ptPt,~,tPt] = ttest(PDlenmn1,PDlenmn2);
+[~, ptCt,~,tCt] = ttest(ctrllenmn1,ctrllenmn2);
 
-
-
-mns = [PDlenavg1, ctrllenavg1; ];
-sds = [PDlensd(17), ctrllensd(17)];
-sem = [PDlensd(17)/sqrt(length(PD_subs)), ctrllensd(17)/sqrt(length(ctrl_subs))];
+mns = [PDlenavg1, ctrllenavg1; PDlenavg2, ctrllenavg2];
+sds = [PDlensd1, ctrllensd1; PDlensd2, ctrllensd2];
 
 figure; hold on
 bar(1:2,mns,0.6,'b','grouped')
-errorbar(1:2,mns,sem*2,'r.')
 set(gca,'xtick',[])
 
+% Save for export
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/lenevent.mat', ...
+    'len1', 'len2', 'sub1', 'sub2');
+
 %% Time to next event
-toemedn = zeros(length(subs), 51);   % subjects x number of steps
-toemean = zeros(length(subs), 51);   % subjects x number of steps
+toemedn1 = zeros(length(subs), 1);   % subjects x number of steps
+toemedn2 = zeros(length(subs), 1);   % subjects x number of steps
+
+alltoe1 = [];
+alltoe2 = [];
+sub1 = [];
+sub2 = [];
 
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
-    for j = 1:length(subvals.steps)
-        toe = zeros(length(subvals.bdat{j}.endsam)-1,1);
-        for k = 1:length(subvals.bdat{j}.endsam)-1
-            toe(k) = (subvals.bdat{j}.begsam(k+1)-subvals.bdat{j}.endsam(k))/1000;
-        end
-        toemedn(ii,j) = median(toe);
-        toemean(ii,j) = mean(toe);
+    toe1 = zeros(length(subvals{1}.bdat.endsam)-1,1);
+    toe2 = zeros(length(subvals{2}.bdat.endsam)-1,1);
+
+    for k = 1:length(subvals{1}.bdat.endsam)-1
+        toe1(k) = (subvals{1}.bdat.begsam(k+1)-subvals{1}.bdat.endsam(k))/1000;
     end
-%     clear subvals
+    
+    for k = 1:length(subvals{2}.bdat.endsam)-1
+        toe2(k) = (subvals{2}.bdat.begsam(k+1)-subvals{2}.bdat.endsam(k))/1000;
+    end
+    
+    toemedn1(ii) = median(toe1);
+    toemedn2(ii) = median(toe2);
+    
+    alltoe1 = [alltoe1; toe1];
+    alltoe2 = [alltoe2; toe2];
+    
+    sub1 = [sub1; repmat(subs{ii},length(toe1),1)];
+    sub2 = [sub2; repmat(subs{ii},length(toe2),1)];
 end
 
-mean(toemedn)
-mean(toemean)
+PDtoemn1 = toemedn1(PDidx);
+ctrltoemn1 = toemedn1(ctrlidx);
+PDtoemn2 = toemedn2(PDidx);
+ctrltoemn2 = toemedn2(ctrlidx);
 
-figure; hold on
-plot(steps,toemean, 'bo-');
-plot(steps,toemedn, 'rx-'); hold off
+figure
+subplot(1,2,1); histogram(PDtoemn1,10); hold on
+subplot(1,2,1); histogram(ctrltoemn1,10); hold off
+subplot(1,2,2); histogram(PDtoemn2,10); hold on
+subplot(1,2,2); histogram(ctrltoemn2,10); hold off
 
-PDlenmn1 = toemedn(PDidx,:);
-ctrllenmn1 = toemedn(ctrlidx,:);
+PDtoeavg1 = mean(PDtoemn1);
+ctrltoeavg1 = mean(ctrltoemn1);
+PDtoesd1 = std(PDlenmn1);
+ctrltoesd1 = std(ctrllenmn1);
 
-PDlenavg = median(PDlenmn1);
-ctrllenavg = median(ctrllenmn1);
-PDlensd = std(PDlenmn1);
-ctrllensd = std(ctrllenmn1);
+[~, pt1,~,t1] = ttest2(PDtoemn1,ctrltoemn1);
+[~, pt2,~,t2] = ttest2(PDtoemn2,ctrltoemn2);
+[~, ptPt,~,tPt] = ttest(PDtoemn1,PDtoemn2);
+[~, ptCt,~,tCt] = ttest(ctrltoemn1,ctrltoemn2);
 
-figure; hold on
-plot(subvals.steps,PDlenavg,'or-');
-plot(subvals.steps,ctrllenavg,'ob-'); hold off
-
-for ii = 1:length(subvals.steps)
-    [~, pt(ii)] = ttest2(PDlenmn1(:,ii),ctrllenmn1(:,ii));
-end
-figure; plot(subvals.steps,pt)
-
-mns = [PDlenavg(17), ctrllenavg(17)];
-sds = [PDlensd(17), ctrllensd(17)];
-sem = [PDlensd(17)/sqrt(length(PD_subs)), ctrllensd(17)/sqrt(length(ctrl_subs))];
-
-figure; hold on
-bar(1:2,mns,0.6,'b','grouped')
-errorbar(1:2,mns,sem*2,'r.')
-set(gca,'xtick',[])
-
-
-
-
-hist()
+% Save for export
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/ltoeevent.mat', ...
+    'alltoe1', 'alltoe2', 'sub1', 'sub2');
 
 %% Max peak in events
 
+% Load envelope data
+% Apply "event epoch"
+% Find max value
+% Export
 
 
 
-%% 
+
+
+
+
+
+
+
+
+
+
