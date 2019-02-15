@@ -7,11 +7,8 @@ close all
 addpath /home/mikkel/PD_motor/global_scripts
 [dirs, ~, ~] = PD_proj_setup('betaburst');
 
+subs = find_subs(dirs.megDir);                                %Find subjects in folder
 cd(dirs.megDir);
-
-subs = dir(dirs.megDir);                                %Find subjects in folder
-subs = {subs([subs.isdir]).name};                       %Make list
-subs = subs(~(strcmp('.',subs)|strcmp('..',subs)));     %Remove dots
 
 %% Settings
 overwrite = 1;   % Overwirte old files 0=false or 1=true
@@ -91,6 +88,8 @@ cfg.overlap     = 0;
 cfg.steps       = cutoff_mdamp;
 cfg.corrtype    = 'amp';
 cfg.cutofftype  = 'med'; 
+cfg.halfmax     = 'mixed';
+cfg.makeplot    = 'yes';
 
 for ss = 1:length(subs)
     subvals  = [];
