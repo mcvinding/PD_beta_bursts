@@ -6,7 +6,6 @@ addpath /home/mikkel/PD_motor/global_scripts
 [dirs, subjs, ~] = PD_proj_setup('betaburst');
 
 cd(dirs.megDir);
-
 subs = find_subs(dirs.megDir);                                %Find subjects in folder
 
 [PD_subs, PDidx] = intersect(subs,subjs.PD);
@@ -44,9 +43,11 @@ ctrlnsd2 = nanstd(ctrln2);
 [~, ptCt,~,tCt] = ttest(ctrln1,ctrln2);
 
 
-figure
-h1 = histogram(PDn1,10); hold on
-h2 = histogram(ctrln1,10); hold off
+figure;
+subplot(1,2,1); histogram(PDn1,10); hold on
+subplot(1,2,1); histogram(ctrln1,10); hold off
+subplot(1,2,2); histogram(PDn2,10); hold on
+subplot(1,2,2); histogram(ctrln2,10); hold off
 
 mns = [PDnavg1, ctrlnavg1; PDnavg2, ctrlnavg2];
 sds = [PDnsd1, ctrlnsd1; PDnsd2, ctrlnsd2];
@@ -68,8 +69,8 @@ sub2 = [];
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
-    len1 = [len1 subvals{1}.bdat.evelen];
-    len2 = [len2 subvals{2}.bdat.evelen];
+    len1 = [len1; subvals{1}.bdat.evelen];
+    len2 = [len2; subvals{2}.bdat.evelen];
     
     sub1 = [sub1; repmat(subs{ii},length(subvals{1}.bdat.evelen),1)];
     sub2 = [sub2; repmat(subs{ii},length(subvals{2}.bdat.evelen),1)];
@@ -130,15 +131,15 @@ sub2 = [];
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
-    toe1 = zeros(length(subvals{1}.bdat.endsam)-1,1);
-    toe2 = zeros(length(subvals{2}.bdat.endsam)-1,1);
+    toe1 = zeros(length(subvals{1}.bdat.event-1),1);
+    toe2 = zeros(length(subvals{2}.bdat.event-1),1);
 
-    for k = 1:length(subvals{1}.bdat.endsam)-1
-        toe1(k) = (subvals{1}.bdat.begsam(k+1)-subvals{1}.bdat.endsam(k))/1000;
+    for k = 1:length(subvals{1}.bdat.event)-1
+        toe1(k) = (subvals{1}.bdat.event(k+1,1)-subvals{1}.bdat.event(k,2))/1000;
     end
     
-    for k = 1:length(subvals{2}.bdat.endsam)-1
-        toe2(k) = (subvals{2}.bdat.begsam(k+1)-subvals{2}.bdat.endsam(k))/1000;
+    for k = 1:length(subvals{2}.bdat.event)-1
+        toe2(k) = (subvals{2}.bdat.event(k+1,1)-subvals{2}.bdat.event(k,2))/1000;
     end
     
     toemedn1(ii) = median(toe1);
@@ -173,25 +174,66 @@ ctrltoesd1 = std(ctrllenmn1);
 [~, ptCt,~,tCt] = ttest(ctrltoemn1,ctrltoemn2);
 
 % Save for export
-save('/home/mikkel/PD_motor/rest_ec/groupanalysis/ltoeevent.mat', ...
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/toevent.mat', ...
     'alltoe1', 'alltoe2', 'sub1', 'sub2');
 
 %% Max peak in events
+maxmedn1 = zeros(length(subs), 1);   % subjects x number of steps
+maxmedn2 = zeros(length(subs), 1);   % subjects x number of steps
 
-% Load envelope data
-% Apply "event epoch"
-% Find max value
-% Export
+max1 = [];
+max2 = [];
+sub1 = [];
+sub2 = [];
+
+for ii = 1:length(subs)
+    load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
+    
+    max1 = [max1; subvals{1}.bdat.maxpk];
+    max2 = [max2; subvals{2}.bdat.maxpk];
+    
+    sub1 = [sub1; repmat(subs{ii},length(subvals{1}.bdat.maxpk),1)];
+    sub2 = [sub2; repmat(subs{ii},length(subvals{2}.bdat.maxpk),1)];
+
+    maxmedn1(ii) = median(subvals{1}.bdat.maxpk);
+    maxmedn2(ii) = median(subvals{2}.bdat.maxpk);
+    
+    % Save pkidx for reading and plotting in MNE-Py
+    maxidx1 = subvals{1}.bdat.maxidx;
+    maxidx2 = subvals{2}.bdat.maxidx;
+    save(fullfile(dirs.megDir,subs{ii},'pkidx1.mat'),'maxidx1')
+    save(fullfile(dirs.megDir,subs{ii},'pkidx2.mat'),'maxidx2')
+end
 
 
+PDmaxmn1 = maxmedn1(PDidx);
+ctrlmaxmn1 = maxmedn1(ctrlidx);
+PDmaxmn2 = maxmedn2(PDidx);
+ctrlmaxmn2 = maxmedn2(ctrlidx);
+
+PDlenavg1 = mean(PDmaxmn1);
+ctrllenavg1 = mean(ctrlmaxmn1);
+PDlenavg2 = mean(PDmaxmn2);
+ctrllenavg2 = mean(ctrlmaxmn2);
+
+PDlensd1 = std(PDmaxmn1);
+ctrllensd1 = std(ctrlmaxmn1);
+PDlensd2 = std(PDmaxmn2);
+ctrllensd2 = std(ctrlmaxmn2);
+
+figure; 
+subplot(1,2,1); histogram(PDmaxmn1,10); hold on
+subplot(1,2,1); histogram(ctrlmaxmn1,10); hold off
+subplot(1,2,2); histogram(PDmaxmn2,10); hold on
+subplot(1,2,2); histogram(ctrlmaxmn2,10); hold off
+
+[~, pt1,~,t1] = ttest2(PDmaxmn1,ctrlmaxmn1);
+[~, pt2,~,t2] = ttest2(PDmaxmn2,ctrlmaxmn2);
+[~, ptPt,~,tPt] = ttest(PDmaxmn1,PDmaxmn2);
+[~, ptCt,~,tCt] = ttest(ctrlmaxmn1,ctrlmaxmn2);
+
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/pkmaxevent.mat', ...
+    'alltoe1', 'alltoe2', 'sub1', 'sub2');
 
 
-
-
-
-
-
-
-
-
-
+% END
