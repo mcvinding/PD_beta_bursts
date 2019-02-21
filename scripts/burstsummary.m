@@ -233,7 +233,7 @@ subplot(1,2,2); histogram(ctrlmaxmn2,10); hold off
 [~, ptCt,~,tCt] = ttest(ctrlmaxmn1,ctrlmaxmn2);
 
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/pkmaxevent.mat', ...
-    'alltoe1', 'alltoe2', 'sub1', 'sub2');
+    'max1', 'max2', 'sub1', 'sub2');
 
 
 % END
