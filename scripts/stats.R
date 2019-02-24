@@ -3,9 +3,11 @@ library(BayesFactor)
 library(lme4)
 library(nlme)
 library(multcomp)
+library(brms)
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
 load(file = 'workspace.Rdata')
 
@@ -37,4 +39,18 @@ b <- anovaBF(nevent ~ group*session+subs, whichRandom = "subs", data = neve.data
 summary(b)
 plot(b)
 
-brmod <- brm(bf(nevent ~ group), data = neve.data, family = hurdle_poisson())
+br.nev <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = poisson)
+
+##
+iti.mod1 <- lmer(eve.iti.ms ~ group*session+(1|subs), data = itieve.data)
+
+br.iti <- brm(bf(eve.iti.ms ~ group*session+(1|subs)), data = itieve.data, family = lognormal())
+##
+br.len <- brm(bf(~ group*session+(1|subs)), data = itieve.data, family = poisson)
+##
+#br.max <- brm(bf(~ group*session+(1|subs)), data = itieve.data, family = poisson)
+
+
+
+
+

@@ -57,7 +57,7 @@ subs <- c(temp$sub1,temp$sub2)
 group <- ifelse(subs %in% ptns.subs,'ptns','ctrl')
 session <- c(rep("1",length(temp$max1)),rep("2",length(temp$max2)))
 
-maxeve.data <- data.frame(eve.iti=len,
+maxeve.data <- data.frame(eve.max=maxpk,
                           subs=subs,
                           group=group,
                           session=session)
