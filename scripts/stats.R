@@ -53,10 +53,14 @@ bf10
 bf21
 bf32
 
-br.nev3ga <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = gaussian, save_all_pars = TRUE)
-br.nev2ga <- brm(bf(nevent ~ group+session+(1|subs)), data = neve.data, family = gaussian, save_all_pars = TRUE)
-br.nev1ga <- brm(bf(nevent ~ session+(1|subs)), data = neve.data, family = gaussian, save_all_pars = TRUE)
-br.nev0ga <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = gaussian, save_all_pars = TRUE)
+br.nev3ga <- brm(bf(nevent ~ group*session+(1|subs)), 
+                 data = neve.data, family = gaussian, save_all_pars = TRUE)
+br.nev2ga <- brm(bf(nevent ~ group+session+(1|subs)), 
+                 data = neve.data, family = gaussian, save_all_pars = TRUE)
+br.nev1ga <- brm(bf(nevent ~ session+(1|subs)), 
+                 data = neve.data, family = gaussian, save_all_pars = TRUE)
+br.nev0ga <- brm(bf(nevent ~ 1+(1|subs)), 
+                 data = neve.data, family = gaussian, save_all_pars = TRUE)
 
 bf10ga <- bayes_factor(br.nev1ga,br.nev0ga)
 bf21ga <- bayes_factor(br.nev2ga,br.nev1ga)
@@ -91,17 +95,26 @@ len.mod0 <- lmer(eve.len.ms ~ 1+(1|subs), data = leneve.data, REML = F)
 anova(len.mod0,len.mod1,len.mod2,len.mod3)
 summary(len.mod3)
 
-br.len3 <- brm(bf(eve.len.ms ~ group*session+(1|subs)), data = leneve.data, family = lognormal)
-br.len2 <- brm(bf(eve.len.ms ~ group+session+(1|subs)), data = leneve.data, family = lognormal)
-br.len1 <- brm(bf(eve.len.ms ~ session+(1|subs)), data = leneve.data, family = lognormal)
-br.len0 <- brm(bf(eve.len.ms ~ 1+(1|subs)), data = leneve.data, family = lognormal)
+br.len3 <- brm(bf(eve.len.ms ~ group*session+(1|subs)), 
+               data = leneve.data, family = lognormal, save_all_pars=T)
+br.len2 <- brm(bf(eve.len.ms ~ group+session+(1|subs)), 
+               data = leneve.data, family = lognormal, save_all_pars=T)
+br.len1 <- brm(bf(eve.len.ms ~ session+(1|subs)), 
+               data = leneve.data, family = lognormal, save_all_pars=T)
+br.len0 <- brm(bf(eve.len.ms ~ 1+(1|subs)), 
+               data = leneve.data, family = lognormal, save_all_pars=T)
 
-
+len.bf10 <- bayes_factor(br.len1,br.len0)
+len.bf21 <- bayes_factor(br.len2,br.len1)
+len.bf32 <- bayes_factor(br.len3,br.len2)
 
 ##
 #br.max <- brm(bf(~ group*session+(1|subs)), data = itieve.data, family = poisson)
 
 
 
+qqnorm(resid(len.mod3))
+qqline(resif(len.mod3))
+       
 
-
+save.image(file='workspace.Rdata')
