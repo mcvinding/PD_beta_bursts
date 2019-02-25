@@ -16,3 +16,27 @@ nplt <- ggplot(neve.data, aes(x=task, y=nevent))+
   guides(fill=F) + theme_bw()
   # ylim(225, 475)
 nplt
+
+## Inspection of distributions (pooled data)
+ggplot(itieve.data, aes(x=eve.iti.ms, fill=group))+
+  # geom_histogram(binwidth=10)+
+  geom_density(alpha=.3) +
+  facet_wrap(~session) + 
+  xlim(0,4000)+xlab("Time between events") +
+  theme_bw()
+
+ggplot(leneve.data, aes(x=eve.len.ms, fill=group))+
+  # geom_histogram(binwidth=10)+
+  geom_density(alpha=.3) +
+  facet_wrap(~session) + 
+  xlim(0,500)+xlab("Event duration") +
+  theme_bw()
+
+ggplot(maxeve.data, aes(x=eve.max, fill=group))+
+  # geom_histogram(binwidth=10)+
+  geom_density(alpha=.3) +
+  facet_wrap(~session) + 
+  xlab("Max peak") +
+  theme_bw()
+
+

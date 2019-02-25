@@ -7,6 +7,10 @@ setwd(wrkdir)
 
 # Read N event data
 temp <- readMat("nevent.mat")
+PDn1 <- temp$PDn1
+PDn2 <- temp$PDn2
+ctrln1 <- temp$ctrln1
+ctrln2 <- temp$ctrln2
 nevent <- c(temp$PDn1,temp$PDn2,temp$ctrln1,temp$ctrln2)
 subs <- unlist(c(temp$PD.subs,temp$PD.subs,temp$ctrl.subs,temp$ctrl.subs))
 group <- c(rep("ptns",2*length(temp$PD.subs)),rep("ctrl",2*length(temp$ctrl.subs)))
@@ -17,7 +21,7 @@ neve.data <- data.frame(nevent=nevent,
                         group=group,
                         session=session)
 
-save(neve.data, file = 'neve.RData')
+save(neve.data,PDn1,PDn2,ctrln1,ctrln2, file = 'neve.RData')
 
 ptns.subs <- unlist(temp$PD.subs)
 ctrl.subs <- unlist(temp$ctrl.subs)
@@ -33,7 +37,8 @@ leneve.data <- data.frame(eve.len=len,
                         subs=subs,
                         group=group,
                         session=session)
-
+leneve.data$eve.len.ms <- leneve.data$eve.len*1000
+  
 save(leneve.data, file = 'leneve.RData')
 
 # Read time to event data
@@ -43,10 +48,11 @@ subs <- c(temp$sub1,temp$sub2)
 group <- ifelse(subs %in% ptns.subs,'ptns','ctrl')
 session <- c(rep("1",length(temp$alltoe1)),rep("2",length(temp$alltoe2)))
 
-itieve.data <- data.frame(eve.iti=len,
+itieve.data <- data.frame(eve.iti=iti,
                           subs=subs,
                           group=group,
                           session=session)
+itieve.data$eve.iti.ms <- itieve.data$eve.iti*1000
 
 save(itieve.data, file = 'itieve.RData')
 
