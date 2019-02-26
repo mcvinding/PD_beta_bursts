@@ -24,7 +24,7 @@ overwrite = True
 data_path       = '/home/mikkel/PD_motor/rest_ec/meg_data'         
 subjects_dir    = '/home/mikkel/PD_motor/fs_subjects_dir'
 src_dir         = '/home/mikkel/PD_motor/tap/mri'
-trans_dir       = '/home/mikkel/PD_motor/tap/trans_files'  # I should be able to re-use as it is same didigizer data and same head cooridnate system
+trans_dir       = '/home/mikkel/PD_motor/tap/trans_files'  # I should be able to re-use as it is same digitzer data and same head cooridnate system
 cov_dir         = '/home/mikkel/PD_motor/empty_room/noise_cov'
 
 subjects_meg = listdir(data_path)

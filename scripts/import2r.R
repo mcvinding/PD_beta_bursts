@@ -38,7 +38,7 @@ leneve.data <- data.frame(eve.len=len,
                         group=group,
                         session=session)
 leneve.data$eve.len.ms <- leneve.data$eve.len*1000
-  
+
 save(leneve.data, file = 'leneve.RData')
 
 # Read time to event data
@@ -52,8 +52,9 @@ itieve.data <- data.frame(eve.iti=iti,
                           subs=subs,
                           group=group,
                           session=session)
+itieve.data <- subset(itieve.data, eve.iti != 0) # This should be fixed in the Matlab scripts! Update: it is, but the old data has not meed overwritten!
 itieve.data$eve.iti.ms <- itieve.data$eve.iti*1000
-
+itieve.data$log
 save(itieve.data, file = 'itieve.RData')
 
 # Read max peak in event data

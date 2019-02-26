@@ -131,8 +131,8 @@ sub2 = [];
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
-    toe1 = zeros(length(subvals{1}.bdat.event-1),1);
-    toe2 = zeros(length(subvals{2}.bdat.event-1),1);
+    toe1 = zeros(length(subvals{1}.bdat.event-1)-1,1);
+    toe2 = zeros(length(subvals{2}.bdat.event-1)-1,1);
 
     for k = 1:length(subvals{1}.bdat.event)-1
         toe1(k) = (subvals{1}.bdat.event(k+1,1)-subvals{1}.bdat.event(k,2))/1000;
@@ -165,8 +165,8 @@ subplot(1,2,2); histogram(ctrltoemn2,10); hold off
 
 PDtoeavg1 = mean(PDtoemn1);
 ctrltoeavg1 = mean(ctrltoemn1);
-PDtoesd1 = std(PDlenmn1);
-ctrltoesd1 = std(ctrllenmn1);
+PDtoesd1 = std(PDtoemn1);
+ctrltoesd1 = std(ctrltoemn1);
 
 [~, pt1,~,t1] = ttest2(PDtoemn1,ctrltoemn1);
 [~, pt2,~,t2] = ttest2(PDtoemn2,ctrltoemn2);

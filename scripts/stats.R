@@ -107,14 +107,33 @@ br.len0 <- brm(bf(eve.len.ms ~ 1+(1|subs)),
 len.bf10 <- bayes_factor(br.len1,br.len0)
 len.bf21 <- bayes_factor(br.len2,br.len1)
 len.bf32 <- bayes_factor(br.len3,br.len2)
+len.bf10
+len.bf21
+len.bf32
 
 ##
-#br.max <- brm(bf(~ group*session+(1|subs)), data = itieve.data, family = poisson)
+br.max3 <- brm(bf(eve.max ~ group*session+(1|subs)), 
+               data = maxeve.data, family = lognormal, save_all_pars=T)
+br.max2 <- brm(bf(eve.max ~ group+session+(1|subs)), 
+               data = maxeve.data, family = lognormal, save_all_pars=T)
+br.max1 <- brm(bf(eve.max ~ session+(1|subs)), 
+               data = maxeve.data, family = lognormal, save_all_pars=T)
+br.max0 <- brm(bf(eve.max ~ 1+(1|subs)), 
+               data = maxeve.data, family = lognormal, save_all_pars=T)
+
+max.bf10 <- bayes_factor(br.max1,br.max0)
+max.bf21 <- bayes_factor(br.max2,br.max1)
+max.bf32 <- bayes_factor(br.max3,br.max2)
+max.bf10
+max.bf21
+max.bf32
+
+save.image(file='workspace.Rdata')
 
 
-
-qqnorm(resid(len.mod3))
-qqline(resif(len.mod3))
+# Misc
+qqnorm(resid(br.max3))
+qqline(resid(br.max3))
        
 
 save.image(file='workspace.Rdata')

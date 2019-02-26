@@ -22,7 +22,7 @@ function [output, rhomat] = find_betaevents(cfg, data)
 %                     as one event. Otherwise, event length is defined by
 %                     threshold crossing. 'Mixed' replace half-maximum
 %                     values above threshold with the value of the
-%                     threshold (default='no').
+%                     threshold crossing (default='no').
 % cfg.length        = [num] length of epoch window in seconds. Passed to
 %                     FT_REDEFINETRIAL (default=3).
 % cfg.overlap       = [num] overlap between epochs assed to FT_REDEFINETRIAL
