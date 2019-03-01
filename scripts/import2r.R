@@ -57,6 +57,16 @@ itieve.data$eve.iti.ms <- itieve.data$eve.iti*1000
 itieve.data$log
 save(itieve.data, file = 'itieve.RData')
 
+# NB THIS IS WORK IN PROGRESS
+data <- data.frame()
+for (s in unique(itieve.data$subs)){
+  temp <- subset(itieve.data, subs==s)
+  temp$eve.iti.n1 <- c(temp$eve.iti[-1],NA)
+  
+  data <- rbind(data,temp)
+  
+}
+
 # Read max peak in event data
 temp <- readMat("pkmaxevent.mat")
 maxpk <- c(temp$max1,temp$max2)
