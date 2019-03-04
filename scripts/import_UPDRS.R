@@ -4,7 +4,7 @@ library(reshape2)
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
-wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
+# wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
 load(file = 'workspace.Rdata')
 load(file = '.Rdata')
@@ -43,8 +43,8 @@ u.neve.data <- merge(neve.data,updrs.data, by.x=c('subs','session','group'), by.
 F4.flip <- ifelse(u.neve.data$hand=="left",u.neve.data$F5,u.neve.data$F4)
 F5.flip <- ifelse(u.neve.data$hand=="left",u.neve.data$F4,u.neve.data$F5)
 
-# u.neve.data$F4 <- F4.flip
-# u.neve.data$F5 <- F5.flip
+u.neve.data$F4flip <- F4.flip
+u.neve.data$F5flip <- F5.flip
 
 save(u.neve.data, file='uNeveData.Rdata')
 
@@ -120,3 +120,6 @@ u.long2 <- melt(PD.data,
 aggregate(u.long2$score, by=list(session=u.long2$session, factor=u.long2$factor),mean)
 aggregate(u.long2$score, by=list(session=u.long2$session, factor=u.long2$factor),median)
 aggregate(u.long2$score, by=list(session=u.long2$session, factor=u.long2$factor),range)
+
+# Save
+save(u.long, u.long2, file='uData.Rdata')

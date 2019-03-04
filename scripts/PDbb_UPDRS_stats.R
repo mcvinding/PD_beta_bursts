@@ -8,17 +8,17 @@ load(file = 'workspace.Rdata')
 #################### Stats (mean) ##############################
 load(file='uData.Rdata')
 
-# Not used
-library(lme4)
-
-all.mod1 <- lmer(nevent~Total + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
-summary(all.mod1)
-all.mod0 <- lmer(nevent~1 + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
-anova(all.mod0,all.mod1)
-all.mod2 <- lmer(nevent~Total+session + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
-anova(all.mod0,all.mod1,all.mod2)
-all.mod3 <- lmer(nevent~Total*session + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
-anova(all.mod0,all.mod1,all.mod2,all.mod3)
+# # Not used
+# library(lme4)
+# 
+# all.mod1 <- lmer(nevent~Total + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
+# summary(all.mod1)
+# all.mod0 <- lmer(nevent~1 + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
+# anova(all.mod0,all.mod1)
+# all.mod2 <- lmer(nevent~Total+session + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
+# anova(all.mod0,all.mod1,all.mod2)
+# all.mod3 <- lmer(nevent~Total*session + (1|subs), data=u.neve.data, REML=F, subset = u.neve.data$group.x=="ptns")
+# anova(all.mod0,all.mod1,all.mod2,all.mod3)
 
 # # Summary
 # # pam1patients <- subset(pam1data,Sub_type=='patient')
@@ -32,7 +32,8 @@ anova(all.mod0,all.mod1,all.mod2,all.mod3)
 # aggregate(u.neve.data$Total, by=list(u.neve.data$group.x,u.neve.data$session), mean)
 # aggregate(u.neve.data$Total, by=list(u.neve.data$group.x,u.neve.data$session), sd)
 
-# Bayes factor (used)
+
+# Bayes factor (TEST)
 load(file='uData.Rdata')
 library(BayesFactor)
 
@@ -40,7 +41,7 @@ bf0 <- lmBF(nevent~subs, data=PD.data, whichRandom="subs")
 bf1 <- lmBF(nevent~session+subs, data=PD.data, whichRandom="subs")
 bf1/bf0
 
-PD.data.x <- PD.data[complete.cases(PD.data),]
+# PD.data.x <- PD.data[complete.cases(PD.data),]
 bf0 <- lmBF(nevent~subs, data=PD.data, whichRandom="subs")
 bf1 <- lmBF(nevent~session*subs, data=PD.data, whichRandom=c("subs","session"))
 bfT <- lmBF(nevent~Total+session+subs, data=PD.data, whichRandom=c("subs","session"))
@@ -62,120 +63,158 @@ bf.f6/bf1
 bf.f7 <- lmBF(nevent~F7+session*subs, whichRandom=c("subs","session"),data=PD.data)
 bf.f7/bf1
 
-mF1.post <- posterior(bf.f1, iterations = 2000)
+bf1 <- lmBF(nevent~session+subs, data=PD.data, whichRandom=c("subs"))
+bfT <- lmBF(nevent~Total+session+subs, data=PD.data, whichRandom=c("subs"))
+bfT/bf1
+bf.f1 <- lmBF(nevent~F1+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f1/bf1
+bf.f2 <- lmBF(nevent~F2+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f2/bf1
+bf.f3 <- lmBF(nevent~F3+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f3/bf1
+bf.f4 <- lmBF(nevent~F4+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f4/bf1
+bf.f5 <- lmBF(nevent~F5+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f5/bf1
+bf.f6 <- lmBF(nevent~F6+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f6/bf1
+bf.f7 <- lmBF(nevent~F7+session+subs, whichRandom=c("subs"),data=PD.data)
+bf.f7/bf1
+
+mF1.post <- posterior(bf.f1, iterations = 1000)
 summary(mF1.post)
-mF2.post <- posterior(bf.f2, iterations = 2000)
+mF2.post <- posterior(bf.f2, iterations = 1000)
 summary(mF2.post)
-mF3.post <- posterior(bf.f3, iterations = 2000)
+mF3.post <- posterior(bf.f3, iterations = 1000)
 summary(mF3.post)
-mF4.post <- posterior(bf.f4, iterations = 2000)
+mF4.post <- posterior(bf.f4, iterations = 1000)
 summary(mF4.post)
-mF5.post <- posterior(bf.f5, iterations = 2000)
+mF5.post <- posterior(bf.f5, iterations = 1000)
 summary(mF5.post)
-mF6.post <- posterior(bf.f6, iterations = 2000)
+mF6.post <- posterior(bf.f6, iterations = 1000)
 summary(mF6.post)
-mF7.post <- posterior(bf.f7, iterations = 2000)
+mF7.post <- posterior(bf.f7, iterations = 1000)
 summary(mF7.post)
 
 mT.post <- posterior(bfT, iterations = 2000)
 summary(mT.post)
 
-# Conventional correlation (just for show)
-cor.test(PD.data$F1,PD.data$nevent)
-cor.test(PD.data$F2,PD.data$nevent)
-cor.test(PD.data$F3,PD.data$nevent)
-cor.test(PD.data$F4,PD.data$nevent)
-cor.test(PD.data$F5,PD.data$nevent)
-cor.test(PD.data$F6,PD.data$nevent)
-cor.test(PD.data$F7,PD.data$nevent)
-cor.test(PD.data$Total,PD.data$nevent)
+# # Conventional correlation (just for show)
+# cor.test(PD.data$F1,PD.data$nevent)
+# cor.test(PD.data$F2,PD.data$nevent)
+# cor.test(PD.data$F3,PD.data$nevent)
+# cor.test(PD.data$F4,PD.data$nevent)
+# cor.test(PD.data$F5,PD.data$nevent)
+# cor.test(PD.data$F6,PD.data$nevent)
+# cor.test(PD.data$F7,PD.data$nevent)
+# cor.test(PD.data$Total,PD.data$nevent)
 
 ##
 save.image(".RData")
 
-### New division ###
-bf0 <- lmBF(nevent~subs, data=PD.data, whichRandom="subs")
-bf1 <- lmBF(nevent~session*subs, data=PD.data, whichRandom=c("subs"))
-
-bf.tremor <- lmBF(nevent~tremor+session*subs, whichRandom=c("subs"),data=PD.data)
-bf.tremor/bf1
-bf.tremor.post <- posterior(bf.tremor, iterations = 2000)
-
-bf.rigid <- lmBF(nevent~rigid+session*subs, whichRandom=c("subs","session"),data=PD.data)
-bf.rigid/bf1
-bf.rigid.post <- posterior(bf.rigid, iterations = 2000)
-
-bf.axial <- lmBF(nevent~axial+session*subs, whichRandom=c("subs"),data=PD.data)
-bf.axial/bf1
-bf.axial.post <- posterior(bf.axial, iterations = 2000)
-
-bf.brady <- lmBF(nevent~brady+session*subs, whichRandom=c("subs"),data=PD.data)
-bf.brady/bf1
-bf.brady.post <- posterior(bf.brady, iterations = 2000)
-
-# Score
-bf0 <- lmBF(score~subs, data=u.long2, whichRandom="subs")
-bf1 <- lmBF(score ~ factor+session*subs, data=u.long2, whichRandom=c("subs"))
-bf.F <- lmBF(score ~ factor+nevent+session*subs, data=u.long2, whichRandom=c("subs"))
-bf.F/bf1
-bf.Fx <- lmBF(score ~ factor*rebound+session*id, data=u.long2, whichRandom=c("id","session"))
-bf.Fx/bf1
-
-mT.post <- posterior(bf.Fx, iterations = 2000)
-summary(mT.post)
-
-# Conventional correlation (just for show)
-cor.test(PD.data$tremor,PD.data$nevent)
-cor.test(PD.data$rigid,PD.data$nevent)
-cor.test(PD.data$axial,PD.data$nevent)
-cor.test(PD.data$brady,PD.data$nevent)
-
-
-plot(PD.data$tremor,PD.data$nevent)
-plot(PD.data$rigid,PD.data$nevent)
-plot(PD.data$axial,PD.data$nevent)
-plot(PD.data$brady,PD.data$nevent)
-
-
-# ## Each item
-# bf0 <- lmBF(rebound~session*id, data=PD.data, whichRandom=c("id","session"))
+# ### New division ###
+# bf0 <- lmBF(nevent~subs, data=PD.data, whichRandom="subs")
+# bf1 <- lmBF(nevent~session*subs, data=PD.data, whichRandom=c("subs"))
 # 
-# bf.x1 <- lmBF(rebound~X3.1+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x1/bf0
-# bf.x2 <- lmBF(rebound~X3.2+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x2/bf0
-# bf.x3 <- lmBF(rebound~X3.3+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x3/bf0
-# bf.x4 <- lmBF(rebound~X3.4+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x4/bf0
-# bf.x5 <- lmBF(rebound~X3.5+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x5/bf0
-# bf.x6 <- lmBF(rebound~X3.6+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x6/bf0
-# bf.x7 <- lmBF(rebound~X3.7+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x7/bf0
-# bf.x8 <- lmBF(rebound~X3.8+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x8/bf0
-# bf.x9 <- lmBF(rebound~X3.9+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x9/bf0
-# bf.x10 <- lmBF(rebound~X3.10+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x10/bf0
-# bf.x11 <- lmBF(rebound~X3.11+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x11/bf0
-# bf.x12 <- lmBF(rebound~X3.12+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x12/bf0
-# bf.x13 <- lmBF(rebound~X3.13+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x13/bf0
-# bf.x14 <- lmBF(rebound~X3.14+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x14/bf0
-# bf.x15 <- lmBF(rebound~X3.15+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x15/bf0
-# bf.x16 <- lmBF(rebound~X3.16+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x16/bf0
-# bf.x17 <- lmBF(rebound~X3.17+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x17/bf0
-# bf.x18 <- lmBF(rebound~X3.18+session*id, whichRandom=c("id","session"),data=PD.data)
-# bf.x18/bf0
+# bf.tremor <- lmBF(nevent~tremor+session*subs, whichRandom=c("subs"),data=PD.data)
+# bf.tremor/bf1
+# bf.tremor.post <- posterior(bf.tremor, iterations = 2000)
+# 
+# bf.rigid <- lmBF(nevent~rigid+session*subs, whichRandom=c("subs","session"),data=PD.data)
+# bf.rigid/bf1
+# bf.rigid.post <- posterior(bf.rigid, iterations = 2000)
+# 
+# bf.axial <- lmBF(nevent~axial+session*subs, whichRandom=c("subs"),data=PD.data)
+# bf.axial/bf1
+# bf.axial.post <- posterior(bf.axial, iterations = 2000)
+# 
+# bf.brady <- lmBF(nevent~brady+session*subs, whichRandom=c("subs"),data=PD.data)
+# bf.brady/bf1
+# bf.brady.post <- posterior(bf.brady, iterations = 2000)
+# 
+# # Score
+# bf0 <- lmBF(score~subs, data=u.long2, whichRandom="subs")
+# bf1 <- lmBF(score ~ factor+session*subs, data=u.long2, whichRandom=c("subs"))
+# bf.F <- lmBF(score ~ factor+nevent+session*subs, data=u.long2, whichRandom=c("subs"))
+# bf.F/bf1
+# bf.Fx <- lmBF(score ~ factor*rebound+session*id, data=u.long2, whichRandom=c("id","session"))
+# bf.Fx/bf1
+# 
+# mT.post <- posterior(bf.Fx, iterations = 2000)
+# summary(mT.post)
+
+# # Conventional correlation (just for show)
+# cor.test(PD.data$tremor,PD.data$nevent)
+# cor.test(PD.data$rigid,PD.data$nevent)
+# cor.test(PD.data$axial,PD.data$nevent)
+# cor.test(PD.data$brady,PD.data$nevent)
+# 
+# plot(PD.data$tremor~PD.data$nevent)
+# plot(PD.data$rigid~PD.data$nevent)
+# plot(PD.data$axial,PD.data$nevent)
+# plot(PD.data$brady,PD.data$nevent)
+
+### BRMS (TEST)
+library(brms)
+Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
+Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
+
+# N events
+nmod0 <- brm(bf(nevent ~ 1+(session|subs)), data=PD.data, save_all_pars=TRUE)
+nmodF1 <- brm(bf(nevent ~ F1+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF2 <- brm(bf(nevent ~ F2+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF3 <- brm(bf(nevent ~ F3+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF4 <- brm(bf(nevent ~ F4+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF5 <- brm(bf(nevent ~ F5+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF6 <- brm(bf(nevent ~ F6+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF7 <- brm(bf(nevent ~ F7+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodT <- brm(bf(nevent ~ Total+(session|subs)), data=PD.data,  save_all_pars=TRUE)  
+
+bayes_factor(nmodF1,nmod0)
+bayes_factor(nmodF2,nmod0)
+bayes_factor(nmodF3,nmod0)
+bayes_factor(nmodF4,nmod0)
+bayes_factor(nmodF5,nmod0)
+bayes_factor(nmodF6,nmod0)
+bayes_factor(nmodF7,nmod0)
+bayes_factor(nmodT,nmod0)
+
+# TEST TEST TEST
+nmod0p <- brm(bf(nevent ~ 1+(session|subs)), data=PD.data, family=poisson, save_all_pars=TRUE)
+nmodF1p <- brm(bf(nevent ~ F1+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodF2p <- brm(bf(nevent ~ F2+(session|subs)), data=PD.data, family=poisson, save_all_pars=TRUE)
+nmodF3p <- brm(bf(nevent ~ F3+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodF4p <- brm(bf(nevent ~ F4+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodF5p <- brm(bf(nevent ~ F5+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodF6p <- brm(bf(nevent ~ F6+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodF7p <- brm(bf(nevent ~ F7+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)
+nmodTp <- brm(bf(nevent ~ Total+(session|subs)), data=PD.data, family=poisson,  save_all_pars=TRUE)  
+
+bayes_factor(nmodF1p,nmod0p)
+bayes_factor(nmodF2p,nmod0p)
+bayes_factor(nmodF3p,nmod0p)
+bayes_factor(nmodF4p,nmod0p)
+bayes_factor(nmodF5p,nmod0p)
+bayes_factor(nmodF6p,nmod0p)
+bayes_factor(nmodF7p,nmod0p)
+bayes_factor(nmodTp,nmod0p)
+
+# Max power
+nmod0 <- brm(bf(eve.max ~ 1+(session|subs)), data=PD.data, save_all_pars=TRUE)
+nmodF1 <- brm(bf(nevent ~ F1+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF2 <- brm(bf(nevent ~ F2+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF3 <- brm(bf(nevent ~ F3+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF4 <- brm(bf(nevent ~ F4+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF5 <- brm(bf(nevent ~ F5+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF6 <- brm(bf(nevent ~ F6+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodF7 <- brm(bf(nevent ~ F7+(session|subs)), data=PD.data,  save_all_pars=TRUE)
+nmodT <- brm(bf(nevent ~ Total+(session|subs)), data=PD.data,  save_all_pars=TRUE)  
+
+
+br.max0 <- brm(bf(eve.max ~ 1+(1|subs)), 
+               data = maxeve.data, family = lognormal, save_all_pars=T)
+
+
 
 ############################ PLOTS #######################################
 library(ggplot2)

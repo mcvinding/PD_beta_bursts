@@ -111,7 +111,7 @@ len.bf10
 len.bf21
 len.bf32
 
-##
+## Max power
 br.max3 <- brm(bf(eve.max ~ group*session+(1|subs)), 
                data = maxeve.data, family = lognormal, save_all_pars=T)
 br.max2 <- brm(bf(eve.max ~ group+session+(1|subs)), 
