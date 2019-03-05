@@ -15,14 +15,6 @@ raw.UPDRS$n.id = as.factor(raw.UPDRS$id)
 raw.UPDRS$session <- as.factor(raw.UPDRS$session)
 # levels(raw.UPDRS$session) <- c('off','on')
 
-# raw.UPDRS$F1 <- as.numeric(as.character(raw.UPDRS$F1))
-# raw.UPDRS$F2 <- as.numeric(as.character(raw.UPDRS$F2))
-# raw.UPDRS$F3 <- as.numeric(as.character(raw.UPDRS$F3))
-# raw.UPDRS$F4 <- as.numeric(as.character(raw.UPDRS$F4))
-# raw.UPDRS$F5 <- as.numeric(as.character(raw.UPDRS$F5))
-# raw.UPDRS$F6 <- as.numeric(as.character(raw.UPDRS$F6))
-# raw.UPDRS$F7 <- as.numeric(as.character(raw.UPDRS$F7))
-
 load(file='Z://PD_motor//subj_data//alldata.RData')
 
 # Prepare data
@@ -93,7 +85,7 @@ PD.data <- subset(u.neve.data, u.neve.data$group.x=="ptns")
 PD.data$group.x <- factor(PD.data$group.x)
 PD.data$id <- factor(PD.data$id)
 
-# Super-long data
+# Super-long data (NOT USED!)
 u.long <- melt(PD.data,
                # ID variables - all the variables to keep but not split apart on
                id.vars=c("subs","nevent","session"),
@@ -123,3 +115,8 @@ aggregate(u.long2$score, by=list(session=u.long2$session, factor=u.long2$factor)
 
 # Save
 save(u.long, u.long2, file='uData.Rdata')
+
+# Prepare for max power
+
+u.maxe.data <- updrs.data
+maxeve.data

@@ -4,6 +4,8 @@ library(lme4)
 library(nlme)
 # library(multcomp)
 library(brms)
+Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
+Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
@@ -124,9 +126,25 @@ br.max0 <- brm(bf(eve.max ~ 1+(1|subs)),
 max.bf10 <- bayes_factor(br.max1,br.max0)
 max.bf21 <- bayes_factor(br.max2,br.max1)
 max.bf32 <- bayes_factor(br.max3,br.max2)
-max.bf10
-max.bf21
-max.bf32
+
+br.max3gau <- brm(bf(eve.max ~ group*session+(1|subs)), 
+               data = maxeve.data, family = gaussian, save_all_pars=T)
+br.max2gau <- brm(bf(eve.max ~ group+session+(1|subs)), 
+               data = maxeve.data, family = gaussian, save_all_pars=T)
+br.max1gau <- brm(bf(eve.max ~ session+(1|subs)), 
+               data = maxeve.data, family = gaussian, save_all_pars=T)
+br.max0gau <- brm(bf(eve.max ~ 1+(1|subs)), 
+               data = maxeve.data, family = gaussian, save_all_pars=T)
+
+max.bf10.gau <- bayes_factor(br.max1gau,br.max0gau)
+max.bf21.gau <- bayes_factor(br.max2gau,br.max1gau)
+max.bf32.gau <- bayes_factor(br.max3gau,br.max2gau)
+
+maxeve.data$log.eve.max <- log(maxeve.data$eve.max)
+
+br.max3ln <- brm(bf(log.eve.max ~ group*session+(1|subs)), 
+               data = maxeve.data, family = gaussian, save_all_pars=T)
+
 
 save.image(file='workspace.Rdata')
 
