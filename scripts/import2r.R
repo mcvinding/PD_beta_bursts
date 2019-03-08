@@ -38,6 +38,7 @@ leneve.data <- data.frame(eve.len=len,
                         group=group,
                         session=session)
 leneve.data$eve.len.ms <- leneve.data$eve.len*1000
+leneve.data$log.eve.len <- log(leneve.data$eve.len)
 
 save(leneve.data, file = 'leneve.RData')
 
@@ -54,7 +55,7 @@ itieve.data <- data.frame(eve.iti=iti,
                           session=session)
 itieve.data <- subset(itieve.data, eve.iti != 0) # This should be fixed in the Matlab scripts! Update: it is, but the old data has not meed overwritten!
 itieve.data$eve.iti.ms <- itieve.data$eve.iti*1000
-itieve.data$log
+itieve.data$log.eve.iti <- log(itieve.data$eve.iti)
 save(itieve.data, file = 'itieve.RData')
 
 # NB THIS IS WORK IN PROGRESS
@@ -78,6 +79,7 @@ maxeve.data <- data.frame(eve.max=maxpk,
                           subs=subs,
                           group=group,
                           session=session)
+maxeve.data$log.eve.max <- log(maxeve.data$eve.max)
 
 save(maxeve.data, file = 'maxeve.RData')
 

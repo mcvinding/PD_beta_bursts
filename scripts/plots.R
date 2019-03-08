@@ -39,4 +39,8 @@ ggplot(maxeve.data, aes(x=eve.max, fill=group))+
   xlab("Max peak") +
   theme_bw()
 
-
+## Cumulative plots of burst iti
+ggplot(itieve.data, aes(eve.iti.ms, colour = group:session)) + 
+  stat_ecdf(pad = FALSE)+
+  xlim(0,5000) + theme_bw() +
+  facet_wrap(~subs)

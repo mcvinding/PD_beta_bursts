@@ -1,8 +1,6 @@
 ## Statistics 1: between group-session analysis
-library(BayesFactor)
+# library(BayesFactor)
 library(lme4)
-library(nlme)
-# library(multcomp)
 library(brms)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
@@ -12,18 +10,11 @@ wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 # wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
 load(file = 'workspace.Rdata')
-load(file = '.Rdata')
+# load(file = '.Rdata')
 
-# Stats N event data: ANOVA
-lme.neve <- lme(nevent ~ group*session, data=neve.data, random = ~1|subs)
-anova(lme.neve)
-
-summary(glht(lme.neve, linfct = mcp(list(session="Tukey",group="Tukey")), test = adjusted(type = "bonferroni")))
-        
-aov.neve <- aov(nevent ~ group*session+Error(subs),data=neve.data)
-summary(aov.neve)
-post.hoc <- TukeyHSD(aov.neve)
-
+################################################################################
+## N event analysis
+# Maximal Likelihood analysis
 mod3p <- glmer(nevent ~ group*session+(1|subs), data = neve.data, family='poisson')
 mod2p <- update(mod3p, ~. -group:session)
 mod1p <- update(mod2p, ~. -group)
@@ -31,120 +22,153 @@ mod0p <- update(mod1p, ~. -session)
 
 anova(mod0p,mod1p,mod2p,mod3p)
 
-mod3g <- lmer(nevent ~ group*session+(1|subs), data = neve.data)
-mod2g <- update(mod3g, ~. -group:session)
-mod1g <- update(mod2g, ~. -group)
-mod0g <- update(mod1g, ~. -session)
+# b <- anovaBF(nevent ~ session*group+subs, whichRandom = "subs", data = neve.data)
+# summary(b)
+# plot(b)
 
-anova(mod0g,mod1g,mod2g,mod3g)
-
-b <- anovaBF(nevent ~ session*group+subs, whichRandom = "subs", data = neve.data)
-summary(b)
-plot(b)
-
+# Make BRMS models
 br.nev3 <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = poisson, 
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               save_all_pars = TRUE, iter = 5000)
 br.nev2 <- brm(bf(nevent ~ group+session+(1|subs)), data = neve.data, family = poisson, 
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               save_all_pars = TRUE, iter = 5000)
 br.nev1 <- brm(bf(nevent ~ session+(1|subs)), data = neve.data, family = poisson, 
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               save_all_pars = TRUE, iter = 5000)
 br.nev0 <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = poisson, 
                save_all_pars = TRUE, iter = 5000)
 
+# Save
+setwd(wrkdir)
+save(br.nev3,br.nev2,br.nev1,br.nev0, file='neve_analysis.RData')
+
+# Model comparison
 n.bf10 <- bayes_factor(br.nev1,br.nev0)
 n.bf21 <- bayes_factor(br.nev2,br.nev1)
 n.bf32 <- bayes_factor(br.nev3,br.nev2)
-n.bf31 <- bayes_factor(br.nev3,br.nev1)
+# n.bf31 <- bayes_factor(br.nev3,br.nev1)
 
 n.bf10
 n.bf21
 n.bf32
-n.bf31
+# n.bf31
 
-br.nev3ga <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = gaussian,
-                 save_all_pars = TRUE, iter = 5000, cores = 3)
-br.nev2ga <- brm(bf(nevent ~ group+session+(1|subs)), data = neve.data, family = gaussian,
-                 save_all_pars = TRUE, iter = 5000, cores = 3)
-br.nev1ga <- brm(bf(nevent ~ session+(1|subs)), data = neve.data, family = gaussian, 
-                 save_all_pars = TRUE, iter = 5000, cores = 3)
-br.nev0ga <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = gaussian, 
-                 save_all_pars = TRUE, iter = 5000, cores = 3)
-
-n.bf10ga <- bayes_factor(br.nev1ga,br.nev0ga)
-n.bf21ga <- bayes_factor(br.nev2ga,br.nev1ga)
-n.bf32ga <- bayes_factor(br.nev3ga,br.nev2ga)
-n.bf31ga <- bayes_factor(br.nev3ga,br.nev1ga)
-
-n.bf10ga
-n.bf21ga
-n.bf32ga
-n.bf31ga
+# Hypothesis testing
+# ... 
 
 summary(br.nev3)
-summary(br.nev3ga)
 
-## Time to event [NB: somehow there are zero values in this data]
-itieve.data$log.eve.iti <- log(itieve.data$eve.iti.ms)
-iti.mod3 <- lmer(eve.iti.ms ~ group*session+(1|subs), data = itieve.data, REML = F)
-iti.mod2 <- lmer(eve.iti.ms ~ group+session+(1|subs), data = itieve.data, REML = F)
-iti.mod1 <- lmer(eve.iti.ms ~ session+(1|subs), data = itieve.data, REML = F)
-iti.mod0 <- lmer(eve.iti.ms ~ 1+(1|subs), data = itieve.data, REML = F)
+################################################################################
+## Time to event
+load(file = 'itieve.RData')
+
+# Maximal Likelihood analysis
+iti.mod3 <- lmer(log.eve.iti ~ group*session+(1|subs), data = itieve.data, REML = F)
+iti.mod2 <- lmer(log.eve.iti ~ group+session+(1|subs), data = itieve.data, REML = F)
+iti.mod1 <- lmer(log.eve.iti ~ session+(1|subs), data = itieve.data, REML = F)
+iti.mod0 <- lmer(log.eve.iti ~ 1+(1|subs), data = itieve.data, REML = F)
 
 anova(iti.mod0,iti.mod1,iti.mod2,iti.mod3)
 summary(iti.mod3)
 
-br.iti <- brm(bf(eve.iti.ms ~ group*session+(1|subs)), data = itieve.data, family = lognormal())
+# Make BRMS models
+br.iti3 <- brm(bf(eve.iti.ms ~ group*session+(1|subs)), 
+               data = itieve.data, family = lognormal,
+               save_all_pars = TRUE, iter = 5000)
+br.iti2 <- brm(bf(eve.iti.ms ~ group+session+(1|subs)), 
+               data = itieve.data, family = lognormal,
+               save_all_pars = TRUE, iter = 5000)
+br.iti1 <- brm(bf(eve.iti.ms ~ session+(1|subs)),
+               data = itieve.data, family = lognormal,
+               save_all_pars = TRUE, iter = 5000)
+br.iti0 <- brm(bf(eve.iti.ms ~ 1+(1|subs)),
+               data = itieve.data, family = lognormal,
+               save_all_pars = TRUE, iter = 5000)
 
+# Save
+setwd(wrkdir)
+save(br.iti3,br.iti2,br.iti1,br.iti0, file='itieve_analysis.RData')
+
+# Model comparison
+iti.bf10 <- bayes_factor(br.iti1,br.iti0)
+iti.bf21 <- bayes_factor(br.iti2,br.iti1)
+iti.bf32 <- bayes_factor(br.iti3,br.iti2)
+
+iti.bf10
+iti.bf21
+iti.bf32
+
+# Hypothesis testing
+# ... 
+
+
+################################################################################
 ## Event length
 load(file = 'leneve.RData')
 
-leneve.data$log.eve.len <- log(leneve.data$eve.len)
-len.mod3 <- lmer(eve.len.ms ~ group*session+(1|subs), data = leneve.data, REML = F)
-len.mod2 <- lmer(eve.len.ms ~ group+session+(1|subs), data = leneve.data, REML = F)
-len.mod1 <- lmer(eve.len.ms ~ session+(1|subs), data = leneve.data, REML = F)
-len.mod0 <- lmer(eve.len.ms ~ 1+(1|subs), data = leneve.data, REML = F)
+# Maximal Likelihood analysis
+len.mod3 <- lmer(log.eve.len ~ group*session+(1|subs), data = leneve.data, REML = F)
+len.mod2 <- lmer(log.eve.len ~ group+session+(1|subs), data = leneve.data, REML = F)
+len.mod1 <- lmer(log.eve.len ~ session+(1|subs), data = leneve.data, REML = F)
+len.mod0 <- lmer(log.eve.len ~ 1+(1|subs), data = leneve.data, REML = F)
 
 anova(len.mod0,len.mod1,len.mod2,len.mod3)
 summary(len.mod3)
 
+# Make BRMS models
 br.len3 <- brm(bf(eve.len.ms ~ group*session+(1|subs)),
-               data = leneve.data, family = lognormal,
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               data = leneve.data, family = shifted_lognormal,
+               save_all_pars = TRUE, iter = 5000)
 br.len2 <- brm(bf(eve.len.ms ~ group+session+(1|subs)),
-               data = leneve.data, family = lognormal, 
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               data = leneve.data, family = shifted_lognormal,
+               save_all_pars = TRUE, iter = 5000)
 br.len1 <- brm(bf(eve.len.ms ~ session+(1|subs)),
-               data = leneve.data, family = lognormal,
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               data = leneve.data, family = shifted_lognormal,
+               save_all_pars = TRUE, iter = 5000)
 br.len0 <- brm(bf(eve.len.ms ~ 1+(1|subs)),
-               data = leneve.data, family = lognormal, 
-               save_all_pars = TRUE, iter = 5000, cores = 3)
+               data = leneve.data, family = shifted_lognormal, 
+               save_all_pars = TRUE, iter = 5000)
+
+# Save
+setwd(wrkdir)
+save(br.len3,br.len2,br.len1,br.len0, file='leneve_analysis.RData')
 
 len.bf10 <- bayes_factor(br.len1,br.len0)
 len.bf21 <- bayes_factor(br.len2,br.len1)
 len.bf32 <- bayes_factor(br.len3,br.len2)
+
 len.bf10
 len.bf21
 len.bf32
 
-br.len0sn <- brm(bf(eve.len.ms ~ 1+(1|subs)),
-               data = leneve.data, family = skew_normal,
-               save_all_pars = TRUE, iter = 2000, cores = 3)
-br.len0sn <- brm(bf(eve.len.ms ~ 1+(1|subs)),
-                 data = leneve.data, family = shifted_lognormal,
-                 save_all_pars = TRUE, iter = 2000, cores = 3)
-
-
-
+################################################################################
 ## Max power
+load(file = 'maxeve.RData')
+
+# Maximal Likelihood analysis
+max.mod3 <- lmer(log.eve.max ~ group*session+(1|subs), data = maxeve.data, REML = F)
+max.mod2 <- lmer(log.eve.max ~ group+session+(1|subs), data = maxeve.data, REML = F)
+max.mod1 <- lmer(log.eve.max ~ session+(1|subs), data = maxeve.data, REML = F)
+max.mod0 <- lmer(log.eve.max ~ 1+(1|subs), data = maxeve.data, REML = F)
+
+anova(max.mod0,max.mod1,max.mod2,max.mod3)
+summary(max.mod3)
+
+# BRMS analysis
 br.max3 <- brm(bf(eve.max ~ group*session+(1|subs)), 
-               data = maxeve.data, family = lognormal, save_all_pars=T)
+               data = maxeve.data, family = shifted_lognormal, 
+               save_all_pars = TRUE, iter = 5000)
 br.max2 <- brm(bf(eve.max ~ group+session+(1|subs)), 
-               data = maxeve.data, family = lognormal, save_all_pars=T)
+               data = maxeve.data, family = shifted_lognormal, 
+               save_all_pars = TRUE, iter = 5000)
 br.max1 <- brm(bf(eve.max ~ session+(1|subs)), 
-               data = maxeve.data, family = lognormal, save_all_pars=T)
-br.max0 <- brm(bf(eve.max ~ 1+(1|subs)), 
-               data = maxeve.data, family = lognormal, save_all_pars=T)
+               data = maxeve.data, family = shifted_lognormal,
+               save_all_pars = TRUE, iter = 5000)
+br.max0 <- brm(bf(eve.max ~ 1+(1|subs)),
+               data = maxeve.data, family = shifted_lognormal, 
+               save_all_pars = TRUE, iter = 5000)
+
+# Save
+setwd(wrkdir)
+save(br.max3,br.max2,br.max1,br.max0, file='maxeve_analysis.RData')
 
 max.bf10 <- bayes_factor(br.max1,br.max0)
 max.bf21 <- bayes_factor(br.max2,br.max1)
@@ -164,29 +188,18 @@ max.bf32 <- bayes_factor(br.max3,br.max2)
 # max.bf21.gau <- bayes_factor(br.max2gau,br.max1gau)
 # max.bf32.gau <- bayes_factor(br.max3gau,br.max2gau)
 
-maxeve.data$log.eve.max <- log(maxeve.data$eve.max)
-
-br.max3ln <- brm(bf(log.eve.max ~ group*session+(1|subs)), 
-               data = maxeve.data, family = gaussian, save_all_pars=T)
-br.max2ln <- brm(bf(log.eve.max ~ group+session+(1|subs)), 
-                 data = maxeve.data, family = gaussian, save_all_pars=T)
-br.max1ln <- brm(bf(log.eve.max ~ session+(1|subs)), 
-                 data = maxeve.data, family = gaussian, save_all_pars=T)
-br.max0ln <- brm(bf(log.eve.max ~ 1+(1|subs)), 
-                 data = maxeve.data, family = gaussian, save_all_pars=T)
-
-max.bf10.ln <- bayes_factor(br.max1ln,br.max0ln)
-max.bf21.ln <- bayes_factor(br.max2ln,br.max1ln)
-max.bf32.ln <- bayes_factor(br.max3ln,br.max2ln)
-
-
+# br.max3ln <- brm(bf(log.eve.max ~ group*session+(1|subs)), 
+#                data = maxeve.data, family = gaussian, save_all_pars=T)
+# br.max2ln <- brm(bf(log.eve.max ~ group+session+(1|subs)), 
+#                  data = maxeve.data, family = gaussian, save_all_pars=T)
+# br.max1ln <- brm(bf(log.eve.max ~ session+(1|subs)), 
+#                  data = maxeve.data, family = gaussian, save_all_pars=T)
+# br.max0ln <- brm(bf(log.eve.max ~ 1+(1|subs)), 
+#                  data = maxeve.data, family = gaussian, save_all_pars=T)
+# 
+# max.bf10.ln <- bayes_factor(br.max1ln,br.max0ln)
+# max.bf21.ln <- bayes_factor(br.max2ln,br.max1ln)
+# max.bf32.ln <- bayes_factor(br.max3ln,br.max2ln)
 
 save.image(file='workspace.Rdata')
-
-
-# Misc
-qqnorm(resid(br.max3))
-qqline(resid(br.max3))
-       
-
-save.image(file='workspace.Rdata')
+# END
