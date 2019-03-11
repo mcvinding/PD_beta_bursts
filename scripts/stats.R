@@ -4,6 +4,7 @@ library(lme4)
 library(brms)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
+options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
@@ -174,32 +175,9 @@ max.bf10 <- bayes_factor(br.max1,br.max0)
 max.bf21 <- bayes_factor(br.max2,br.max1)
 max.bf32 <- bayes_factor(br.max3,br.max2)
 
-# Not good model
-# br.max3gau <- brm(bf(eve.max ~ group*session+(1|subs)), 
-#                data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max2gau <- brm(bf(eve.max ~ group+session+(1|subs)), 
-#                data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max1gau <- brm(bf(eve.max ~ session+(1|subs)), 
-#                data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max0gau <- brm(bf(eve.max ~ 1+(1|subs)), 
-#                data = maxeve.data, family = gaussian, save_all_pars=T)
-# 
-# max.bf10.gau <- bayes_factor(br.max1gau,br.max0gau)
-# max.bf21.gau <- bayes_factor(br.max2gau,br.max1gau)
-# max.bf32.gau <- bayes_factor(br.max3gau,br.max2gau)
-
-# br.max3ln <- brm(bf(log.eve.max ~ group*session+(1|subs)), 
-#                data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max2ln <- brm(bf(log.eve.max ~ group+session+(1|subs)), 
-#                  data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max1ln <- brm(bf(log.eve.max ~ session+(1|subs)), 
-#                  data = maxeve.data, family = gaussian, save_all_pars=T)
-# br.max0ln <- brm(bf(log.eve.max ~ 1+(1|subs)), 
-#                  data = maxeve.data, family = gaussian, save_all_pars=T)
-# 
-# max.bf10.ln <- bayes_factor(br.max1ln,br.max0ln)
-# max.bf21.ln <- bayes_factor(br.max2ln,br.max1ln)
-# max.bf32.ln <- bayes_factor(br.max3ln,br.max2ln)
+max.bf10
+max.bf21
+max.bf32
 
 save.image(file='workspace.Rdata')
 # END
