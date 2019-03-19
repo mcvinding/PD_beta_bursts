@@ -40,6 +40,7 @@ br.nev0 <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = poisson,
 # Save
 setwd(wrkdir)
 save(br.nev3,br.nev2,br.nev1,br.nev0, file='neve_analysis.RData')
+load(file='neve_analysis.RData')
 
 # Model comparison
 n.bf10 <- bayes_factor(br.nev1,br.nev0)
@@ -53,9 +54,27 @@ n.bf32
 # n.bf31
 
 # Hypothesis testing
-# ... 
+hypothesis(br.nev3, "groupptns<0")
+hypothesis(br.nev3, "session2+groupptns:session2>0")
+hypothesis(br.nev3, "session2<0")
 
+# Summaries
+sam <- posterior_samples(br.nev3, "^b")   # USE THIS AND REDO REPORT!!!!
 summary(br.nev3)
+exp(fixef(br.nev3)[2])-1      #Mean
+exp(fixef(br.nev3))-1
+exp(fixef(br.nev3))-1
+
+exp(fixef(br.nev3)[3]+fixef(br.nev3)[4])-1
+exp(fixef(br.nev3)[3,3]+fixef(br.nev3)[4,3])-1
+exp(fixef(br.nev3)[3,4]+fixef(br.nev3)[4,4])-1
+
+exp(fixef(br.nev3)[3])-1
+exp(fixef(br.nev3)[3,3])-1
+exp(fixef(br.nev3)[3,4])-1
+
+exp(fixef(br.nev3)[1]+fixef(br.nev3)[2])
+
 
 ################################################################################
 ## Time to event
@@ -87,6 +106,7 @@ br.iti0 <- brm(bf(eve.iti.ms ~ 1+(1|subs)),
 # Save
 setwd(wrkdir)
 save(br.iti3,br.iti2,br.iti1,br.iti0, file='itieve_analysis.RData')
+load('itieve_analysis.RData')
 
 # Model comparison
 iti.bf10 <- bayes_factor(br.iti1,br.iti0)
@@ -98,9 +118,37 @@ iti.bf21
 iti.bf32
 
 # Hypothesis testing
-# ... 
+hypothesis(br.iti3, "groupptns>0")
+hypothesis(br.iti3, "session2+groupptns:session2<0")
+hypothesis(br.iti3, "session2>0")
+hypothesis(br.iti3, "groupptns:session2>0")
+
+plot(hypothesis(br.iti3, "exp(groupptns+session2+groupptns:session2)>exp(groupptns)"))
+
+#Summaries
+summary(br.iti3)
+
+exp(fixef(br.iti3))
+exp(fixef(br.iti3)[1,3]+fixef(br.iti3)[2,3])
+exp(fixef(br.iti3)[1,]+fixef(br.iti3)[2,])
+exp(fixef(br.iti3)[1,]+fixef(br.iti3)[2,]+fixef(br.iti3)[3,]+fixef(br.iti3)[4,])
+exp(fixef(br.iti3)[3,]+fixef(br.iti3)[4,])
 
 
+exp(fixef(br.iti3)[1,4]+fixef(br.iti3)[2,4])
+
+exp(fixef(br.iti3))-1
+exp(fixef(br.iti3))-1
+
+exp(fixef(br.nev3)[3]+fixef(br.nev3)[4])-1
+exp(fixef(br.nev3)[3,3]+fixef(br.nev3)[4,3])-1
+exp(fixef(br.nev3)[3,4]+fixef(br.nev3)[4,4])-1
+
+exp(fixef(br.nev3)[3])-1
+exp(fixef(br.nev3)[3,3])-1
+exp(fixef(br.nev3)[3,4])-1
+
+exp(fixef(br.nev3)[1]+fixef(br.nev3)[2])
 ################################################################################
 ## Event length
 load(file = 'leneve.RData')
