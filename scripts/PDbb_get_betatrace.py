@@ -18,7 +18,7 @@ import scipy.io as sio
 
 
 #%% Overwrite
-overwrite = True
+overwrite = False
 
 #%% Paths, etc.
 data_path       = '/home/mikkel/PD_motor/rest_ec/meg_data'         
@@ -43,8 +43,10 @@ for sub in subjects:
     src = mne.read_source_spaces(srcFile)
 
     for con in ['RsEc1','RsEc2']:
-        outhilbt = op.join(data_path,sub,sub+'_'+con+'-hilbt.mat')
-        outrawtc = op.join(data_path,sub,sub+'_'+con+'-rawtc.mat')
+        outhilbt = op.join(data_path,sub,sub+'_'+con+'-hilbt.mat')      # Hilbert envelope
+        outrawtc = op.join(data_path,sub,sub+'_'+con+'-rawtc.mat')      # Raw time-series
+        outrawft = op.join(data_path,sub,sub+'_'+con+'-rawft.mat')      # Band-pass filtered time-series
+
         hilb = dict()
         rawtc = dict()
         
@@ -68,6 +70,8 @@ for sub in subjects:
             
         if not op.exists(outhilbt) or overwrite:    
             sio.savemat(outhilbt, dict(hilb_rh=hilb['rh'],hilb_lh=hilb['lh']))
+        if not op.exists(outrawtc) or overwrite:
+            sio.savemat(outrawtc, dict(raw_rh=rawtc['rh'],raw_lh=rawtc['lh']))
         if not op.exists(outrawtc) or overwrite:
             sio.savemat(outrawtc, dict(raw_rh=rawtc['rh'],raw_lh=rawtc['lh']))
         

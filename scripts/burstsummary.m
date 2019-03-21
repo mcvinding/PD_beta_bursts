@@ -205,7 +205,6 @@ for ii = 1:length(subs)
     save(fullfile(dirs.megDir,subs{ii},'pkidx2.mat'),'maxidx2')
 end
 
-
 PDmaxmn1 = maxmedn1(PDidx);
 ctrlmaxmn1 = maxmedn1(ctrlidx);
 PDmaxmn2 = maxmedn2(PDidx);
