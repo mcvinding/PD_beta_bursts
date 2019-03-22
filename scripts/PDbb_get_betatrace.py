@@ -5,8 +5,6 @@ Get beta-course from ROI
 Created on Mon Jan 28 11:17:45 2019. @author: mikkel
 """
 import numpy as np
-from mne import find_events, read_labels_from_annot
-import matplotlib.pyplot as plt
 import os.path as op
 from os import listdir
 import sys
@@ -15,7 +13,6 @@ sys.path.append('/home/mikkel/PD_motor/tap/scripts/functions')
 from sensorymotorROI import make_sensorymotorROI
 from scipy.signal import hilbert
 import scipy.io as sio
-
 
 #%% Overwrite
 overwrite = False
@@ -36,7 +33,7 @@ subjects.sort()
 # Manual input for single subjects
 #subjects = ['0320','0313']
 
-#%%
+#%% Run
 for sub in subjects:
     print('sub: '+sub)
     srcFile = op.join(src_dir,sub+'-ico4-src.fif')
@@ -49,6 +46,7 @@ for sub in subjects:
 
         hilb = dict()
         rawtc = dict()
+        filtc = dict()
         
         fname = op.join(data_path,sub,sub+'_'+con+'-dSPM-lh.stc')
         stc = mne.read_source_estimate(fname)
@@ -67,12 +65,13 @@ for sub in subjects:
             
             hilb[hemi] = envelope
             rawtc[hemi] = label_tc
+            filtc[hemi] = lbft
             
         if not op.exists(outhilbt) or overwrite:    
             sio.savemat(outhilbt, dict(hilb_rh=hilb['rh'],hilb_lh=hilb['lh']))
         if not op.exists(outrawtc) or overwrite:
             sio.savemat(outrawtc, dict(raw_rh=rawtc['rh'],raw_lh=rawtc['lh']))
-        if not op.exists(outrawtc) or overwrite:
-            sio.savemat(outrawtc, dict(raw_rh=rawtc['rh'],raw_lh=rawtc['lh']))
+        if not op.exists(outrawft) or overwrite:
+            sio.savemat(outrawft, dict(rwft_rh=filtc['rh'],rwft_lh=filtc['lh']))
         
 #END
