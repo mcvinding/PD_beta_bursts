@@ -11,7 +11,7 @@ subs = find_subs(dirs.megDir);                                %Find subjects in 
 cd(dirs.megDir);
 
 %% Settings
-overwrite = 1;   % Overwirte old files 0=false or 1=true
+overwrite = 0;   % Overwirte old files 0=false or 1=true
 
 steps = 0:0.1:5;
 
@@ -76,10 +76,10 @@ figure; plot(steps,nanmean(rho_sdpow,3));
 figure; plot(steps,nanmean(rho_mdamp,3)); 
 figure; plot(steps,nanmean(rho_mdpow,3)); 
 
-cutoff_sdamp = find_threshold(rho_sdamp, steps, 1); title('sd amp')
-cutoff_sdpow = find_threshold(rho_sdpow, steps, 1); title('sd pow')
+% cutoff_sdamp = find_threshold(rho_sdamp, steps, 1); title('sd amp')
+% cutoff_sdpow = find_threshold(rho_sdpow, steps, 1); title('sd pow')
 cutoff_mdamp = find_threshold(rho_mdamp, steps, 1); title('med amp')
-cutoff_mdpow = find_threshold(rho_mdpow, steps, 1); title('med pow')
+% cutoff_mdpow = find_threshold(rho_mdpow, steps, 1); title('med pow')
 
 %% Get beta summary
 cfg = [];

@@ -1,6 +1,6 @@
 % Cross-correlation between lh-rh hemispheres
 addpath /home/mikkel/PD_motor/global_scripts
-[dirs, ~, ~] = PD_proj_setup('betaburst');
+[dirs, subjs, ~] = PD_proj_setup('betaburst');
 
 subs = find_subs(dirs.megDir);
 cd(dirs.megDir);
@@ -15,7 +15,9 @@ ptns_epo2 = cell(size(PD_subs));
 ctrl_epo2 = cell(size(ctrl_subs));
 
 % Ptns
-for ii = 1:length(PD_subs)
+% for ii = 1:length(PD_subs)
+ii = 1;
+
     % Load and prepare data
     load(fullfile(dirs.megDir,PD_subs{ii},'subvals.mat'))
         
@@ -24,56 +26,42 @@ for ii = 1:length(PD_subs)
     [pkval_lh, pkidx_lh] = findpeaks(rwft_lh);
     [pkval_rh, pkidx_rh] = findpeaks(rwft_rh);
     
-    plot(rwft_lh); hold on
-    plot(pkidx_lh,'rx')
+%     plot(rwft_lh); hold on
+    
+    x = rand(1,1000)*1000*180;
     
     pkdat.label     = {'lh_roi','rh_roi'};
     pkdat.timestamp = {[pkidx_lh],[pkidx_rh]};
     pkdat.dimord    = '{chan}_lead_time_spike';
     
     events = subvals{1}.bdat.event;
+    nonevents = [events(1:end-1,2), events(2:end,1)];
     relpk = -(subvals{1}.bdat.maxidx-subvals{1}.bdat.event(:,1));
     cfg = [];
-    cfg.trl = [events,  relpk];
+    cfg.trl = [events, zeros(length(events),1)];
     cfg.timestampspersecond = 1000;
     pkdat_trl = ft_spike_maketrials(cfg,pkdat)
+    cfg.trl = [nonevents, zeros(length(nonevents),1)];
+    pkdat_ntrl = ft_spike_maketrials(cfg,pkdat)
+    cfg.trl = [0, 180000, 0];
+    pkdat_all = ft_spike_maketrials(cfg,pkdat)
 
-    
-    cfg       = [];
-    cfg.bins  = [0:0.0005:0.1]; % use bins of 0.5 milliseconds
-    cfg.param = 'coeffvar'; % compute the coefficient of variation (sd/mn of isis)
-    isih = ft_spike_isi(cfg,pkdat_trl);
-    
-    cfg             = [];
-    cfg.binsize     =  0.02; % if cfgPsth.binsize = 'scott' or 'sqrt', we estimate the optimal bin size from the data itself
-    cfg.outputunit  = 'rate'; % give as an output the firing rate
-    cfg.latency     = [-1 3]; % between -1 and 3 sec.
-    cfg.vartriallen = 'yes'; % variable trial lengths are accepted
-    cfg.keeptrials  = 'yes'; % keep the psth per trial in the output
-    psth = ft_spike_psth(cfg,pkdat_trl);
-
-    cfg              = [];
-    cfg.topplotfunc  = 'line'; % plot as a line
-    cfg.spikechannel = pkdat_trl.label([1 2]);
-    cfg.latency      = [-1 1];
-    cfg.errorbars    = 'std'; % plot with the standard deviation
-    cfg.interactive  = 'no'; % toggle off interactive mode
-    figure, ft_spike_plot_raster(cfg,pkdat_trl, psth)
-
-    
-    cfg            = [];
-    cfg.latency    = [-1 max(pkdat_trl.trialtime(:))]; % sustained response period
-    cfg.keeptrials = 'yes';
-    rate = ft_spike_rate(cfg,pkdat_trl);
 
     cfg             = [];
-cfg.maxlag      = 0.2; % maximum 200 ms
-cfg.binsize     = 0.01; % bins of 1 ms
+cfg.maxlag      = 0.1;  % maximum 200 ms
+cfg.binsize     = 0.02; % bins of 10 ms
 cfg.outputunit  = 'proportion'; % make unit area
-cfg.latency     = [-1 1];
-cfg.vartriallen = 'no'; % do not allow variable trial lengths
+cfg.latency     = [-inf inf];
+cfg.vartriallen = 'yes'; % do not allow variable trial lengths
 cfg.method      = 'xcorr'; % compute the normal cross-correlogram
-    Xc = ft_spike_xcorr(cfg,pkdat_trl);
+Xc = ft_spike_xcorr(cfg,pkdat_trl);
+Xcn = ft_spike_xcorr(cfg,pkdat_ntrl);
+Xca = ft_spike_xcorr(cfg,pkdat_all);
+
+figure; hold on; 
+plot(Xc.time,squeeze(Xc.xcorr(1,2,:)))
+plot(Xcn.time,squeeze(Xcn.xcorr(1,2,:)))
+plot(Xca.time,squeeze(Xca.xcorr(1,2,:)))
 
 cfg.method      = 'shiftpredictor'; % compute the shift predictor
 Xshuff = ft_spike_xcorr(cfg,pkdat_trl);
@@ -84,17 +72,71 @@ figure
 xcSmoothed = conv(squeeze(Xc.xcorr(iCmb,jCmb,:)),ones(1,5)./5,'same'); % do some smoothing
 hd = plot(Xc.time(3:end-2),xcSmoothed(3:end-2),'k'); % leave out borders (because of smoothing)
 hold on
-% xcSmoothed = conv(squeeze(Xshuff.shiftpredictor(iCmb,jCmb,:)),ones(1,5)./5,'same');
-% plot(Xc.time(3:end-2),xcSmoothed(3:end-2),'r')
-% hold on
+xcSmoothed = conv(squeeze(Xshuff.shiftpredictor(iCmb,jCmb,:)),ones(1,5)./5,'same');
+plot(Xc.time(3:end-2),xcSmoothed(3:end-2),'r')
+hold on
 xlabel('delay')
 ylabel('proportion of coincidences')
 title([Xc.label{iCmb} Xc.label{jCmb}])
 axis tight
 
+%% Native xcorr
+
+
+data.trial = {[rwft_lh;rwft_rh]};
+data.time = {[1:length(rwft_lh)]};
+data.label = {'lh_roi','rh_roi'};
+data.fsample = 1000;
+data.dimord = 'chan_time';
+
+events = subvals{1}.bdat.event;
+relpk = -(subvals{1}.bdat.maxidx-subvals{1}.bdat.event(:,1));
+cfg = [];
+cfg.trl = [events,  relpk];
+data_epo = ft_redefinetrial(cfg,data)
+
+tt = data_epo.trial{1};
+x = tt(1,:);
+y = tt(2,:);
+
+[Xx, lag] = xcorr(x,y,'biased');
 
 
 
+dt = linspace(min(data_epo.time{1}),max(data_epo.time{1}),2*length(data_epo.time{1})-1)
+
+figure; plot(data_epo.time{1},tt)
+figure; plot(lag/1000,Xx)
+
+xtrl = cell(length(data_epo.trial),1);
+xtim = cell(length(data_epo.trial),1);
+figure; hold on
+for i = 1:length(data_epo.trial)
+    tt = data_epo.trial{i};
+    x = tt(1,:);
+    y = tt(2,:);
+    [Xx, lag] = xcorr(x,y,'biased');
+    xtrl{i} = Xx;
+    xtim{i} = lag/1000;
+    
+%     dt = linspace(min(data_epo.time{1}),max(data_epo.time{1}),2*length(data_epo.time{1})-1)
+    plot(lag/1000,Xx)
+end
+
+xdata.trial = xtrl;
+xdata.time  = xtim;
+xdata.label = {'xcor'};
+xdata.fsample = 1000;
+xdata.dimord = 'chan_time';
+
+cfg = [];
+cfg.vartrllength = 2;
+xavg = ft_timelockanalysis(cfg,xdata)
+
+figure; hold on
+plot(xavg.time,xavg.avg)
+plot(xavg.time,xavg.avg+xavg.var,'b--')
+plot(xavg.time,xavg.avg-xavg.var,'b--')
 
 
     cfg             = [];
@@ -107,11 +149,7 @@ axis tight
     Xc = ft_spike_xcorr(cfg,pkdat_trl);
 end
     
-    data.trial = {[rwft_lh;rwft_rh]};
-    data.time = {[1:length(rwft_lh)]};
-    data.label = {'lh_roi','rh_roi'};
-    data.fsample = 1000;
-    data.dimord = 'chan_time'
+
     
     
     events = subvals{1}.bdat.event;
