@@ -33,7 +33,7 @@ for ss = 1:length(subsj)
         % Make pseudo-epochs
         cfg = [];
         cfg.length  = 3;
-        cfg.overlap = .5;
+        cfg.overlap = .0;
         epo = ft_redefinetrial(cfg, data);
         
         % Get PSD
@@ -112,25 +112,30 @@ disp('done');
 [h,p] = ttest(ctrl_relpow1,(ctrl_relpow2))
 
 % Plot histograms
-figure; hold on
+figure; hold on; title('Band power')
 subplot(1,2,1); h1 = histogram(ptns_bpow1,20); hold on
 subplot(1,2,1); h2 = histogram(ctrl_bpow1,20);
 subplot(1,2,2); h3 = histogram(ptns_bpow2,20); hold on 
 subplot(1,2,2); h4 = histogram(ctrl_bpow2,20);
 
-% Plot log histograms
 figure; hold on; title('Relative power')
+subplot(1,2,1); h1 = histogram(ptns_relpow1,20); hold on
+subplot(1,2,1); h2 = histogram(ctrl_relpow1,20);
+subplot(1,2,2); h3 = histogram(ptns_relpow2,20); hold on 
+subplot(1,2,2); h4 = histogram(ctrl_relpow2,20);
+
+% Plot log histograms
+figure; hold on; title('log-relative power')
 subplot(1,2,1); h1 = histogram(log(ptns_relpow1),20); hold on
 subplot(1,2,1); h2 = histogram(log(ctrl_relpow1),20);
 subplot(1,2,2); h3 = histogram(log(ptns_relpow2),20); hold on 
 subplot(1,2,2); h4 = histogram(log(ctrl_relpow2),20);
 
-figure; hold on; title('Band power')
+figure; hold on; title('log-band power')
 subplot(1,2,1); h1 = histogram(log(ptns_bpow1),20); hold on
 subplot(1,2,1); h2 = histogram(log(ctrl_bpow1),20);
 subplot(1,2,2); h3 = histogram(log(ptns_bpow2),20); hold on 
 subplot(1,2,2); h4 = histogram(log(ctrl_bpow2),20);
-
 
 %% grand average
 cfg = [];
@@ -146,9 +151,6 @@ plot(GA_ptns2.freq,(GA_ptns2.powspctrm),'b--')
 plot(GA_ctrl1.freq,(GA_ctrl1.powspctrm),'r-')
 plot(GA_ctrl2.freq,(GA_ctrl2.powspctrm),'r--'); hold off
 
-% 
-%     plot(pow.freq,pow.powspctrm); hold on;
-%     area(pow.freq(51:119),pow.powspctrm(51:119))
 
 %% Cluster stats
 cfg = [];
