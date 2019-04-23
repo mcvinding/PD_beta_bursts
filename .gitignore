@@ -4,3 +4,8 @@ misc/
 raw/
 summary/
 figures/
+
+# File extenstions to ignore
+*.m~
+*.pyc
+*.py~

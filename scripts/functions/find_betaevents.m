@@ -72,10 +72,11 @@ end
 
 % Cutoffs
 % Initiate values
-pkmat       = zeros(length(trl),1);
-n_events    = zeros(1,length(steps));
-rhomat      = nan(length(steps),1);
-bdat = struct();
+pkmat    = zeros(length(trl),1);
+n_events = zeros(1,length(steps));
+rhomat   = nan(length(steps),1);
+cutoff   = zeros(1,length(steps));
+bdat     = struct();
 
 % Find values
 dat = data.trial{:};
@@ -85,11 +86,11 @@ fprintf('Median of time-series: %.3f. sd: %.3f.\n', med, sd)
 
 for ii = 1:length(steps)
     if strcmp(cfg.cutofftype, 'sd')
-        cutoff = med+sd*steps(ii);
-        burst = dat >= cutoff;   
+        cutoff(ii) = med+sd*steps(ii);
+        burst = dat >= cutoff(ii);   
     elseif strcmp(cfg.cutofftype, 'med')
-        cutoff = med+med*steps(ii);
-        burst = dat >= cutoff;
+        cutoff(ii) = med+med*steps(ii);
+        burst = dat >= cutoff(ii);
     end
 
     for n = 1:length(trl)
@@ -110,9 +111,9 @@ for ii = 1:length(steps)
     startb  = find(dburst==1);      % Start of burst
     endb    = find(dburst==-1);     % End of burst´
     
-    maxarray = zeros(n_events,1);
-    maxidx   = zeros(n_events,1);
-    for n = 1:n_events
+    maxarray = zeros(n_events(ii),1);
+    maxidx   = zeros(n_events(ii),1);
+    for n = 1:n_events(ii)
         [maxarray(n), maxidx(n)] = max(dat(startb(n):endb(n)));
     end
 
@@ -120,15 +121,15 @@ for ii = 1:length(steps)
         
     % start-stop based on half-max width
     if strcmp(cfg.halfmax, 'yes') || strcmp(cfg.halfmax, 'mixed')
-        begsam = zeros(1,n_events);
-        endsam = zeros(1,n_events);
+        begsam = zeros(1,n_events(ii));
+        endsam = zeros(1,n_events(ii));
         hlfmx = maxarray/2;
         
         if  strcmp(cfg.halfmax, 'mixed')
-            hlfmx(hlfmx>cutoff) = cutoff;
+            hlfmx(hlfmx>cutoff(ii)) = cutoff(ii);
         end
         
-        for n = 1:n_events   
+        for n = 1:n_events(ii)
             %start
             idx = maxidx(n);
             xval = dat(idx);
@@ -154,14 +155,14 @@ for ii = 1:length(steps)
         end
 
         cburst = zeros(length(dat),1);
-        for n = 1:n_events
+        for n = 1:n_events(ii)
             cburst(begsam(n):endsam(n)) = 1;
         end
 
         % Get summaries (again)
         if cburst(end) == 1; cburst(end) = 0; end
         dcburst = diff([0 cburst']);
-        neve(ii) = sum(dcburst==1);
+        neve = sum(dcburst==1);
         startb  = find(dcburst==1);      % Start of burst
         endb    = find(dcburst==-1);     % End of burst´
 
@@ -172,22 +173,29 @@ for ii = 1:length(steps)
         end
         maxidx = maxidx+startb'-1;
         
-        n_events = neve;
+        n_events(ii) = neve;
     end
     
     evemark = nan(length(dat),1);
-    for n = 1:n_events
+    for n = 1:n_events(ii)
         evemark(startb(n):endb(n)) = dat(startb(n):endb(n));
     end
 
+    
     if strcmp(cfg.makeplot,'yes')
 %         xidx = 1:length(dat)/data.fsample;
-        figure; hold on
-        plot(dat)
-        plot(repmat(cutoff,length(dat),1),'r--')
-        plot(maxidx,maxarray, 'ko')
-        plot(1:length(dat),evemark, 'linewidth',2)
-        xlim([0 length(dat)])
+        if length(steps) >= 8 
+            dim = ceil(length(steps)/8);
+            subplot(dim,8,ii); hold on
+        else
+            figure; hold on
+        end
+        plot(dat);
+        plot(repmat(cutoff(ii),length(dat),1),'r--');
+        plot(maxidx,maxarray, 'ko');
+        plot(1:length(dat),evemark, 'linewidth',2);
+        xlim([0 length(dat)]);
+        title(ii);
     end
     
     % Length of burst
