@@ -4,6 +4,7 @@ misc/
 raw/
 summary/
 figures/
+data/
 
 # File extenstions to ignore
 *.m~

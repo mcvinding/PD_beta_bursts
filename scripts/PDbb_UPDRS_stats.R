@@ -7,6 +7,7 @@ options(mc.cores=parallel::detectCores)                   # Try run with multico
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
 load(file='uData.Rdata')
 
@@ -30,11 +31,11 @@ br.nev.uF7 <- brm(bf(nevent ~ F7+(1|subs:session)), data = u.neve.data.PD, famil
                   save_all_pars = TRUE, iter = 5000, cores = 1)
 br.nev.uFT <- brm(bf(nevent ~ Total+(1|subs:session)), data = u.neve.data.PD, family = poisson,
                   save_all_pars = TRUE, iter = 5000, cores = 1)
+br.nev.0 <- brm(bf(nevent ~ 1+(1|subs:session)), data = u.neve.data.PD, family = poisson,
+                  save_all_pars = TRUE, iter = 5000, cores = 1)
 
-# Add null model
-
-seted(wrkdir)
-save(br.nev.uF1,br.nev.uF2,br.nev.uF3,br.nev.uF4,br.nev.uF5,br.nev.uF6,br.nev.uF7,br.nev.uFT,
+setwd(wrkdir)
+save(br.nev.uF1,br.nev.uF2,br.nev.uF3,br.nev.uF4,br.nev.uF5,br.nev.uF6,br.nev.uF7,br.nev.uFT,br.nev.0,
      file = 'updrs_neve_mods.R')
 
 # hypothesis testing
@@ -48,6 +49,17 @@ h5 <- hypothesis(br.nev.uF5, "F5>0")
 h6 <- hypothesis(br.nev.uF6, "F6>0")
 h7 <- hypothesis(br.nev.uF7, "F7<0")
 hT <- hypothesis(br.nev.uFT, "Total>0")
+
+# Bayes Factor
+n.bf1 <- bayes_factor(br.nev.uF1,br.nev.0)
+n.bf2 <- bayes_factor(br.nev.uF2,br.nev.0)
+n.bf3 <- bayes_factor(br.nev.uF3,br.nev.0)
+n.bf4 <- bayes_factor(br.nev.uF4,br.nev.0)
+n.bf5 <- bayes_factor(br.nev.uF5,br.nev.0)
+n.bf6 <- bayes_factor(br.nev.uF6,br.nev.0)
+n.bf7 <- bayes_factor(br.nev.uF7,br.nev.0)
+n.bfT <- bayes_factor(br.nev.uFT,br.nev.0)
+
 
 ################################################################################
 ## ITI 
