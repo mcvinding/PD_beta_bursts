@@ -9,3 +9,7 @@ figures/
 *.m~
 *.pyc
 *.py~
+
+# Files
+scripts/leftovers.m
+.gitignore~

@@ -10,11 +10,12 @@ options(mc.cores=parallel::detectCores)                   # Try run with multico
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 # wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
-load(file = 'workspace.Rdata')
 # load(file = '.Rdata')
 
 ################################################################################
 ## N event analysis
+load(file = 'neve.RData')
+
 # Maximal Likelihood analysis
 mod3p <- glmer(nevent ~ group*session+(1|subs), data = neve.data, family='poisson')
 mod2p <- update(mod3p, ~. -group:session)
@@ -22,10 +23,6 @@ mod1p <- update(mod2p, ~. -group)
 mod0p <- update(mod1p, ~. -session)
 
 anova(mod0p,mod1p,mod2p,mod3p)
-
-# b <- anovaBF(nevent ~ session*group+subs, whichRandom = "subs", data = neve.data)
-# summary(b)
-# plot(b)
 
 # Make BRMS models
 br.nev3 <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = poisson, 
@@ -41,24 +38,24 @@ br.nev0 <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = poisson,
 setwd(wrkdir)
 save(br.nev3,br.nev2,br.nev1,br.nev0, file='neve_analysis.RData')
 
+# re-load
+load(file='neve_analysis.RData')
+
 # Model comparison
 n.bf10 <- bayes_factor(br.nev1,br.nev0)
 n.bf21 <- bayes_factor(br.nev2,br.nev1)
 n.bf32 <- bayes_factor(br.nev3,br.nev2)
-# n.bf31 <- bayes_factor(br.nev3,br.nev1)
+n.bf31 <- bayes_factor(br.nev3,br.nev3)
 
 n.bf10
 n.bf21
 n.bf32
-# n.bf31
-
-# re-load
-load(file='neve_analysis.RData')
+n.bf31
 
 # Hypothesis testing
-hypothesis(br.nev3, "groupptns<0")
-hypothesis(br.nev3, "session2+groupptns:session2>0")
-hypothesis(br.nev3, "session2<0")
+h <- hypothesis(br.nev3, "groupptns<0")
+h <- hypothesis(br.nev3, "session2+groupptns:session2>0")
+h <- hypothesis(br.nev3, "session2<0")
 
 # Summaries
 summary(br.nev3)

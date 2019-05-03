@@ -31,6 +31,8 @@ br.nev.uF7 <- brm(bf(nevent ~ F7+(1|subs:session)), data = u.neve.data.PD, famil
 br.nev.uFT <- brm(bf(nevent ~ Total+(1|subs:session)), data = u.neve.data.PD, family = poisson,
                   save_all_pars = TRUE, iter = 5000, cores = 1)
 
+# Add null model
+
 seted(wrkdir)
 save(br.nev.uF1,br.nev.uF2,br.nev.uF3,br.nev.uF4,br.nev.uF5,br.nev.uF6,br.nev.uF7,br.nev.uFT,
      file = 'updrs_neve_mods.R')
