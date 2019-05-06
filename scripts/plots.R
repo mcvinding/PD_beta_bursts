@@ -16,6 +16,7 @@ n.summary$sd <- n.summary.sd$x
 n.summary$se <- n.summary$sd/sqrt(19)*2
 
 ## Plot
+set.seed(9000)
 nplt <- ggplot(neve.data, aes(x=task, y=nevent))+
   geom_crossbar(data=n.summary, aes(x=task,y=mean, ymin=mean, ymax=mean), width = 0.5) +
   geom_errorbar(data=n.summary, aes(x=task,y=mean, ymin=mean-sd, ymax=mean+sd), width=0.2) +
