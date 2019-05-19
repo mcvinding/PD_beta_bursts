@@ -69,6 +69,16 @@ quantile(exp(sam.nev3[,3]+sam.nev3[,4]), probs=c(0.025,0.975))-1  # 95%CI
 mean(exp(sam.nev3[,3]))-1                                         # Ctrls session 2 (rel change)
 quantile(exp(sam.nev3[,3]), probs=c(0.025,0.975))-1               # 95%CI
 
+# Estimated number per min
+exp(fixef(br.nev3)[1])/3                                          # Ctrl session 1
+quantile(exp(sam.nev3[,1]), probs=c(0.025,0.975))/3               # 95%CI
+exp(fixef(br.nev3)[1]+fixef(br.nev3)[2])/3                        # Ptns session 1
+quantile(exp(sam.nev3[,1]+sam.nev3[,2]), probs=c(0.025,0.975))/3  # 95%CI
+exp(fixef(br.nev3)[1]+fixef(br.nev3)[3])/3                        # Ctrl session 2
+quantile(exp(sam.nev3[,1]+sam.nev3[,3]), probs=c(0.025,0.975))/3  # 95%CI
+exp(fixef(br.nev3)[1]+fixef(br.nev3)[2]+fixef(br.nev3)[3]+fixef(br.nev3)[4])/3                        # Ctrl session 2
+quantile(exp(sam.nev3[,1]+sam.nev3[,2]+sam.nev3[,3]+sam.nev3[,4]), probs=c(0.025,0.975))/3  # 95%CI
+
 ################################################################################
 ## Time to event
 load(file = 'itieve.RData')
@@ -100,6 +110,9 @@ br.iti0 <- brm(bf(eve.iti.ms ~ 1+(1|subs)),
 setwd(wrkdir)
 save(br.iti3,br.iti2,br.iti1,br.iti0, file='itieve_analysis.RData')
 
+# Re-load
+load('itieve_analysis.RData')
+
 # Model comparison
 iti.bf10 <- bayes_factor(br.iti1,br.iti0)
 iti.bf21 <- bayes_factor(br.iti2,br.iti1)
@@ -108,9 +121,6 @@ iti.bf32 <- bayes_factor(br.iti3,br.iti2)
 iti.bf10
 iti.bf21
 iti.bf32
-
-# Re-load
-load('itieve_analysis.RData')
 
 # Hypothesis testing
 h1 <- hypothesis(br.iti3, "groupptns>0")
@@ -124,15 +134,18 @@ summary(br.iti3)
 sam.iti3 <- posterior_samples(br.iti3, "^b")
 
 exp(fixef(br.iti3))                                               # All
-mean(exp(sam.iti3[,1]+sam.iti3[,2]))      # Ptns session 1 (ms)
+mean(exp(sam.iti3[,1]+sam.iti3[,2]))                                # Ptns session 1 (ms)
 quantile(sam.iti3[,1]+sam.iti3[,2], probs=c(0.025,0.975))           # 95%CI
-mean(exp(sam.iti3[,1]+sam.iti3[,2]+sam.iti3[,3]+sam.iti3[,4]))                               # Ptns session 2 (rel change)
+mean(exp(sam.iti3[,1]+sam.iti3[,2]+sam.iti3[,3]+sam.iti3[,4]))      # Ptns session 2 (ms)
 quantile(exp(sam.iti3[,1]+sam.iti3[,2]+sam.iti3[,3]+sam.iti3[,4]),probs=c(0.025,0.975))  # 95%CI
 mean(exp(sam.iti3[,3]+sam.iti3[,4]))-1                               # Ptns session 2 (rel change)
 quantile(exp(sam.iti3[,3]+sam.iti3[,4]),probs=c(0.025,0.975))-1  # 95%CI
 
-mean(exp(sam.iti3[,3]), probs=c(0.025,0.975))-1                   # Ctrls session 2 (rel change)
+mean(exp(sam.iti3[,1]+sam.iti3[,3]), probs=c(0.025,0.975))-1                   # Ctrls session 2 (rel change)
+quantile(exp(sam.iti3[,1]+sam.iti3[,3]), probs=c(0.025,0.975))-1               # 95%CI
+mean(exp(sam.iti3[,3]), probs=c(0.025,0.975))-1                   # Ctrls session 2 (ms)
 quantile(exp(sam.iti3[,3]), probs=c(0.025,0.975))-1               # 95%CI
+
 
 ################################################################################
 ## Event length
@@ -165,6 +178,9 @@ br.len0 <- brm(bf(eve.len.ms ~ 1+(1|subs)),
 setwd(wrkdir)
 save(br.len3,br.len2,br.len1,br.len0, file='leneve_analysis.RData')
 
+# Re-load
+load(file='leneve_analysis.RData')
+
 len.bf10 <- bayes_factor(br.len1,br.len0)
 len.bf21 <- bayes_factor(br.len2,br.len1)
 len.bf32 <- bayes_factor(br.len3,br.len2)
@@ -172,9 +188,6 @@ len.bf32 <- bayes_factor(br.len3,br.len2)
 len.bf10
 len.bf21
 len.bf32
-
-# Re-load
-load(file='leneve_analysis.RData')
 
 # Hypothesis testing
 h1 <- hypothesis(br.len3, "groupptns<0")
@@ -187,10 +200,14 @@ summary(br.len3)
 sam.len3 <- posterior_samples(br.len3, "^b")
 
 exp(fixef(br.len3))                                               # All
-mean(exp(sam.len3[,1]+sam.len3[,2]))      # Ptns session 1 (ms)
-quantile(exp(sam.len3[,1]+sam.len3[,2]), probs=c(0.025,0.975))           # 95%CI
+mean(exp(sam.len3[,1]+sam.len3[,2]))                              # Ptns session 1 (ms)
+quantile(exp(sam.len3[,1]+sam.len3[,2]), probs=c(0.025,0.975))    # 95%CI
 mean(exp(sam.len3[,1]+sam.len3[,2]+sam.len3[,3]+sam.len3[,4]))                               # Ptns session 2 (abs change)
 quantile(exp(sam.len3[,1]+sam.len3[,2]+sam.len3[,3]+sam.len3[,4]),probs=c(0.025,0.975))  # 95%CI
+
+mean(exp(sam.len3[,1]+sam.len3[,3]))                               # Ptns session 2 (abs change)
+quantile(exp(sam.len3[,1]+sam.len3[,3]),probs=c(0.025,0.975))  # 95%CI
+
 
 ################################################################################
 ## Max power
@@ -223,6 +240,9 @@ br.max0 <- brm(bf(eve.max ~ 1+(1|subs)),
 setwd(wrkdir)
 save(br.max3,br.max2,br.max1,br.max0, file='maxeve_analysis.RData')
 
+# Re-load
+load(file='maxeve_analysis.RData')
+     
 max.bf10 <- bayes_factor(br.max1,br.max0)
 max.bf21 <- bayes_factor(br.max2,br.max1)
 max.bf32 <- bayes_factor(br.max3,br.max2)
@@ -230,9 +250,6 @@ max.bf32 <- bayes_factor(br.max3,br.max2)
 max.bf10
 max.bf21
 max.bf32
-
-# Re-load
-load(file='maxeve_analysis.RData')
 
 # Hypothesis testing
 h1 <- hypothesis(br.max3, "groupptns<0")
@@ -245,10 +262,19 @@ summary(br.max3)
 
 sam.max3 <- posterior_samples(br.max3, "^b")
 
-mean(exp(sam.max3[,3]))-1      # Ctrl session 1 (ms)
-quantile(exp(sam.max3[,3]), probs=c(0.025,0.975))-1           # 95%CI
-mean(exp(sam.max3[,3]+sam.max3[,4]))-1      # Ptns session 1 (ms)
+mean(exp(sam.max3[,3]))-1                                       # Ctrl session 2 (rel)
+quantile(exp(sam.max3[,3]), probs=c(0.025,0.975))-1             # 95%CI
+mean(exp(sam.max3[,3]+sam.max3[,4]))-1                          # Ptns session 1 (rel)
 quantile(exp(sam.max3[,3]+sam.max3[,4]), probs=c(0.025,0.975))-1           # 95%CIquantile(exp(sam.len3[,1]+sam.len3[,2]+sam.len3[,3]+sam.len3[,4]),probs=c(0.025,0.975))  # 95%CI
+
+mean(exp(sam.max3[,1]))                                         # Ctrl session 1 (F)
+quantile(exp(sam.max3[,1]), probs=c(0.025,0.975))               # 95%CI
+mean(exp(sam.max3[,1]+sam.max3[,2]))                            # Ptns session 1 (F)
+quantile(exp(sam.max3[,1]+sam.max3[,2]), probs=c(0.025,0.975))  # 95% CI
+mean(exp(sam.max3[,1]+sam.max3[,3]))                            # Ctrl session 2 (F)
+quantile(exp(sam.max3[,1]+sam.max3[,3]), probs=c(0.025,0.975))  # 95% CI
+mean(exp(sam.max3[,1]+sam.max3[,2]+sam.max3[,3]+sam.max3[,4]))  # Ptns session 2 (F)
+quantile(exp(sam.max3[,1]+sam.max3[,2]+sam.max3[,3]+sam.max3[,4]), probs=c(0.025,0.975))  # 95% CI
 
 # Clean-up
 save.image(file='workspace.Rdata')
