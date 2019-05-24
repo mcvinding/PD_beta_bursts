@@ -57,7 +57,7 @@ end
 trl = dat.sampleinfo;
 % trl = trl-trl(1,1)+1; %Corrent for non-zero sample offset
 
-% Get epoch power and amplitude
+% Get mean epoch power and amplitude (per epoch)
 epoamp = nan(length(trl),1);
 epopow = nan(length(trl),1);
 for n = 1:length(trl)
@@ -75,8 +75,8 @@ bdat     = struct();
 
 % Find values
 % dat = data.trial{:};
-med = median(dat.trial(:));
-sd = std(dat.trial(:));
+med = median(dat.trial(:));         % Median all across trials
+sd = std(dat.trial(:));             % SD acriss all trials
 fprintf('Median of all trials: %.3f. sd: %.3f.\n', med, sd)
 
 for ii = 1:length(steps)
@@ -99,18 +99,17 @@ for ii = 1:length(steps)
     
     % Get summaries
     if burst(end) == 1; burst(end) = 0; end
-    dburst = diff([0 burst]);
-    n_events(ii) = sum(dburst==1);
+    dburst = diff([zeros(size(burst,1),1) burst], [], 2);
+    n_events = sum(dburst==1,2);
     startb  = find(dburst==1);      % Start of burst
     endb    = find(dburst==-1);     % End of burst´
     
     maxarray = zeros(n_events(ii),1);
     maxidx   = zeros(n_events(ii),1);
     for n = 1:n_events(ii)
-        [maxarray(n), maxidx(n)] = max(dat(startb(n):endb(n)));
+        [maxarray(n), maxidx(n)] = max(dat.trial(startb(n):endb(n)));
+        maxidx(n) = maxidx(n)+startb(n)-1;
     end
-
-    maxidx = maxidx+startb'-1;
         
     % start-stop based on half-max width
     if strcmp(cfg.halfmax, 'yes') || strcmp(cfg.halfmax, 'mixed')
@@ -125,33 +124,33 @@ for ii = 1:length(steps)
         for n = 1:n_events(ii)
             %start
             idx = maxidx(n);
-            xval = dat(idx);
+            xval = dat.trial(idx);
             while xval > hlfmx(n)
                 if idx == 1
                     break
                 end
                 idx = idx-1;
-                xval = dat(idx);
+                xval = dat.trial(idx);
             end
             begsam(n) = idx;
             % end
             idx = maxidx(n);
-            xval = dat(idx);
+            xval = dat.trial(idx);
             while xval > hlfmx(n)
                 if idx == length(dat)
                     break
                 end
                 idx = idx+1;
-                xval = dat(idx);
+                xval = dat.trial(idx);
             end
             endsam(n) = idx;
         end
 
-        cburst = zeros(length(dat),1);
+        cburst = zeros(size(squeeze(dat.trial)));
         for n = 1:n_events(ii)
             cburst(begsam(n):endsam(n)) = 1;
         end
-
+    end
         % Get summaries (again)
         if cburst(end) == 1; cburst(end) = 0; end
         dcburst = diff([0 cburst']);
