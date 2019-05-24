@@ -53,8 +53,12 @@ for sub in subjects:
         
         for hemi in ['lh','rh']:
 
-            lab = make_sensorymotorROI(sub, subjects_dir, hemi=hemi) 
+            lab = make_sensorymotorROI(sub, subjects_dir, hemi=hemi)
+            
+            # Save label
+            lab.save(op.join(subjects_dir, sub, 'label',hemi+'.sensmotor.label'))
 
+            # Extract label time-series
             label_tc = stc.extract_label_time_course(lab, src ,mode='pca_flip')[0,:]
             label_tc  = np.float64(label_tc)
 
