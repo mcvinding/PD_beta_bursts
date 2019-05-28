@@ -4,6 +4,7 @@ misc/
 raw/
 summary/
 figures/
+fs_stats/
 
 # File extenstions to ignore
 *.m~
@@ -12,4 +13,6 @@ figures/
 
 # Files
 scripts/leftovers.m
+scripts/sandbox.m
 .gitignore~
+

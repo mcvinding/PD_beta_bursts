@@ -14,12 +14,25 @@ subs = find_subs(dirs.megDir);                                %Find subjects in 
 %% N events
 nevent1 = nan(length(subs), 1);
 nevent2 = nan(length(subs), 1);
+b1_1 = nan(length(subs), 1);
+b2_1 = nan(length(subs), 1);
+b3_1 = nan(length(subs), 1);
+b1_2 = nan(length(subs), 1);
+b2_2 = nan(length(subs), 1);
+b3_2 = nan(length(subs), 1);
 
 for ii = 1:length(subs)
     load(fullfile(dirs.megDir,subs{ii},'subvals.mat'))
     
     nevent1(ii) = subvals{1}.n_events;
     nevent2(ii) = subvals{2}.n_events;
+    
+    b1_1(ii) = sum(subvals{1}.bdat.maxidx < 60000);
+    b2_1(ii) = sum(subvals{1}.bdat.maxidx > 60000 & subvals{1}.bdat.maxidx < 120000);
+    b3_1(ii) = sum(subvals{1}.bdat.maxidx > 120000);
+    b1_2(ii) = sum(subvals{2}.bdat.maxidx < 60000);
+    b2_2(ii) = sum(subvals{2}.bdat.maxidx > 60000 & subvals{2}.bdat.maxidx < 120000);
+    b3_2(ii) = sum(subvals{2}.bdat.maxidx > 120000);
 end
 
 PDn1 = nevent1(PDidx);
@@ -27,21 +40,34 @@ ctrln1 = nevent1(ctrlidx);
 PDn2 = nevent2(PDidx);
 ctrln2 = nevent2(ctrlidx);
 
-PDnavg1 = nanmean(PDn1);
-ctrlnavg1 = nanmean(ctrln1);
-PDnavg2 = nanmean(PDn2);
-ctrlnavg2 = nanmean(ctrln2);
+PDn1_1 = b1_1(PDidx);
+PDn2_1 = b2_1(PDidx);
+PDn3_1 = b3_1(PDidx);
+PDn1_2 = b1_2(PDidx);
+PDn2_2 = b2_2(PDidx);
+PDn3_2 = b3_2(PDidx);
 
-PDnsd1 = nanstd(PDn1);
-ctrlnsd1 = nanstd(ctrln1);
-PDnsd2 = nanstd(PDn2);
-ctrlnsd2 = nanstd(ctrln2);
+ctrln1_1 = b1_1(ctrlidx);
+ctrln2_1 = b2_1(ctrlidx);
+ctrln3_1 = b3_1(ctrlidx);
+ctrln1_2 = b1_2(ctrlidx);
+ctrln2_2 = b2_2(ctrlidx);
+ctrln3_2 = b3_2(ctrlidx);
 
-[~, pt1,~,t1] = ttest2(PDn1,ctrln1);
-[~, pt2,~,t2] = ttest2(PDn2,ctrln2);
-[~, ptPt,~,tPt] = ttest(PDn1,PDn2);
-[~, ptCt,~,tCt] = ttest(ctrln1,ctrln2);
+% PDnavg1 = nanmean(PDn1);
+% ctrlnavg1 = nanmean(ctrln1);
+% PDnavg2 = nanmean(PDn2);
+% ctrlnavg2 = nanmean(ctrln2);
+% 
+% PDnsd1 = nanstd(PDn1);
+% ctrlnsd1 = nanstd(ctrln1);
+% PDnsd2 = nanstd(PDn2);
+% ctrlnsd2 = nanstd(ctrln2);
 
+% [~, pt1,~,t1] = ttest2(PDn1,ctrln1);
+% [~, pt2,~,t2] = ttest2(PDn2,ctrln2);
+% [~, ptPt,~,tPt] = ttest(PDn1,PDn2);
+% [~, ptCt,~,tCt] = ttest(ctrln1,ctrln2);
 
 figure;
 subplot(1,2,1); histogram(PDn1,10); hold on
@@ -49,11 +75,16 @@ subplot(1,2,1); histogram(ctrln1,10); hold off
 subplot(1,2,2); histogram(PDn2,10); hold on
 subplot(1,2,2); histogram(ctrln2,10); hold off
 
-mns = [PDnavg1, ctrlnavg1; PDnavg2, ctrlnavg2];
-sds = [PDnsd1, ctrlnsd1; PDnsd2, ctrlnsd2];
+% mns = [PDnavg1, ctrlnavg1; PDnavg2, ctrlnavg2];
+% sds = [PDnsd1, ctrlnsd1; PDnsd2, ctrlnsd2];
 
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/nevent.mat', ...
     'PDn1', 'ctrln1', 'PDn2', 'ctrln2','PD_subs','ctrl_subs');
+
+save('/home/mikkel/PD_motor/rest_ec/groupanalysis/nevent_min.mat', ...
+    'PDn1_1', 'PDn2_1', 'PDn3_1', 'PDn1_2', 'PDn2_2', 'PDn3_2', ...
+    'ctrln1_1', 'ctrln2_1', 'ctrln3_1', 'ctrln1_2', 'ctrln2_2', 'ctrln3_2', ...
+    'PD_subs','ctrl_subs');
 
 %% Event duration
 lenmean1 = zeros(length(subs), 1);   % subjects x number of steps

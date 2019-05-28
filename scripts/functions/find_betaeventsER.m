@@ -74,86 +74,96 @@ cutoff   = zeros(1,length(steps));
 bdat     = struct();
 
 % Find values
-% dat = data.trial{:};
-med = median(dat.trial(:));         % Median all across trials
-sd = std(dat.trial(:));             % SD acriss all trials
+tempdat = squeeze(dat.trial);
+med = median(tempdat(:));         % Median all across trials
+sd = std(tempdat(:));             % SD acriss all trials
 fprintf('Median of all trials: %.3f. sd: %.3f.\n', med, sd)
 
 for ii = 1:length(steps)
     if strcmp(cfg.cutofftype, 'sd')
         cutoff(ii) = med+sd*steps(ii);
-        burst = dat.trial >= cutoff(ii);   
+        burst = tempdat >= cutoff(ii);   
     elseif strcmp(cfg.cutofftype, 'med')
         cutoff(ii) = med+med*steps(ii);
-        burst = dat.trial >= cutoff(ii);
+        burst = tempdat >= cutoff(ii);
     end
     burst = squeeze(burst);        % Remove empty dimension
-    tmp = diff(burst,[],2);
-    pkmat = sum(tmp==1,2);
     
+    % Get correlation [MOVE TO END]
     if strcmp('amp', cfg.corrtype)
-        rhomat(ii) = corr(pkmat, epoamp);
+        rhomat(ii) = corr(n_events, epoamp);
     elseif strcmp('pow', cfg.corrtype)
-        rhomat(ii) = corr(pkmat, epopow);
+        rhomat(ii) = corr(n_events, epopow);
     end
-    
+% ------------------------------------------------------------------- %
     % Get summaries
-    if burst(end) == 1; burst(end) = 0; end
+    burst(:,end) = 0;
     dburst = diff([zeros(size(burst,1),1) burst], [], 2);
-    n_events = sum(dburst==1,2);
-    startb  = find(dburst==1);      % Start of burst
-    endb    = find(dburst==-1);     % End of burst´
+    n_events = sum(dburst==1,2);    % Events per trial
+    cburst = burst;
     
-    maxarray = zeros(n_events(ii),1);
-    maxidx   = zeros(n_events(ii),1);
-    for n = 1:n_events(ii)
-        [maxarray(n), maxidx(n)] = max(dat.trial(startb(n):endb(n)));
-        maxidx(n) = maxidx(n)+startb(n)-1;
-    end
+    for kk = 1:size(tempdata,1)
+        maxarray = zeros(n_events(kk),1);
+        maxidx   = zeros(n_events(kk),1);
+        trldat = tempdat(kk,:);
+        trldbs = dburst(kk,:);
+        startb  = find(trldbs==1);      % Start of burst
+        endb    = find(trldbs==-1);     % End of burst´
         
-    % start-stop based on half-max width
-    if strcmp(cfg.halfmax, 'yes') || strcmp(cfg.halfmax, 'mixed')
-        begsam = zeros(1,n_events(ii));
-        endsam = zeros(1,n_events(ii));
-        hlfmx = maxarray/2;
-        
-        if  strcmp(cfg.halfmax, 'mixed')
-            hlfmx(hlfmx>cutoff(ii)) = cutoff(ii);
+        for n = 1:n_events(kk)
+            [maxarray(n), maxidx(n)] = max(trldat(startb(n):endb(n)));
+            maxidx(n) = maxidx(n)+startb(n)-1;
         end
-        
-        for n = 1:n_events(ii)
-            %start
-            idx = maxidx(n);
-            xval = dat.trial(idx);
-            while xval > hlfmx(n)
-                if idx == 1
-                    break
-                end
-                idx = idx-1;
-                xval = dat.trial(idx);
-            end
-            begsam(n) = idx;
-            % end
-            idx = maxidx(n);
-            xval = dat.trial(idx);
-            while xval > hlfmx(n)
-                if idx == length(dat)
-                    break
-                end
-                idx = idx+1;
-                xval = dat.trial(idx);
-            end
-            endsam(n) = idx;
-        end
+    
+%     tmp = diff(burst,[],2);
+%     pkmat = sum(tmp==1,2);
 
-        cburst = zeros(size(squeeze(dat.trial)));
-        for n = 1:n_events(ii)
-            cburst(begsam(n):endsam(n)) = 1;
+        % start-stop based on half-max width
+        if strcmp(cfg.halfmax, 'yes') || strcmp(cfg.halfmax, 'mixed')
+            begsam = zeros(1,n_events(kk));
+            endsam = zeros(1,n_events(kk));
+            hlfmx = maxarray/2;
+
+            if  strcmp(cfg.halfmax, 'mixed')
+                hlfmx(hlfmx>cutoff(ii)) = cutoff(ii);
+            end
+
+            for n = 1:n_events(kk)
+                %start
+                idx = maxidx(n);
+                xval = trldat(idx);
+                while xval > hlfmx(n)
+                    if idx == 1
+                        break
+                    end
+                    idx = idx-1;
+                    xval = trldat(idx);
+                end
+                begsam(n) = idx;
+                % end
+                idx = maxidx(n);
+                xval = trldat(idx);
+                while xval > hlfmx(n)
+                    if idx == length(dat)
+                        break
+                    end
+                    idx = idx+1;
+                    xval = trldat(idx);
+                end
+                endsam(n) = idx;
+            end
+
+            trlb = zeros(1,length(trldat));
+            for n = 1:n_events(kk)
+                trlb(begsam(n):endsam(n)) = 1;
+            end
+            
+            cburst(kk,:) = trlb;   % Corrected matrix
         end
-    end
+        
         % Get summaries (again)
-        if cburst(end) == 1; cburst(end) = 0; end
-        dcburst = diff([0 cburst']);
+        if trlb(end) == 1; trlb(end) = 0; end
+        dcburst = diff([0 trlb']);
         neve = sum(dcburst==1);
         startb  = find(dcburst==1);      % Start of burst
         endb    = find(dcburst==-1);     % End of burst´
@@ -168,7 +178,7 @@ for ii = 1:length(steps)
         n_events(ii) = neve;
     end
     
-    evemark = nan(length(dat),1);
+    evemark = nan(length(dat.trial),1);
     for n = 1:n_events(ii)
         evemark(startb(n):endb(n)) = dat(startb(n):endb(n));
     end
