@@ -191,7 +191,7 @@ len.bf32
 
 # Hypothesis testing
 h1 <- hypothesis(br.len3, "groupptns<0")
-h2 <- hypothesis(br.len3, "session2+groupptns:session2>0")
+h2 <- hypothesis(br.len3, "groupptns+session2+groupptns:session2>groupptns")
 h3 <- hypothesis(br.len3, "session2>0")
 
 #Summaries

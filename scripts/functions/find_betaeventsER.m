@@ -8,7 +8,10 @@ function [output, rhomat] = find_betaeventsER(cfg, data)
 %
 % USE: [output, rhomat] = find_betaevents(cfg, data)
 % INPUT:
-% cfg.steps         = [Nx1] Steps to find correlation and threshold (required)
+% data              = A data structure from FieldTrip with event related (
+%                     epoched) data on a single (virtual) channel.
+% Takes the folowing config inputs:
+% cfg.threshold     = [Nx1] Steps to find correlation and threshold (required)
 % cfg.cutofftype    = ['sd'/'med'] Should cutoff be determined relative to
 %                     x*standard deviations away from median (Little et al, 2018)
 %                     or x*medians away from median (Shin et al. 2016).
@@ -24,7 +27,7 @@ function [output, rhomat] = find_betaeventsER(cfg, data)
 %                     values above threshold with the value of the
 %                     threshold crossing (default='no').
 % cfg.length        = [num] length of epoch window in seconds. Passed to
-%                     FT_REDEFINETRIAL (default=3).
+%                     FT_REDEFINETRIAL (default=3). NOT IN USE ANYMORE!
 % cfg.overlap       = [num] overlap between epochs assed to FT_REDEFINETRIAL
 %                     (default=0, i.e. no overlap)
 % cfg.makeplot      = ['yes'/'no'] plot the time series with cutoff, peaks,
@@ -36,8 +39,8 @@ function [output, rhomat] = find_betaeventsER(cfg, data)
 dat = ft_checkdata(data, 'datatype','timelock');
 
 % opts
-cfg = ft_checkconfig(cfg, 'required', 'steps');
-steps = cfg.steps;
+cfg = ft_checkconfig(cfg, 'required', 'threshold');
+steps = cfg.threshold;
 
 % cfg.getcutoff   = ft_getopt(cfg, 'getcutoff', 'no');
 cfg.cutofftype  = ft_getopt(cfg, 'cutofftype', 'med');
@@ -55,6 +58,7 @@ if ~any(strcmp({'amp','pow'}, cfg.corrtype))
 end
 
 trl = dat.sampleinfo;
+tim = data.time{1};
 % trl = trl-trl(1,1)+1; %Corrent for non-zero sample offset
 
 % Get mean epoch power and amplitude (per epoch)
@@ -66,47 +70,41 @@ for n = 1:length(trl)
 end
 
 % Cutoffs
-% Initiate values
-pkmat    = zeros(length(trl),1);
-n_events = zeros(1,length(steps));
-rhomat   = nan(length(steps),1);
-cutoff   = zeros(1,length(steps));
-bdat     = struct();
-
 % Find values
 tempdat = squeeze(dat.trial);
 med = median(tempdat(:));         % Median all across trials
 sd = std(tempdat(:));             % SD acriss all trials
 fprintf('Median of all trials: %.3f. sd: %.3f.\n', med, sd)
 
+% Initiate values
+% pkmat    = zeros(length(trl),1);
+% n_events = zeros(1,length(steps));
+rhomat   = nan(length(steps),1);
+cutoff   = zeros(1,length(steps));
+bdat     = struct();
+
+
 for ii = 1:length(steps)
     if strcmp(cfg.cutofftype, 'sd')
         cutoff(ii) = med+sd*steps(ii);
-        burst = tempdat >= cutoff(ii);   
+        tmp_burst = tempdat >= cutoff(ii);   
     elseif strcmp(cfg.cutofftype, 'med')
         cutoff(ii) = med+med*steps(ii);
-        burst = tempdat >= cutoff(ii);
+        tmp_burst = tempdat >= cutoff(ii);
     end
-    burst = squeeze(burst);        % Remove empty dimension
     
-    % Get correlation [MOVE TO END]
-    if strcmp('amp', cfg.corrtype)
-        rhomat(ii) = corr(n_events, epoamp);
-    elseif strcmp('pow', cfg.corrtype)
-        rhomat(ii) = corr(n_events, epopow);
-    end
-% ------------------------------------------------------------------- %
-    % Get summaries
-    burst(:,end) = 0;
-    dburst = diff([zeros(size(burst,1),1) burst], [], 2);
-    n_events = sum(dburst==1,2);    % Events per trial
-    cburst = burst;
+    % Correct onset/offset
+    tmp_burst(:,end) = 0;
+    dtburst = diff([zeros(size(tmp_burst,1),1) tmp_burst], [], 2);
+    n_events = sum(dtburst==1,2);    % Events per trial
+    burst = zeros(size(tmp_burst));
+    maxmat = zeros(size(tmp_burst));
     
-    for kk = 1:size(tempdata,1)
+    for kk = 1:size(tempdat,1)
         maxarray = zeros(n_events(kk),1);
         maxidx   = zeros(n_events(kk),1);
         trldat = tempdat(kk,:);
-        trldbs = dburst(kk,:);
+        trldbs = dtburst(kk,:);
         startb  = find(trldbs==1);      % Start of burst
         endb    = find(trldbs==-1);     % End of burst´
         
@@ -114,9 +112,6 @@ for ii = 1:length(steps)
             [maxarray(n), maxidx(n)] = max(trldat(startb(n):endb(n)));
             maxidx(n) = maxidx(n)+startb(n)-1;
         end
-    
-%     tmp = diff(burst,[],2);
-%     pkmat = sum(tmp==1,2);
 
         % start-stop based on half-max width
         if strcmp(cfg.halfmax, 'yes') || strcmp(cfg.halfmax, 'mixed')
@@ -144,7 +139,7 @@ for ii = 1:length(steps)
                 idx = maxidx(n);
                 xval = trldat(idx);
                 while xval > hlfmx(n)
-                    if idx == length(dat)
+                    if idx == length(trldat)
                         break
                     end
                     idx = idx+1;
@@ -158,33 +153,40 @@ for ii = 1:length(steps)
                 trlb(begsam(n):endsam(n)) = 1;
             end
             
-            cburst(kk,:) = trlb;   % Corrected matrix
+            burst(kk,:) = trlb;   % Corrected matrix
         end
+    end
         
-        % Get summaries (again)
-        if trlb(end) == 1; trlb(end) = 0; end
-        dcburst = diff([0 trlb']);
-        neve = sum(dcburst==1);
-        startb  = find(dcburst==1);      % Start of burst
-        endb    = find(dcburst==-1);     % End of burst´
+    % Get summaries (again)
+    burst(:,end) = 0;
+    dburst = diff([zeros(size(burst,1),1) burst], [], 2);
 
-        maxarray = zeros(neve,1);
-        maxidx   = zeros(neve,1);
-        for n = 1:neve
-            [maxarray(n), maxidx(n)] = max(dat(startb(n):endb(n)));
+    neve    = sum(dburst==1,2);
+    for kk = 1:size(dburst,1)
+        startb  = find(dburst(kk,:)==1);      % Start of burst
+        endb    = find(dburst(kk,:)==-1);     % End of burst´
+
+        maxarray = zeros(neve(kk),1);
+        maxidx   = zeros(neve(kk),1);
+        for n = 1:neve(kk)
+            [maxarray(n), maxidx(n)] = max(tempdat(kk,startb(n):endb(n)));
         end
         maxidx = maxidx+startb'-1;
-        
-        n_events(ii) = neve;
+        maxmat(kk,maxidx) = 1;
     end
     
-    evemark = nan(length(dat.trial),1);
-    for n = 1:n_events(ii)
-        evemark(startb(n):endb(n)) = dat(startb(n):endb(n));
+    % Get correlation [MOVE TO END]
+    if strcmp('amp', cfg.corrtype)
+        rhomat(ii) = corr(neve, epoamp);
+    elseif strcmp('pow', cfg.corrtype)
+        rhomat(ii) = corr(neve, epopow);
     end
-
     
     if strcmp(cfg.makeplot,'yes')
+        evemark = nan(size(tempdat(kk,:)));
+        for n = 1:neve(kk)
+            evemark(startb(n):endb(n)) = tempdat(kk,startb(n):endb(n));
+        end
 %         xidx = 1:length(dat)/data.fsample;
         if length(steps) >= 8 
             dim = ceil(length(steps)/8);
@@ -192,12 +194,23 @@ for ii = 1:length(steps)
         else
             figure; hold on
         end
-        plot(dat);
-        plot(repmat(cutoff(ii),length(dat),1),'r--');
+        plot(tempdat(kk,:));
+        plot(repmat(cutoff(ii),size(tempdat(kk,:))),'r--');
         plot(maxidx,maxarray, 'ko');
-        plot(1:length(dat),evemark, 'linewidth',2);
+        plot(1:length(tempdat),evemark, 'linewidth',2);
         xlim([0 length(dat)]);
         title(ii);
+        
+        % Pesure-Raster plot
+        subplot(4,1,1:3);
+        pltmat = burst;
+        pltmat(maxmat==1) = 2;
+        imagesc(tim, 1, pltmat);     
+        ylabel('Trial');
+        subplot(4,1,4);
+        plot(tim,mean(burst))
+        ylabel('Burst prob.'); xlabel('Time')
+
     end
     
     % Length of burst
@@ -207,17 +220,18 @@ for ii = 1:length(steps)
         error('negative length of event')
     end
 
-    % Arrange data
-    bdat(ii).event  = [startb; endb]';
-    bdat(ii).evelen = evelen';
-    bdat(ii).maxpk  = maxarray;
-    bdat(ii).maxidx = maxidx;
+    % Arrange data (work in progress)
+    bdat(ii).eventmat   = burst;
+%     bdat(ii).evelen     = evelen';
+    bdat(ii).maxmat     = maxmat;
+    bdat(ii).time       = tim;         % Copy (assume all trials have same time axis)
+%     bdat(ii).maxidx     = maxidx;
 end
 
 % Make output
-output.steps    = steps;
-output.n_events = n_events;
-output.cutoff   = cutoff;
-output.bdat     = bdat;
+output.threshold    = steps;
+% output.n_events     = n_events;
+output.cutoff       = cutoff;
+output.bdat         = bdat;
 
 % End

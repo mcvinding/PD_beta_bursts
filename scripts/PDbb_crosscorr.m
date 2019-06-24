@@ -48,6 +48,8 @@ ii = 1;
 
 
     cfg             = [];
+    
+%%    
 cfg.maxlag      = 0.1;  % maximum 200 ms
 cfg.binsize     = 0.02; % bins of 10 ms
 cfg.outputunit  = 'proportion'; % make unit area
