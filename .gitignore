@@ -10,9 +10,10 @@ fs_stats/
 *.m~
 *.pyc
 *.py~
+*.sh~
 
 # Files
-scripts/leftovers.m
-scripts/sandbox.m
+./scripts/leftovers.m
+./scripts/sandbox.m
 .gitignore~
 

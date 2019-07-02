@@ -1,7 +1,7 @@
-% Cross-correlation between lh-rh hemispheres
+% Plot events timelocked to event max
 addpath /home/mikkel/PD_motor/global_scripts
-addpath /home/mikkel/matlab/export_fig/
 [dirs, subjs, ~] = PD_proj_setup('betaburst');
+addpath /home/mikkel/matlab/export_fig/
 
 subs = find_subs(dirs.megDir);
 cd(dirs.megDir);
@@ -100,40 +100,80 @@ ptns_ga2 = ft_timelockgrandaverage(cfg,ptns_epo2{:});
 ctrl_ga1 = ft_timelockgrandaverage(cfg,ctrl_epo1{:});
 ctrl_ga2 = ft_timelockgrandaverage(cfg,ctrl_epo2{:});
 
-%% Plot stuff...
+%% Plot settings
+sub_lnwdt       = 0.5;
+avg_lnwdt       = 2.5;
+axis_lnwdt      = 2;
+def_fontsize    = 9;
+label_fontsize  = 10; 
+ttl_fontsize    = 11;
+
+yrange          = [-0.7 1.1];
+xrange          = [-150,150];
+xtck            = [-100:50:100];
+ytck            = [-0.5:0.5:1];
+
+%% Make plot
 close all
 fig = figure; hold on
-set(fig,'Position', [0 0 800 500], 'color','w');
-subplot(1,2,1); hold on
+set(fig,'Position', [0 0 800 600], 'color','w')
+
+% Ptns 1
+subplot(2,2,1); hold on
 for i = 1:length(ptns_epo1)
-    plot(ptns_epo1{i}.time*1000,ptns_epo1{i}.avg,'-','LineWidth',0.5)
-    plot(ptns_epo2{i}.time*1000,ptns_epo2{i}.avg,'--','LineWidth',0.5)
+    plot(ptns_epo1{i}.time*1000,ptns_epo1{i}.avg,'-','LineWidth',sub_lnwdt)
 end
-p1 = plot(ptns_ga1.time*1000,ptns_ga1.avg, 'k-','LineWidth',3);
-p2 = plot(ptns_ga2.time*1000,ptns_ga2.avg, ':','color',[0,0,0]+0.5,'LineWidth',3);
-ylim([-0.7 1.1]); xlim([-150,150]);
-title('PD');
-legend([p1,p2],{'1/OFF','2/ON'},'Location','SouthWest'); legend BOXOFF
-set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',12, ...
-        'XTick', [-100:50:100], 'xticklabel',{-100:50:100},...
-        'YTick', [-0.5:0.5:1], 'yticklabel',{-0.5:0.5:1});
-xlabel('Time (ms)','fontsize',14);
-ylabel('Amplitude (F-score)','fontsize',14)
+p1 = plot(ptns_ga1.time*1000,ptns_ga1.avg, 'k-','LineWidth',avg_lnwdt);
+ylim(yrange); xlim(xrange);
+set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',def_fontsize, ...
+        'XTick', xtck, 'xticklabel',{xtck},...
+        'YTick', ytck, 'yticklabel',{ytck});
+% xlabel('Time (ms)','fontsize',label_fontsize);
+ylabel('Amp. (F-score)','fontsize',label_fontsize)
+title('PD 1/OFF', 'fontsize', ttl_fontsize);
 
-subplot(1,2,2); hold on
+% Ptns 2
+subplot(2,2,3); hold on
+for i = 1:length(ptns_epo1)
+    plot(ptns_epo2{i}.time*1000,ptns_epo2{i}.avg,'-','LineWidth',sub_lnwdt)
+end
+p2 = plot(ptns_ga2.time*1000,ptns_ga2.avg, 'k-','LineWidth',avg_lnwdt);
+ylim(yrange); xlim(xrange);
+set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',def_fontsize, ...
+        'XTick', xtck, 'xticklabel',{xtck},...
+        'YTick', ytck, 'yticklabel',{ytck});
+xlabel('Time (ms)','fontsize',label_fontsize);
+ylabel('Amp. (F-score)','fontsize',label_fontsize)
+title('PD 2/ON', 'fontsize', ttl_fontsize)
+
+subplot(2,2,2); hold on
 for i = 1:length(ctrl_epo1)
-    plot(ctrl_epo1{i}.time*1000,ctrl_epo1{i}.avg,'-','LineWidth',0.5)
-    plot(ctrl_epo2{i}.time*1000,ctrl_epo2{i}.avg,'--','LineWidth',0.5)
+    plot(ctrl_epo1{i}.time*1000,ctrl_epo1{i}.avg,'-','LineWidth',sub_lnwdt)
 end
-p3 = plot(ctrl_ga1.time*1000,ctrl_ga1.avg, 'k-','LineWidth',3);
-p4 = plot(ctrl_ga2.time*1000,ctrl_ga2.avg, ':','color',[0,0,0]+0.5,'LineWidth',3);
+p3 = plot(ctrl_ga1.time*1000,ctrl_ga1.avg, 'k-','LineWidth',avg_lnwdt);
 ylim([-0.7 1.1]); xlim([-150,150]);
-title('Controls');
-legend([p3,p4],{'1','2'},'Location','SouthWest'); legend BOXOFF
-set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',12, ...
-        'XTick', [-100:50:100], 'xticklabel',{-100:50:100},...
-        'YTick', [-0.5:0.5:1], 'yticklabel',{-0.5:0.5:1});
-xlabel('Time (ms)','fontsize',14);
+ylim(yrange); xlim(xrange);
+set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',def_fontsize, ...
+        'XTick', xtck, 'xticklabel',{xtck},...
+        'YTick', ytck, 'yticklabel',{ytck});
+% xlabel('Time (ms)','fontsize',label_fontsize);
+% ylabel('Amplitude (F-score)','fontsize',label_fontsize)
+title('Controls 1', 'fontsize', ttl_fontsize);
 
+subplot(2,2,4); hold on
+for i = 1:length(ctrl_epo1)
+    plot(ctrl_epo2{i}.time*1000,ctrl_epo2{i}.avg,'-','LineWidth',sub_lnwdt)
+end
+p4 = plot(ctrl_ga2.time*1000,ctrl_ga2.avg, 'k-','LineWidth',avg_lnwdt);
+ylim(yrange); xlim(xrange);
+set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',def_fontsize, ...
+        'XTick', xtck, 'xticklabel',{xtck},...
+        'YTick', ytck, 'yticklabel',{ytck});
+xlabel('Time (ms)','fontsize',label_fontsize);
+% ylabel('Amplitude (F-score)','fontsize',label_fontsize)
+title('Controls 2', 'fontsize', ttl_fontsize);
+
+%% Export
 export_fig(fullfile(dirs.figures,'timelockedEvent.png'), '-r500', '-p0.05', '-CMYK')
+
 %END
