@@ -2,6 +2,7 @@
 addpath /home/mikkel/PD_motor/global_scripts
 [dirs, subjs, ~] = PD_proj_setup('betaburst');
 addpath /home/mikkel/matlab/export_fig/
+addpath /home/mikkel/matlab/subtightplot
 
 subs = find_subs(dirs.megDir);
 cd(dirs.megDir);
@@ -112,14 +113,17 @@ yrange          = [-0.7 1.1];
 xrange          = [-150,150];
 xtck            = [-100:50:100];
 ytck            = [-0.5:0.5:1];
+submargin       = [0.1 0.05];
+marg_h          = [.1 .05];
+marg_w          = [.1 .05];
 
 %% Make plot
 close all
 fig = figure; hold on
-set(fig,'Position', [0 0 800 600], 'color','w')
+set(fig,'Position', [500 0 800 600], 'color','w')
 
 % Ptns 1
-subplot(2,2,1); hold on
+subtightplot(2,2,1,submargin,marg_h,marg_w); hold on
 for i = 1:length(ptns_epo1)
     plot(ptns_epo1{i}.time*1000,ptns_epo1{i}.avg,'-','LineWidth',sub_lnwdt)
 end
@@ -133,7 +137,7 @@ ylabel('Amp. (F-score)','fontsize',label_fontsize)
 title('PD 1/OFF', 'fontsize', ttl_fontsize);
 
 % Ptns 2
-subplot(2,2,3); hold on
+subtightplot(2,2,3,submargin,marg_h,marg_w); hold on
 for i = 1:length(ptns_epo1)
     plot(ptns_epo2{i}.time*1000,ptns_epo2{i}.avg,'-','LineWidth',sub_lnwdt)
 end
@@ -146,7 +150,7 @@ xlabel('Time (ms)','fontsize',label_fontsize);
 ylabel('Amp. (F-score)','fontsize',label_fontsize)
 title('PD 2/ON', 'fontsize', ttl_fontsize)
 
-subplot(2,2,2); hold on
+subtightplot(2,2,2,submargin,marg_h,marg_w); hold on
 for i = 1:length(ctrl_epo1)
     plot(ctrl_epo1{i}.time*1000,ctrl_epo1{i}.avg,'-','LineWidth',sub_lnwdt)
 end
@@ -160,7 +164,7 @@ set(gca, 'LineWidth', 1,'fontweight','bold','fontsize',def_fontsize, ...
 % ylabel('Amplitude (F-score)','fontsize',label_fontsize)
 title('Controls 1', 'fontsize', ttl_fontsize);
 
-subplot(2,2,4); hold on
+subtightplot(2,2,4,submargin,marg_h,marg_w); hold on
 for i = 1:length(ctrl_epo1)
     plot(ctrl_epo2{i}.time*1000,ctrl_epo2{i}.avg,'-','LineWidth',sub_lnwdt)
 end
