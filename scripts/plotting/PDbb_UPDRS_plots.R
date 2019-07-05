@@ -8,16 +8,9 @@ outdir <- "Z://PD_motor//rest_ec//figures//"
 setwd(wrkdir)
 load(file = 'updrs_neve_mods.R')
 
-######### 
-# Make prediction like this (but not for N event plot )
-newdat <- data.frame(F1=c())
-newdat <- PD.data.uF1
-newdat$F4 <- 1
-newdat$pred <- predict(br.nev.uF1, newdata = newdat)
-
 ############################################################################
 # Make a generic plot function
-pred.plot <- function(bms.mod, F.name){
+pred.plot <- function(bms.mod){
   data <- bms.mod$data
   hdr <- names(data)
   F.name <- names(data)[1]
@@ -49,7 +42,7 @@ plt.f4 <- pred.plot(br.nev.uF4) + ggtitle('Bradykinesia (right side)')
 plt.f5 <- pred.plot(br.nev.uF5) + ggtitle('Bradykinesia (left side)')
 plt.f6 <- pred.plot(br.nev.uF6) + ggtitle('Postural and kinetic tremor')
 plt.f7 <- pred.plot(br.nev.uF7) + ggtitle('Lower limb bradykinesia')
-plt.fT <- pred.plot(br.nev.uFT) + ggtitle('Total UPDRS-III')
+# plt.fT <- pred.plot(br.nev.uFT) + ggtitle('Total UPDRS-III')
 
 # Save
 setwd(outdir)
@@ -60,6 +53,6 @@ ggsave("new_neve_F4.jpeg", plot=plt.f4, device="jpeg", units="mm", width=40, hei
 ggsave("new_neve_F5.jpeg", plot=plt.f5, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F6.jpeg", plot=plt.f6, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F7.jpeg", plot=plt.f7, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
+# ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 
 #END

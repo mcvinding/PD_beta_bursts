@@ -53,9 +53,9 @@ n.bf32
 n.bf31
 
 # Hypothesis testing
-h <- hypothesis(br.nev3, "groupptns<0")
-h <- hypothesis(br.nev3, "session2+groupptns:session2>0")
-h <- hypothesis(br.nev3, "session2<0")
+h1 <- hypothesis(br.nev3, "groupptns<0")
+h2 <- hypothesis(br.nev3, "session2+groupptns:session2>0")
+h3 <- hypothesis(br.nev3, "session2<0")
 
 # Summaries
 summary(br.nev3)

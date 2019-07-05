@@ -25,18 +25,18 @@ plt <- ggplot(bf.dat, aes(x=steps, y=logBF, fill=test))+
   scale_fill_discrete(labels = c("Session > Intercept", "Session+Group > Session","Session*Group > Session+Group"),
                       name = "Model comparison") +
   labs(title="Comparison across thresholds",
-       x='Threshold (Med+x*Med)')+
+       x='Threshold (med+x*med)')+
   ylim(c(-10,19))+
-  theme(legend.position=c(0.01,0.99),
+  theme(legend.position=c(0,1),
         legend.justification=c(0,1),
-        legend.background=element_rect(fill='white',color=NA),
+        legend.background=element_blank(), #element_rect(fill='white',color=NA),
         legend.title = element_text(face="bold"),
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
         axis.title = element_text(face="bold", size=rel(1.5)),
         axis.text = element_text(color="black", size=rel(1.2)))
 plt
 # Save
-ggsave(paste(outdir,"extended_bf.png", sep=""), plt, dpi=600, width=10 ,height=5, units="cm", scale=3)
+ggsave(paste(outdir,"extended_bf.png", sep=""), plt, dpi=600, width=8 ,height=5, units="cm", scale=3)
 
 # Plot N across steps
 load(file = 'neve_ext.RData')
@@ -55,13 +55,13 @@ n.plt <- ggplot(neve.summary, aes(x=steps, y=mean,color=group, shape=session))+
   scale_shape_manual(values=c(16,17), label=c("1/OFF","2/ON"))+
   scale_color_manual(values=c("red","blue"))+
   theme_bw()+
-  labs(title="N events across thresholds",
-       x='Threshold (Med+x*Med)',
-       y='N events (Mean±sd)',
+  labs(title="Number of beta events across thresholds",
+       x='Threshold (med+x*med)',
+       y='Beta events (mean±sd)',
        fill="Group", shape="Session")+
   theme(legend.position=c(.99,.99),
         legend.justification=c(1,1),
-        legend.background=element_rect(fill='white',color=NA),
+        legend.background=element_blank(), #element_rect(fill='white',color=NA),
         legend.title = element_text(face="bold"),
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
         axis.title = element_text(face="bold", size=rel(1.5)),
@@ -69,6 +69,6 @@ n.plt <- ggplot(neve.summary, aes(x=steps, y=mean,color=group, shape=session))+
 n.plt  
 
 # Save
-ggsave(paste(outdir,"extended_neve.png", sep=""), n.plt, dpi=600, width=10 ,height=5, units="cm", scale=3)
+ggsave(paste(outdir,"extended_neve.png", sep=""), n.plt, dpi=600, width=8 ,height=5, units="cm", scale=3)
 
 # END  
