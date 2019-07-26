@@ -10,6 +10,7 @@ function [output, rhomat] = find_betaeventsER(cfg, data)
 % INPUT:
 % data              = A data structure from FieldTrip with event related (
 %                     epoched) data on a single (virtual) channel.
+%
 % Takes the folowing config inputs:
 % cfg.threshold     = [Nx1] Steps to find correlation and threshold (required)
 % cfg.cutofftype    = ['sd'/'med'] Should cutoff be determined relative to
@@ -181,44 +182,13 @@ for ii = 1:length(steps)
     elseif strcmp('pow', cfg.corrtype)
         rhomat(ii) = corr(neve, epopow);
     end
-    
-    if strcmp(cfg.makeplot,'yes')
-        evemark = nan(size(tempdat(kk,:)));
-        for n = 1:neve(kk)
-            evemark(startb(n):endb(n)) = tempdat(kk,startb(n):endb(n));
-        end
-%         xidx = 1:length(dat)/data.fsample;
-        if length(steps) >= 8 
-            dim = ceil(length(steps)/8);
-            subplot(dim,8,ii); hold on
-        else
-            figure; hold on
-        end
-        plot(tempdat(kk,:));
-        plot(repmat(cutoff(ii),size(tempdat(kk,:))),'r--');
-        plot(maxidx,maxarray, 'ko');
-        plot(1:length(tempdat),evemark, 'linewidth',2);
-        xlim([0 length(dat)]);
-        title(ii);
         
-        % Pesure-Raster plot
-        subplot(4,1,1:3);
-        pltmat = burst;
-        pltmat(maxmat==1) = 2;
-        imagesc(tim, 1, pltmat);     
-        ylabel('Trial');
-        subplot(4,1,4);
-        plot(tim,mean(burst))
-        ylabel('Burst prob.'); xlabel('Time')
-
-    end
-    
-    % Length of burst
-    blen    = endb-startb;          % Length of burst
-    evelen   = blen/data.fsample;      % Length of burst is seconds  
-    if any(blen<0)
-        error('negative length of event')
-    end
+%     % Length of burst
+%     blen    = endb-startb;          % Length of burst
+%     evelen   = blen/data.fsample;      % Length of burst is seconds  
+%     if any(blen<0)
+%         error('negative length of event')
+%     end
 
     % Arrange data (work in progress)
     bdat(ii).eventmat   = burst;
