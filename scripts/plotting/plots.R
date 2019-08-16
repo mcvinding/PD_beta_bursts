@@ -10,6 +10,8 @@ setwd(wrkdir)
 load(file = 'neve.RData')
 neve.data$task <- paste(neve.data$group,neve.data$session)
 n.summary <- aggregate(neve.data$nevent, list(neve.data$task), mean)
+n.summary <- aggregate(neve.data$nevent, list(neve.data$task), mean)
+
 names(n.summary) <- c("task","mean")
 n.summary.sd <- aggregate(neve.data$nevent, list(neve.data$task), sd)
 n.summary$sd <- n.summary.sd$x
@@ -42,6 +44,8 @@ ggsave(paste(outdir,"neve_group.jpeg",sep=""), plot=nplt, device="png", units="m
 #####################################################################################
 # Plot iti (confetti plots; not used in publication)
 load(file = 'itieve.RData')
+
+# Make summary
 itieve.data$task <- paste(itieve.data$group,itieve.data$session)
 i.pltdata <- aggregate(itieve.data$log.eve.iti, list(itieve.data$task, itieve.data$subs), mean)
 names(i.pltdata) <- c("task","subs","log.mean")
@@ -108,63 +112,99 @@ ggsave(paste(outdir,"max_group.jpeg",sep=""), plot=m.plt, device="jpeg", units="
 
 #####################################################################################
 # Inspection of distributions (pooled data)
+#####################################################################################
+#####################################################################################
 ## Time between events 
+load(file = 'itieve.RData')
+load(file='itieve_pp.RData')
+
 itieve.data$label <-  as.factor(paste(itieve.data$group, itieve.data$session, sep = " ", collapse = NULL))
 levels(itieve.data$label) <- c('Controls 1', 'Controls 2', 'PD 1/OFF', 'PD 2/ON')
+itieve.data$label <- factor(itieve.data$label, 
+                            levels =c('PD 1/OFF','Controls 1','PD 2/ON','Controls 2'))
 
-i.den <- ggplot(itieve.data, aes(x=eve.iti.ms, fill=session))+
-  # geom_histogram(binwidth=10)+
-  geom_density(bw=25) +
-  facet_wrap(label~.) +
-  xlim(0,2000)+
-  labs(x='Time between events (ms)', y = "")+
+i.den <- ggplot(itieve.data, aes(x=eve.iti.ms, fill=group))+
+  facet_wrap(.~label) +
+  geom_density(bw=20, alpha=.5) +
+  geom_line(stat="density",data=pp.iti.long, aes(x=pp, fill=NA), bw=20, linetype = "dashed", size=0.5, color='black') +
+  xlim(0,1500)+
+  labs(x='Time between events (ms)', y = "Density")+
   theme_bw() +
   scale_fill_manual(values=c('red','blue'), guide=FALSE)+
   theme(strip.background = element_rect(fill="white"),
         strip.text = element_text(face="bold", lineheight=12),
+        panel.grid.minor = element_blank(),
         plot.title = element_text(hjust = 0.5, lineheight=12, face="bold"),
         axis.title = element_text(face="bold", lineheight=11),
         axis.text = element_text(color="black", lineheight=9),
         axis.ticks.y = element_blank(),
         axis.text.y = element_blank())+
-  ggtitle('Time between events')
+  ggtitle('Inter-event interval')
 i.den
 ggsave(paste(outdir,"iti_denst.jpeg",sep=""),
-       plot=i.den, device="png", units="cm", width=8, height=4, dpi=500, scale=2)
+       plot=i.den, device="png", units="cm", width=8, height=5, dpi=500, scale=2)
 
+#####################################################################################
 ## Event duration
 load(file = 'leneve.RData')
+load(file='leneve_pp.RData')
+
 leneve.data$label <-  as.factor(paste(leneve.data$group, leneve.data$session, sep = " ", collapse = NULL))
 levels(leneve.data$label) <- c('Controls 1', 'Controls 2', 'PD 1/OFF', 'PD 2/ON')
+leneve.data$label <- factor(leneve.data$label, 
+                            levels =c('PD 1/OFF','Controls 1','PD 2/ON','Controls 2'))
 
-l.den <- ggplot(leneve.data, aes(x=eve.len.ms, fill=session))+
+l.den <- ggplot(leneve.data, aes(x=eve.len.ms, fill=group))+
   # geom_histogram(binwidth=10)+
-  geom_density() +
+  geom_density(bw=2.5,alpha=.5) +
+  geom_line(stat="density",data=pp.len.long, aes(x=pp, fill=NA), bw=2.5, linetype = "dashed", size=0.5, color='black') +
   facet_wrap(~label) + 
-  xlim(0,350)+
-  labs(x='Event duration (ms)', y = "")+
+  xlim(0,300)+
+  labs(x='Duration (ms)', y = "Density")+
   theme_bw()+
   scale_fill_manual(values=c('red','blue'), guide=FALSE)+
   theme(strip.background = element_rect(fill="white"),
         strip.text = element_text(face="bold", lineheight=12),
+        panel.grid.minor = element_blank(),
         plot.title = element_text(hjust = 0.5, lineheight=12, face="bold"),
         axis.title = element_text(face="bold", lineheight=11),
         axis.text = element_text(color="black", lineheight=9),
         axis.ticks.y = element_blank(),
-        axis.text.y = element_blank())+
-  ggtitle('Even duration')
-
+        axis.text.y = element_blank()) +
+  ggtitle('Beta event duration')
 l.den
 
 ggsave(paste(outdir,"len_dens.jpeg",sep=""), 
        plot=l.den, device="png", units="cm", width=8, height=4, dpi=500, scale=2)
 
+#####################################################################################
+load(file = 'maxeve.RData')
+
+maxeve.data$label <-  as.factor(paste(maxeve.data$group, maxeve.data$session, sep = " ", collapse = NULL))
+levels(maxeve.data$label) <- c('Controls 1', 'Controls 2', 'PD 1/OFF', 'PD 2/ON')
+maxeve.data$label <- factor(maxeve.data$label, 
+                            levels =c('PD 1/OFF','Controls 1','PD 2/ON','Controls 2'))
+
+
 ## Max power
 m.den <- ggplot(maxeve.data, aes(x=eve.max, fill=group))+
-  # geom_histogram(binwidth=10)+
-  geom_density(alpha=.3) +
-  facet_wrap(~session) + 
+  geom_density(alpha=.5) +
+  geom_line(stat="density", data=pp.max.long, aes(x=pp, fill=NA), linetype = "dashed", size=0.5, color='black') +
+  facet_wrap(~label) + 
+  xlim(0,5)+
   xlab("Max peak") +
-  theme_bw()
+  labs(x='Amplitude (F-score)', y = "Density")+
+  theme_bw()+
+  scale_fill_manual(values=c('red','blue'), guide=FALSE)+
+  theme(strip.background = element_rect(fill="white"),
+        strip.text = element_text(face="bold", lineheight=12),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, lineheight=12, face="bold"),
+        axis.title = element_text(face="bold", lineheight=11),
+        axis.text = element_text(color="black", lineheight=9),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())+
+  ggtitle('Maximum amplitude')
 m.den
-ggsave("max_dens.jpeg", plot=i.den, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=4)
+ggsave(paste(outdir,"max_dens.jpeg",sep=""),
+       plot=m.den, device="jpeg", units="cm", width=8, height=4, dpi=500, scale=2)
