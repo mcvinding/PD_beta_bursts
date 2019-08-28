@@ -24,7 +24,7 @@ nplt <- ggplot(neve.data, aes(x=task, y=nevent))+
   geom_errorbar(data=n.summary, aes(x=task,y=mean, ymin=mean-sd, ymax=mean+sd), width=0.2) +
   geom_point(aes(fill=subs),position=position_jitter(width = 0.15),color='black',shape=21,size=2) +
   scale_y_continuous(limits=c(225,475), breaks=seq(200,500,50))+
-  labs(title="Number of events",
+  labs(title="Beta event count",
        x='Group/Session',
        y = "N events")+
   scale_x_discrete(labels=c("Ctrl/1","Ctrl/2","PD/1 (OFF)","PD/2 (ON)"))+

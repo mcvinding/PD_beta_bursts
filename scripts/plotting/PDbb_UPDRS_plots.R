@@ -38,21 +38,20 @@ pred.plot <- function(bms.mod){
 plt.f1 <- pred.plot(br.nev.uF1) + ggtitle('Midline function')
 plt.f2 <- pred.plot(br.nev.uF2) + ggtitle('Rest tremor')
 plt.f3 <- pred.plot(br.nev.uF3) + ggtitle('Rigidity')
-plt.f4 <- pred.plot(br.nev.uF4) + ggtitle('Bradykinesia (right side)')
-plt.f5 <- pred.plot(br.nev.uF5) + ggtitle('Bradykinesia (left side)')
+plt.f45 <- pred.plot(br.nev.uF45) + ggtitle('Bradykinesia')
 plt.f6 <- pred.plot(br.nev.uF6) + ggtitle('Postural and kinetic tremor')
 plt.f7 <- pred.plot(br.nev.uF7) + ggtitle('Lower limb bradykinesia')
-# plt.fT <- pred.plot(br.nev.uFT) + ggtitle('Total UPDRS-III')
+plt.fT <- pred.plot(br.nev.uFT) + ggtitle('Total UPDRS-III') + ylab('Score')
+
 
 # Save
 setwd(outdir)
 ggsave("new_neve_F1.jpeg", plot=plt.f1, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F2.jpeg", plot=plt.f2, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F3.jpeg", plot=plt.f3, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F4.jpeg", plot=plt.f4, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F5.jpeg", plot=plt.f5, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
+ggsave("new_neve_F45.jpeg", plot=plt.f45, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F6.jpeg", plot=plt.f6, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F7.jpeg", plot=plt.f7, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-# ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
+ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 
 #END
