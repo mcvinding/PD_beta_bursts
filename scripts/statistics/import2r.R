@@ -21,6 +21,8 @@ neve.data <- data.frame(nevent=nevent,
                         group=group,
                         session=session)
 
+neve.data$nevent.min <- round(neve.data$nevent/3)
+
 save(neve.data,PDn1,PDn2,ctrln1,ctrln2, file = 'neve.RData')
 
 ptns.subs <- unlist(temp$PD.subs)

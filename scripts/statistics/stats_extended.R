@@ -5,12 +5,12 @@ library(brms)
 library(BayesFactor)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
-# options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 setwd(wrkdir)
 load(file = 'neve_ext.RData')
+neve.data$nevent.min <- neve.data$nevent/3
 
 ################################################################################
 steps <- sort(unique(neve.data$steps))
@@ -18,29 +18,30 @@ BF10 <- rep(0, length(steps))
 BF21 <- rep(0, length(steps))
 BF32 <- rep(0, length(steps))
 
-for (i in 1:length(steps)){
-  tempdat <- subset(neve.data, steps==steps[i])
-  Bmod3 <- lmBF(nevent ~ group*session+subs, data=tempdat, whichRandom='subs')
-  Bmod2 <- lmBF(nevent ~ group+session+subs, data=tempdat, whichRandom='subs')
-  Bmod1 <- lmBF(nevent ~ session+subs, data=tempdat, whichRandom='subs')
-  Bmod0 <- lmBF(nevent ~ subs, data=tempdat, whichRandom='subs')
-  
-  bf10 <- Bmod1/Bmod0
-  bf21 <- Bmod2/Bmod1
-  bf32 <- Bmod3/Bmod2
-  
-  BF10[i] <- bf10@bayesFactor$bf
-  BF21[i] <- bf21@bayesFactor$bf
-  BF32[i] <- bf32@bayesFactor$bf
-}
-
-BFdata <- data.frame(steps=steps,
-                     BF10=BF10,
-                     BF21=BF21,
-                     BF32=BF32)
+# for (i in 1:length(steps)){
+#   tempdat <- subset(neve.data, steps==steps[i])
+#   Bmod3 <- lmBF(nevent.min ~ group*session+subs, data=tempdat, whichRandom='subs')
+#   Bmod2 <- lmBF(nevent.min ~ group+session+subs, data=tempdat, whichRandom='subs')
+#   Bmod1 <- lmBF(nevent.min ~ session+subs, data=tempdat, whichRandom='subs')
+#   Bmod0 <- lmBF(nevent.min ~ subs, data=tempdat, whichRandom='subs')
+#   
+#   bf10 <- Bmod1/Bmod0
+#   bf21 <- Bmod2/Bmod1
+#   bf32 <- Bmod3/Bmod2
+#   
+#   BF10[i] <- bf10@bayesFactor$bf
+#   BF21[i] <- bf21@bayesFactor$bf
+#   BF32[i] <- bf32@bayesFactor$bf
+# }
+# 
+# BFdata <- data.frame(steps=steps,
+#                      BF10=BF10,
+#                      BF21=BF21,
+#                      BF32=BF32)
 
 # Make BRMS models
 steps <- sort(unique(neve.data$steps))
+steps <- steps[steps>=0.5 & steps <= 4.0]
 BF10 <- rep(0, length(steps))
 BF21 <- rep(0, length(steps))
 BF32 <- rep(0, length(steps))

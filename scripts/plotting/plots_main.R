@@ -6,28 +6,29 @@ wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 outdir <- "Z://PD_motor//rest_ec//figures//"
 setwd(wrkdir)
 
+#####################################################################################
 # Plot N events
 load(file = 'neve.RData')
-neve.data$task <- paste(neve.data$group,neve.data$session)
-n.summary <- aggregate(neve.data$nevent, list(neve.data$task), mean)
-n.summary <- aggregate(neve.data$nevent, list(neve.data$task), mean)
 
+## Make summary
+neve.data$task <- paste(neve.data$group, neve.data$session)
+n.summary <- aggregate(neve.data$nevent.min, list(neve.data$task), mean)
 names(n.summary) <- c("task","mean")
-n.summary.sd <- aggregate(neve.data$nevent, list(neve.data$task), sd)
+n.summary.sd <- aggregate(sub.summary$x, list(sub.summary$Group.1), sd)
 n.summary$sd <- n.summary.sd$x
 n.summary$se <- n.summary$sd/sqrt(19)*2
 
 ## Plot
 set.seed(9000)
-nplt <- ggplot(neve.data, aes(x=task, y=nevent))+
+nplt <- ggplot(neve.data, aes(x=task, y=nevent.min))+
   geom_crossbar(data=n.summary, aes(x=task,y=mean, ymin=mean, ymax=mean), width = 0.5) +
   geom_errorbar(data=n.summary, aes(x=task,y=mean, ymin=mean-sd, ymax=mean+sd), width=0.2) +
   geom_point(aes(fill=subs),position=position_jitter(width = 0.15),color='black',shape=21,size=2) +
-  scale_y_continuous(limits=c(225,475), breaks=seq(200,500,50))+
-  labs(title="Beta event count",
+  scale_y_continuous(limits=c(75,160), breaks=seq(80,140,20))+
+  labs(title="Beta burst rate",
        x='Group/Session',
-       y = "N events")+
-  scale_x_discrete(labels=c("Ctrl/1","Ctrl/2","PD/1 (OFF)","PD/2 (ON)"))+
+       y = "Burst/min")+
+  scale_x_discrete(labels=c("Control/1","Control/2","PD/1 (OFF)","PD/2 (ON)"))+
   theme_bw() +
   theme(legend.position="none",
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
@@ -38,7 +39,6 @@ nplt
 
 ## Save
 ggsave(paste(outdir,"neve_group.jpeg",sep=""), plot=nplt, device="png", units="mm", width=60, height=40, dpi=600, scale=3)
-
 
 
 #####################################################################################

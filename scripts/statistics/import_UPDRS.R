@@ -4,9 +4,7 @@ library(reshape2)
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
-# wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
-load(file = 'workspace.Rdata')
 load(file = 'maxeve.RData')
 load(file = 'itieve.RData')
 load(file = 'leneve.RData')

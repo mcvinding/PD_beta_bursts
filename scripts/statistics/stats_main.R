@@ -7,7 +7,6 @@ options(mc.cores=parallel::detectCores)                   # Try run with multico
 
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
-# wrkdir <- "C://Users//Mikkel//Documents//PD-proj_betaEvent//data"
 setwd(wrkdir)
 
 ################################################################################
@@ -21,7 +20,7 @@ newdata <- data.frame(group = factor(c("ctrl","ctrl","ptns","ptns")),
 load(file = 'neve.RData')
 
 # Maximal Likelihood analysis
-mod3p <- glmer(nevent ~ group*session+(1|subs), data = neve.data, family='poisson')
+mod3p <- glmer(nevent.min ~ group*session+(1|subs), data = neve.data, family='poisson')
 mod2p <- update(mod3p, ~. -group:session)
 mod1p <- update(mod2p, ~. -group)
 mod0p <- update(mod1p, ~. -session)
@@ -29,13 +28,13 @@ mod0p <- update(mod1p, ~. -session)
 anova(mod0p,mod1p,mod2p,mod3p)
 
 # Make BRMS models
-br.nev3 <- brm(bf(nevent ~ group*session+(1|subs)), data = neve.data, family = poisson, 
+br.nev3 <- brm(nevent.min ~ group*session+(1|subs), data = neve.data, family = poisson, 
                save_all_pars = TRUE, iter = 5000)
-br.nev2 <- brm(bf(nevent ~ group+session+(1|subs)), data = neve.data, family = poisson, 
+br.nev2 <- brm(nevent.min ~ group+session+(1|subs), data = neve.data, family = poisson, 
                save_all_pars = TRUE, iter = 5000)
-br.nev1 <- brm(bf(nevent ~ session+(1|subs)), data = neve.data, family = poisson, 
+br.nev1 <- brm(nevent.min ~ session+(1|subs), data = neve.data, family = poisson, 
                save_all_pars = TRUE, iter = 5000)
-br.nev0 <- brm(bf(nevent ~ 1+(1|subs)), data = neve.data, family = poisson, 
+br.nev0 <- brm(nevent.min ~ 1+(1|subs), data = neve.data, family = poisson, 
                save_all_pars = TRUE, iter = 5000)
 
 # Save
@@ -46,15 +45,9 @@ save(br.nev3,br.nev2,br.nev1,br.nev0, file='neve_analysis.RData')
 load(file='neve_analysis.RData')
 
 # Model comparison
-n.bf10 <- bayes_factor(br.nev1,br.nev0)
-n.bf21 <- bayes_factor(br.nev2,br.nev1)
-n.bf32 <- bayes_factor(br.nev3,br.nev2)
-n.bf31 <- bayes_factor(br.nev3,br.nev3)
-
-n.bf10
-n.bf21
-n.bf32
-n.bf31
+n.bf10 <- bayes_factor(br.nev1,br.nev0) #n.bf10
+n.bf21 <- bayes_factor(br.nev2,br.nev1) #n.bf21
+n.bf32 <- bayes_factor(br.nev3,br.nev2) #n.bf32
 
 # Hypothesis testing
 h1 <- hypothesis(br.nev3, "groupptns>0")
@@ -70,7 +63,6 @@ summary(br.nev3)
 
 # Predict
 pp.neve <- predict(br.nev3, newdata=newdata, summary=T, re_formula=NA, robust=T)
-pp.neve/3
 
 sam.nev3 <- posterior_samples(br.nev3, "^b")
 

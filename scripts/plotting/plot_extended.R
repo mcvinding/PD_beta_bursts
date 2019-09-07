@@ -4,15 +4,18 @@ library(ggplot2)
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 outdir <- "Z://PD_motor//rest_ec//figures//"
 setwd(wrkdir)
+
+#######################################################################################
+# Plot BF across steps
 load(file='range_bf.RData')
 
-# Arragne data
+## Arragne data
 bf.dat <- data.frame("steps"=seq(0.1,5,by=0.1),
                     "test"=rep(c('bf10','bf21','bf32'), each=50),
                     "BF"=c(BF10,BF21,BF32))
 bf.dat$logBF <- log(bf.dat$BF)
 
-# Plot BF across steps
+## Plot BF across steps
 plt <- ggplot(bf.dat, aes(x=steps, y=logBF, fill=test))+
   annotate("rect", xmin=-Inf, xmax=Inf, ymin=log(1/3), ymax=log(3), alpha=0.2, fill="red") +
   # geom_rect(aes(xmin=-Inf, xmax=Inf, ymin=log(1/3), ymax=log(3)), fill='red', alpha=0.1)+
@@ -35,30 +38,35 @@ plt <- ggplot(bf.dat, aes(x=steps, y=logBF, fill=test))+
         axis.title = element_text(face="bold", size=rel(1.5)),
         axis.text = element_text(color="black", size=rel(1.2)))
 plt
-# Save
+
+## Save
 ggsave(paste(outdir,"extended_bf.png", sep=""), plt, dpi=600, width=8 ,height=5, units="cm", scale=3)
 
+#######################################################################################
 # Plot N across steps
 load(file = 'neve_ext.RData')
+neve.data$nevent.min <- neve.data$nevent/3
 
-neve.mean <- data.frame(aggregate(neve.data$nevent, by=list(neve.data$steps,neve.data$group,neve.data$session),mean))
-neve.sd <- data.frame(aggregate(neve.data$nevent, by=list(neve.data$steps,neve.data$group,neve.data$session),sd))
-neve.summary <- merge(neve.mean,neve.sd,by=c("Group.1","Group.2","Group.3"))
+neve.mean <- data.frame(aggregate(neve.data$nevent.min, by=list(neve.data$steps,neve.data$group,neve.data$session),mean))
+neve.sd <- data.frame(aggregate(neve.data$nevent.min, by=list(neve.data$steps,neve.data$group,neve.data$session),sd))
+neve.summary <- merge(neve.mean, neve.sd, by=c("Group.1","Group.2","Group.3"))
 colnames(neve.summary) <- c("steps","group","session","mean","sd")
   
-n.plt <- ggplot(neve.summary, aes(x=steps, y=mean,color=group, shape=session))+
+n.plt <- ggplot(neve.summary, aes(x=steps, y=mean, color=group, shape=session))+
   geom_vline(xintercept=1.3)+
   geom_line(position=position_dodge(0.05))+
   geom_errorbar(aes(x=steps, ymin=mean-sd, ymax=mean+sd), width=0.05, size=0.5,position=position_dodge(0.05)) + 
   geom_point(size=2, position=position_dodge(0.05))+
   # scale_shape_manual(values=c(21,23), label=c("1/OFF","2/ON"))+
   scale_shape_manual(values=c(16,17), label=c("1/OFF","2/ON"))+
-  scale_color_manual(values=c("red","blue"))+
+  scale_color_manual(values=c("red","blue"), label=c("Control","PD"))+
+  scale_x_continuous(limits=c(0.45, 4.05), breaks=seq(0.5,4,0.5))+
+  scale_y_continuous(limits=c(0.5, 300), breaks=seq(0,300,50))+
   theme_bw()+
-  labs(title="Number of beta events across thresholds",
-       x='Threshold (med+x*med)',
-       y='Beta events (mean±sd)',
-       fill="Group", shape="Session")+
+  labs(title="Burst rate across thresholds",
+       x='Threshold (median + median * x)',
+       y='Burst/min',
+       color="Group", shape="Session")+
   theme(legend.position=c(.99,.99),
         legend.justification=c(1,1),
         legend.background=element_blank(), #element_rect(fill='white',color=NA),

@@ -9,7 +9,7 @@ import os.path as op
 from os import listdir
 import sys
 import mne
-sys.path.append('/home/mikkel/PD_motor/tap/scripts/functions')
+sys.path.append('/home/mikkel/PD_motor/rest_ec/scripts/functions')
 from sensorymotorROI import make_sensorymotorROI
 from scipy.signal import hilbert
 import scipy.io as sio

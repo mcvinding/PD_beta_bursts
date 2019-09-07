@@ -16,10 +16,10 @@ pred.plot <- function(bms.mod){
   F.name <- names(data)[1]
   plt <- plot(marginal_effects(bms.mod), line_args=list(color="black"))
   plt <- plt$nevent +
-    geom_point(data=u.neve.data.PD, aes_string(y=F.name, x="nevent", color="session"), size=1, inherit.aes = FALSE) +
+    geom_point(data=u.neve.data.PD, aes_string(y=F.name, x="nevent.min", color="session"), size=1, inherit.aes = FALSE) +
     theme_bw() +
     scale_color_manual(values=c('red','blue'))+
-    xlab('N events') + ylab('Factor score')+
+    xlab('Burst/min') + ylab('Factor score')+
     theme_bw() + 
     theme(legend.position = "none",
           text = element_text(size = 11),
@@ -42,7 +42,6 @@ plt.f45 <- pred.plot(br.nev.uF45) + ggtitle('Bradykinesia')
 plt.f6 <- pred.plot(br.nev.uF6) + ggtitle('Postural and kinetic tremor')
 plt.f7 <- pred.plot(br.nev.uF7) + ggtitle('Lower limb bradykinesia')
 plt.fT <- pred.plot(br.nev.uFT) + ggtitle('Total UPDRS-III') + ylab('Score')
-
 
 # Save
 setwd(outdir)
