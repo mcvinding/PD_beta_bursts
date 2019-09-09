@@ -50,13 +50,15 @@ n.bf21 <- bayes_factor(br.nev2,br.nev1) #n.bf21
 n.bf32 <- bayes_factor(br.nev3,br.nev2) #n.bf32
 
 # Hypothesis testing
-h1 <- hypothesis(br.nev3, "groupptns>0")
-h2 <- hypothesis(br.nev3, "session2+groupptns:session2<0")
-h3 <- hypothesis(br.nev3, "session2>0")
+h1 <- hypothesis(br.nev3, "groupptns>0")                               # Ptns1 vs Ctrl1
+h2 <- hypothesis(br.nev3, "session2+groupptns:session2<0")             # Ptns1 vs Ptns2
+h3 <- hypothesis(br.nev3, "session2>0")                                # Ctrl1 vs Ctrl2
+h4 <- hypothesis(br.nev3, "0<groupptns+groupptns:session2")            # Ptns2 vs Ctrl2
 
 h1$hypothesis$Post.Prob*2
 h2$hypothesis$Post.Prob*2
 h3$hypothesis$Post.Prob*2
+h4$hypothesis$Post.Prob*2
 
 # Summaries
 summary(br.nev3)

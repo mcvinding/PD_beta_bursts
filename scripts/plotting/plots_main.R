@@ -14,7 +14,7 @@ load(file = 'neve.RData')
 neve.data$task <- paste(neve.data$group, neve.data$session)
 n.summary <- aggregate(neve.data$nevent.min, list(neve.data$task), mean)
 names(n.summary) <- c("task","mean")
-n.summary.sd <- aggregate(sub.summary$x, list(sub.summary$Group.1), sd)
+n.summary.sd <- aggregate(neve.data$nevent.min, list(neve.data$task), sd)
 n.summary$sd <- n.summary.sd$x
 n.summary$se <- n.summary$sd/sqrt(19)*2
 
