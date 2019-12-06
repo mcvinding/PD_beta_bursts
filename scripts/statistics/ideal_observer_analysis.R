@@ -23,7 +23,6 @@ r0 <- neve.data$nevent[neve.data$group=="ptns" & neve.data$session=="1"]
 r1 <- neve.data$nevent[neve.data$group=="ctrl" & neve.data$session=="1"]
 
 
-
 id.obs(r0, r1)
 
 
