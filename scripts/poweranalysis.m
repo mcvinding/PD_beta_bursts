@@ -50,7 +50,7 @@ for ss = 1:length(subjs)
         % Make pseudo-epochs
         cfg = [];
         cfg.length  = 3;
-        cfg.overlap = .5;       % 0% overlap [?]
+        cfg.overlap = .5;       % 50% overlap
         epo = ft_redefinetrial(cfg, data);
         
         % Get PSD
@@ -63,12 +63,16 @@ for ss = 1:length(subjs)
         
         pow = ft_freqanalysis(cfg, epo);
         
+        % Export raw PSD to Python
+        powspctrm = ctrl_dat2{ss}.powspctrm;
+        freq = ctrl_dat2{ss}.freq;    
+        
         % Relative beta power
         b_pow = bandpower(pow.powspctrm, pow.freq, [13 30], 'psd');
         all_pow = bandpower(pow.powspctrm, pow.freq, 'psd');
         relpow = b_pow/all_pow;
         
-        % Arrange data [you should preallocate]
+        % Arrange data
         if any(strcmp(subID,  sub_ptns))
             kk = find(~cellfun(@isempty,strfind(sub_ptns,subID))); % Name of imported cropped file
             if any(strfind(fname,'RsEc1'))
@@ -115,3 +119,4 @@ save('/home/mikkel/PD_motor/rest_ec/groupanalysis/B_pow.mat', ...
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/PSD_GA.mat', 'GA')
 disp('done');
 
+%END
