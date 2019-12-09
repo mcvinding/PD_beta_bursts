@@ -4,7 +4,6 @@ library(BayesFactor)
 library(brms)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 
-
 # Define paths
 wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 setwd(wrkdir)
