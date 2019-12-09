@@ -14,8 +14,9 @@ plot_lnwdt          = 1.5;
 axis_lnwdt          = 2;
 def_fontsize        = 12;
 label_fontsize      = 14; 
-xrange              = [1 48];
-yrange              = [0 0.005];
+xrange              = [0 45];
+yrange              = [0 0.01];
+yrange              = [-8.5 -4.5];
 
 %% Plot
 close all
@@ -29,13 +30,13 @@ patch([0 12 12 0],[min(yrange) min(yrange) max(yrange) max(yrange)], ...
 patch([30 max(xrange) max(xrange) 30],[min(yrange) min(yrange) max(yrange) max(yrange)], ...
     'b','FaceAlpha',0.05,'EdgeColor','none')
 
-p1 = plot(GA.ptns1.freq, median(squeeze(GA.ptns1.powspctrm)),'b-', ... 
+p1 = plot(GA.ptns1.freq, mean(log(squeeze(GA.ptns1.powspctrm))),'b-', ... 
     'LineWidth', plot_lnwdt);
-p2 = plot(GA.ptns2.freq, median(squeeze(GA.ptns2.powspctrm)),'b:', ... 
+p2 = plot(GA.ptns2.freq, mean(log(squeeze(GA.ptns2.powspctrm))),'b:', ... 
     'LineWidth', plot_lnwdt*2);
-p3 = plot(GA.ctrl1.freq, median(squeeze(GA.ctrl1.powspctrm)),'r-', ... 
+p3 = plot(GA.ctrl1.freq, mean(log(squeeze(GA.ctrl1.powspctrm))),'r-', ... 
     'LineWidth', plot_lnwdt);
-p4 = plot(GA.ctrl2.freq, median(squeeze(GA.ctrl2.powspctrm)),'r:', ... 
+p4 = plot(GA.ctrl2.freq, mean(log(squeeze(GA.ctrl2.powspctrm))),'r:', ... 
     'LineWidth', plot_lnwdt*2); 
 
 legend([p1,p2,p3,p4],{'PD 1/OFF','PD 2/ON','Ctrl 1','Ctrl 2'}, ...
@@ -45,7 +46,7 @@ set(gca, 'LineWidth', axis_lnwdt,'fontweight','bold','fontsize',def_fontsize, ..
         'XTick', [0:5:45], 'xticklabel',{0:5:45});
 %         'YTick', [-0.5:0.5:1], 'yticklabel',{-0.5:0.5:1});
 xlabel('Frequency (Hz)','fontsize', label_fontsize);
-ylabel('PSD (a.u.)','fontsize', label_fontsize)
+ylabel('log(power)','fontsize', label_fontsize)
 xlim(xrange); ylim(yrange);
 hold off
 
