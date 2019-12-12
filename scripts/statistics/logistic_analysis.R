@@ -1,9 +1,10 @@
 # Logistic regression analysis to get ROC
-library(nnet)
+# library(nnet)
 library(ROCR)
 library(lme4)
 library(arm)
-library(R.matlab)
+# library(R.matlab)
+source("C:/Users/Mikkel/Documents/betabursts/scripts/functions/misc_funs.R")
 
 # wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
@@ -13,8 +14,36 @@ setwd(wrkdir)
 # Functions
 # Find optimal cutoff
 cut.val <- function(x, mod){
-  (logit(x)-coef(mod)[1])/coef(mod)[2]
-  # val <- log(x/(1-x)-coef(mod)[1])/coef(mod)[2]
+  val <- (logit(x)-coef(mod)[1])/coef(mod)[2]
+  # val <- (log(x/(1-x))-coef(mod)[1])/coef(mod)[2]
+  return(val)
+}
+
+# Funtion that do the analysis (implemetet along the way. Clean script and use for all analysis below)
+roc_fun <- function(lmod, dat){
+  
+  # Preditions
+  pred <- predict(lmod, dat, type="response")
+  pred <- prediction(pred, dat$group)
+  eval <- performance(pred, "acc")
+  plot(eval)                                         # Plot for inspection
+  max <- which.max(slot(eval, "y.values")[[1]])
+  acc <- slot(eval, "y.values")[[1]][max]
+  cut <- slot(eval, "x.values")[[1]][max]
+  cn <- cut.val(cut, lmod)
+  print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
+  
+  # ROC
+  roc <- performance(pred, "tpr", "fpr")
+  plot(roc)
+  
+  # AUC
+  auc <- performance(pred, "auc")
+  auc <- unlist(slot(auc, "y.values"))
+  print(c(AUC=auc))
+  
+  output <- list("roc" = roc, "auc" = auc, "mod" = lmod)
+  return(output)
 }
 
 ################################################################################
@@ -24,55 +53,12 @@ n.dat1 <- subset(neve.data, session=="1")
 n.dat2 <- subset(neve.data, session=="2")
 
 # SESSION 1
-# Make logistic model
 n1.lmod <- glm(group~nevent, data=n.dat1, family = 'binomial')
+n1.roc <- roc_fun(n1.lmod, n.dat1)
 
-# Preditions
-pred <- predict(n1.lmod, n.dat1, type="response")
-pred <- prediction(pred, n.dat1$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-print(c(Accuaracy=acc, Cutoff=cut))
-
-# ROC
-n1.roc <- performance(pred, "tpr", "fpr")
-
-# AUC
-n1.auc <- performance(pred, "auc")
-n1.auc <- unlist(slot(n1.auc, "y.values"))
-print(c(AUC=n1.auc))
-
-# Read cutoff value (not sure this is correct)
-n1.cn <- cut.val(cut, n1.lmod)
-print(cat("Cutoff: ", round(n1.cn)/3))
-
-# SESSION 23
-# Make model
+# SESSION 2
 n2.lmod <- glm(group~nevent, data=n.dat2, family = 'binomial')
-
-pred <- predict(n2.lmod, n.dat2, type="response")
-pred <- prediction(pred, n.dat2$group)
-eval <- performance(pred, "acc")
-plot(eval)
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-print(c(Accuaracy=acc, Cutoff=cut))
-
-# ROC
-n2.roc <- performance(pred, "tpr", "fpr")
-
-# AUC
-n2.auc <- performance(pred, "auc")
-n2.auc <- unlist(slot(n2.auc, "y.values"))
-print(c(AUC=n2.auc))
-
-# Read cutoff value
-n2.cn <- cut.val(cut, n2.lmod)
-print(cat("Cutoff: ", round(n2.cn)/3))
+n2.roc <- roc_fun(n2.lmod, n.dat2)
 
 ################################################################################
 ## Event duration analysis
@@ -82,60 +68,41 @@ len_mean <- aggregate(leneve.data$eve.len.ms, by=list(subs=leneve.data$subs, gro
 len_medi <- aggregate(leneve.data$eve.len.ms, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), median)
 len_mode <- aggregate(leneve.data$eve.len.ms, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), Mode)
 
+##### MEAN #####
 l.mean.dat1 <- subset(len_mean, session=="1")
 l.mean.dat2 <- subset(len_mean, session=="2")
 
 # SESSION 1
-# Make logistic model
-l1.lmod <- glm(group~x, data=l.mean.dat1, family = 'binomial')
-
-# Preditions
-pred <- predict(l1.lmod, l.mean.dat1, type="response")
-pred <- prediction(pred, l.mean.dat1$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, l1.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-l1.roc <- performance(pred, "tpr", "fpr")
-plot(l1.roc)
-
-# AUC
-l1.auc <- performance(pred, "auc")
-l1.auc <- unlist(slot(l1.auc, "y.values"))
-print(c(AUC=l1.auc))
+l1mean.lmod <- glm(group~x, data=l.mean.dat1, family = 'binomial')
+l1mean.roc <- roc_fun(l1mean.lmod, l.mean.dat1)
 
 # SESSION 2
-# Make logistic model
-l2.lmod <- glm(group~x, data=l.mean.dat2, family = 'binomial')
+l2mean.lmod <- glm(group~x, data=l.mean.dat2, family = 'binomial')
+l2mean.roc <- roc_fun(l2mean.lmod, l.mean.dat2)
 
-# Preditions
-pred <- predict(l2.lmod, l.mean.dat2, type="response")
-pred <- prediction(pred, l.mean.dat2$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, l2.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
+##### MEDIAN #####
+l.medi.dat1 <- subset(len_medi, session=="1")
+l.medi.dat2 <- subset(len_medi, session=="2")
 
-l2.cn <- cut.val(cut, l2.lmod)
-print(paste("Cutoff: ", l2.cn))
+# SESSION 1
+l1medi.lmod <- glm(group~x, data=l.medi.dat1, family = 'binomial')
+l1medi.roc <- roc_fun(l1mean.lmod, l.medi.dat1)
 
-# ROC
-l2.roc <- performance(pred, "tpr", "fpr")
-plot(l2.roc)
+# SESSION 2
+l2medi.lmod <- glm(group~x, data=l.medi.dat2, family = 'binomial')
+l2medi.roc <- roc_fun(l2medi.lmod, l.medi.dat2)
 
-# AUC
-l2.auc <- performance(pred, "auc")
-l2.auc <- unlist(slot(l2.auc, "y.values"))
-print(c(AUC=l2.auc))
+##### MODE #####
+l.mode.dat1 <- subset(len_mode, session=="1")
+l.mode.dat2 <- subset(len_mode, session=="2")
 
+# SESSION 1
+l1mode.lmod <- glm(group~x, data=l.mode.dat1, family = 'binomial')
+l1mode.roc <- roc_fun(l1mode.lmod, l.mode.dat1)
+
+# SESSION 2
+l2mode.lmod <- glm(group~x, data=l.mode.dat2, family = 'binomial')
+l2mode.roc <- roc_fun(l2mode.lmod, l.mode.dat2)
 
 ################################################################################
 ## Inter-event interval analysis
@@ -145,56 +112,42 @@ iti_mean <- aggregate(itieve.data$eve.iti.ms, by=list(subs=itieve.data$subs, gro
 iti_medi <- aggregate(itieve.data$eve.iti.ms, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), median)
 iti_mode <- aggregate(itieve.data$eve.iti.ms, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), Mode)
 
+##### MEAN #####
 i.mean.dat1 <- subset(iti_mean, session=="1")
 i.mean.dat2 <- subset(iti_mean, session=="2")
 
 # SESSION 1
-# Make logistic model
-i1.lmod <- glm(group~x, data=i.mean.dat1, family = 'binomial')
-
-# Preditions
-pred <- predict(i1.lmod, i.mean.dat1, type="response")
-pred <- prediction(pred, i.mean.dat1$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, i1.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-i1.roc <- performance(pred, "tpr", "fpr")
-plot(i1.roc)
-
-# AUC
-i1.auc <- performance(pred, "auc")
-i1.auc <- unlist(slot(i1.auc, "y.values"))
-print(c(AUC=i1.auc))
+i1mean.lmod <- glm(group~x, data=i.mean.dat1, family = 'binomial')
+i1mean.roc <- roc_fun(i1mean.lmod, i.mean.dat1)
 
 # SESSION 2
+i2mean.lmod <- glm(group~x, data=i.mean.dat2, family = 'binomial')
+i2mean.roc <- roc_fun(i2mean.lmod, i.mean.dat2)
+
+##### MEDIAN #####
+i.medi.dat1 <- subset(iti_medi, session=="1")
+i.medi.dat2 <- subset(iti_medi, session=="2")
+
+# SESSION 1
+i1medi.lmod <- glm(group~x, data=i.medi.dat1, family = 'binomial')
+i1medi.roc <- roc_fun(i1medi.lmod, i.medi.dat1)
+
+# SESSION 2
+i2medi.lmod <- glm(group~x, data=i.medi.dat2, family = 'binomial')
+i2medi.roc <- roc_fun(i2medi.lmod, i.medi.dat2)
+
+##### MODE #####
+i.mode.dat1 <- subset(iti_mode, session=="1")
+i.mode.dat2 <- subset(iti_mode, session=="2")
+
+# SESSION 1
 # Make logistic model
-i2.lmod <- glm(group~x, data=i.mean.dat2, family = 'binomial')
+i1mode.lmod <- glm(group~x, data=i.mode.dat1, family = 'binomial')
+i1mode.roc <- roc_fun(i1mode.lmod, i.mode.dat1)
 
-# Preditions
-pred <- predict(i2.lmod, i.mean.dat2, type="response")
-pred <- prediction(pred, i.mean.dat2$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, i2.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-i2.roc <- performance(pred, "tpr", "fpr")
-plot(i2.roc)
-
-# AUC
-i2.auc <- performance(pred, "auc")
-i2.auc <- unlist(slot(i2.auc, "y.values"))
-print(c(AUC=i2.auc))
+# SESSION 2
+i2mode.lmod <- glm(group~x, data=i.mode.dat2, family = 'binomial')
+i2mode.roc <- roc_fun(i2mode.lmod, i.mode.dat2)
 
 ################################################################################
 ## Peak amplitude analysis
@@ -202,58 +155,42 @@ load(file = 'maxeve.RData')
 
 amp_mean <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), mean)
 amp_medi <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), median)
-amp_mode <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), Mode)
+amp_mode <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), Mode, digits=2)
 
 a.mean.dat1 <- subset(amp_mean, session=="1")
 a.mean.dat2 <- subset(amp_mean, session=="2")
 
-# SESSION 1
-# Make logistic model
-a1.lmod <- glm(group~x, data=a.mean.dat1, family = 'binomial')
-
-# Preditions
-pred <- predict(a1.lmod, a.mean.dat1, type="response")
-pred <- prediction(pred, a.mean.dat1$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, a1.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-a1.roc <- performance(pred, "tpr", "fpr")
-plot(a1.roc)
-
-# AUC
-a1.auc <- performance(pred, "auc")
-a1.auc <- unlist(slot(a1.auc, "y.values"))
-print(c(AUC=a1.auc))
+# session 1
+a1mean.lmod <- glm(group~x, data=a.mean.dat1, family = 'binomial')
+a1mean.roc <- roc_fun(a1mean.lmod,a.mean.dat1)
 
 # SESSION 2
-# Make logistic model
-a2.lmod <- glm(group~x, data=a.mean.dat2, family = 'binomial')
+a2mean.lmod <- glm(group~x, data=a.mean.dat2, family = 'binomial')
+a2mean.roc <- roc_fun(a2mean.lmod,a.mean.dat2)
 
-# Preditions
-pred <- predict(a2.lmod, a.mean.dat2, type="response")
-pred <- prediction(pred, a.mean.dat2$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, a2.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
+##### MEDIAN #####
+a.medi.dat1 <- subset(amp_medi, session=="1")
+a.medi.dat2 <- subset(amp_medi, session=="2")
 
-# ROC
-a2.roc <- performance(pred, "tpr", "fpr")
-plot(a2.roc)
+# session 1
+a1medi.lmod <- glm(group~x, data=a.medi.dat1, family = 'binomial')
+a1medi.roc <- roc_fun(a1medi.lmod,a.medi.dat1)
 
-# AUC
-a2.auc <- performance(pred, "auc")
-a2.auc <- unlist(slot(a2.auc, "y.values"))
-print(c(AUC=a2.auc))
+# SESSION 2
+a2medi.lmod <- glm(group~x, data=a.medi.dat2, family = 'binomial')
+a2medi.roc <- roc_fun(a2medi.lmod,a.medi.dat2)
+
+##### MODE #####
+a.mode.dat1 <- subset(amp_mode, session=="1")
+a.mode.dat2 <- subset(amp_mode, session=="2")
+
+# session 1
+a1mode.lmod <- glm(group~x, data=a.mode.dat1, family = 'binomial')
+a1mode.roc <- roc_fun(a1mode.lmod,a.mode.dat1)
+
+# SESSION 2
+a2mode.lmod <- glm(group~x, data=a.mode.dat2, family = 'binomial')
+a2mode.roc <- roc_fun(a2mode.lmod,a.mode.dat2)
 
 ################################################################################
 ## Realtive beta power analysis
@@ -263,53 +200,23 @@ rel.dat1 <- subset(rel.dat, session=="1")
 rel.dat2 <- subset(rel.dat, session=="2")
 
 # SESSION 1
-# Make logistic model
 r1.lmod <- glm(group~relpow, data=rel.dat1, family = 'binomial')
-
-# Preditions
-pred <- predict(r1.lmod, rel.dat1, type="response")
-pred <- prediction(pred, rel.dat1$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, r1.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-r1.roc <- performance(pred, "tpr", "fpr")
-plot(r1.roc)
-
-# AUC
-r1.auc <- performance(pred, "auc")
-r1.auc <- unlist(slot(r1.auc, "y.values"))
-print(c(AUC=r1.auc))
+r1.roc <- roc_fun(r1.lmod, rel.dat1)
 
 # SESSION 2
-#Make logistic model
 r2.lmod <- glm(group~relpow, data=rel.dat2, family = 'binomial')
-
-# Preditions
-pred <- predict(r2.lmod, rel.dat2, type="response")
-pred <- prediction(pred, rel.dat2$group)
-eval <- performance(pred, "acc")
-plot(eval)                                         # Plot for inspection
-max <- which.max(slot(eval, "y.values")[[1]])
-acc <- slot(eval, "y.values")[[1]][max]
-cut <- slot(eval, "x.values")[[1]][max]
-cn <- cut.val(cut, r2.lmod)
-print(c(Accuaracy=acc, Cutoff=cut, cut.val=cn))
-
-# ROC
-r2.roc <- performance(pred, "tpr", "fpr")
-plot(r2.roc)
-
-# AUC
-r2.auc <- performance(pred, "auc")
-r2.auc <- unlist(slot(r2.auc, "y.values"))
-print(c(AUC=r2.auc))
+r2.roc <- roc_fun(r2.lmod, rel.dat2)
 
 ################################################################################
+# 
+
+################################################################################
+# Save
+save("r1.roc", "r2.roc", 
+     "n1.roc", "n2.roc",
+     "l1mean.roc", "l2mean.roc", "l1medi.roc", "l2medi.roc", "l1mode.roc", "l2mode.roc",
+     "i1mean.roc", "i2mean.roc", "i1medi.roc", "i2medi.roc", "i1mode.roc", "i2mode.roc",
+     "a1mean.roc", "a2mean.roc", "a1medi.roc", "a2medi.roc", "a1mode.roc", "a2mode.roc",
+     file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
 
 #END

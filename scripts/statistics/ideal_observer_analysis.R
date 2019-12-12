@@ -4,20 +4,14 @@
 # * Burst duration (mean, median, mode)
 # * Max burst amplitude (mean, median, mode)
 # * Relative beta PSD
-
 library(R.matlab)
+# Import function
+source("C:/Users/Mikkel/Documents/betabursts/scripts/functions/ideal_obs_fun.R")
+source("C:/Users/Mikkel/Documents/betabursts/scripts/functions/misc_funs.R")
 
 # Set work dir
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
-
-# Import function
-source("C:/Users/Mikkel/Documents/betabursts/scripts/functions/ideal_obs_fun.R")
-
-Mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
 
 ###################################################################
 # Burst rate
@@ -37,7 +31,7 @@ load(file = 'itieve.RData')
 
 iti_mean <- aggregate(itieve.data$eve.iti, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), mean)
 iti_medi <- aggregate(itieve.data$eve.iti, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), median)
-iti_mode <- aggregate(itieve.data$eve.iti, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), Mode)
+iti_mode <- aggregate(itieve.data$eve.iti.ms, by=list(subs=itieve.data$subs, group=itieve.data$group, session=itieve.data$session), Mode)
 
 # MEAN
 # Ptns vs. ctrl - session 1
@@ -73,7 +67,7 @@ load(file = 'leneve.RData')
 
 len_mean <- aggregate(leneve.data$eve.len, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), mean)
 len_medi <- aggregate(leneve.data$eve.len, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), median)
-len_mode <- aggregate(leneve.data$eve.len, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), Mode)
+len_mode <- aggregate(leneve.data$eve.len.ms, by=list(subs=leneve.data$subs, group=leneve.data$group, session=leneve.data$session), Mode)
 
 # MEAN
 # Ptns vs. ctrl - session 1
@@ -109,7 +103,7 @@ load(file = 'maxeve.RData')
 
 amp_mean <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), mean)
 amp_medi <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), median)
-amp_mode <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), Mode)
+amp_mode <- aggregate(maxeve.data$eve.max, by=list(subs=maxeve.data$subs, group=maxeve.data$group, session=maxeve.data$session), Mode, digits=2)
 
 # MEAN
 # Ptns vs. ctrl - session 1
@@ -160,14 +154,14 @@ id.obs(rel.dat$relpow[rel.dat$group=="1" & rel.dat$session=="2"],
 
 ###################################################################
 
-# Plot distribution
-library(ggplot2)
-d1 <- data.frame(val=r0)
-d2 <- data.frame(val=r1)
-d1$var <- 'r1'
-d2$var <- 'r2'
-dat <- rbind(d1, d2)
-ggplot(dat, aes(val, fill = var)) + geom_histogram(bins=20, alpha=.8, position = 'identity')
+# # Plot distribution
+# library(ggplot2)
+# d1 <- data.frame(val=r0)
+# d2 <- data.frame(val=r1)
+# d1$var <- 'r1'
+# d2$var <- 'r2'
+# dat <- rbind(d1, d2)
+# ggplot(dat, aes(val, fill = var)) + geom_histogram(bins=20, alpha=.8, position = 'identity')
 
 
-
+#END

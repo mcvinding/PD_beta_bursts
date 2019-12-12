@@ -1,58 +1,75 @@
 # ROC plots
 library(ROCR)
 
+# Load data
+loda(file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
+setwd("C:/Users/Mikkel/Documents/betabursts/Figures")
 
-
+#################################################################################
 # ROC plot function
-ROCplot <- function(roc, auc, heading){
+heading <- 'lalalala'
+ROCplot <- function(roc1, roc2, heading, col.1="black", col.2="blue", leg.cex=1){
   
-  jpeg("test_plot.jpg", units="in", width=3, height=3, res=600)
-  par(cex.lab=.6, cex.main=.8, cex.axis=.5,
-      oma=c(3,3,0,0),mar=c(1,1,1,1)# ps = 12,
-  )
-  plot(roc, colorize=F, 
-       main = heading,
-       ylab = "Sensitivity (TPR)",
-       xlab = "1-specificity (FPR)",
-       lwd=2)
-  abline(a=0, b=1, lty=3)
-  legend(.65, .3, 
-         paste("AUC: ", round(auc,2)), 
-         text.font=2,
-         bty="n", 
-         cex = 1,
-         xjust=.5, yjust=.5)
-  dev.off()
-  
-  # Double plot
-  plot(n1.roc)
+  # Plot 1
+  plot(roc1$roc, colorize=F,  main = heading, lwd=1, col=col.1)
+  legend(.4, .3, 
+         paste("- AUC: ", round(roc1$auc,2)), 
+         text.font=2, text.col=col.1,
+         bty="n", cex = leg.cex, xjust=0, yjust=.5)
+
   par(new=TRUE)
-  plot(n2.roc, lty=2)
   
-  # M;ultiple plots
-  par(oma=c(3,3,0,0),mar=c(2,2,2,2),mfrow=c(3,4))
+  # Plot 2
+  plot(roc2$roc, colorize=F, lwd=1, col=col.2, lty=2)
+  legend(.4, .2, 
+         paste("- - AUC: ", round(roc2$auc,2)), 
+         text.font=2, text.col=col.2,
+         bty="n", cex = leg.cex, xjust=0, yjust=.5)
   
-  plot(1,1,ylab="",xlab="",type="n"); title('lololol')
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n"); title('lololol')
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")  
-  plot(1,1,ylab="",xlab="",type="n"); title('lololol')
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")
-  plot(1,1,ylab="",xlab="",type="n")  
-  
-  
-  mtext(text="Sensitivity (TPR)", side=1, line=1, outer=TRUE)
-  mtext(text="1-specificity (FPR)", side=2, line=1, outer=TRUE)
-  
-  
+  # Add diagonal line
+  abline(a=0, b=1, lty=3)
 }
 
-saveROcplt <- function(ROCplot) {
-  jpeg("test_plot.jpg", units="in", width=5, height=5, res=300)
-  dev.off()
-}
+#################################################################################
+# Multiple plots: all plots 3x4
+jpeg("roc_3x4_plot.jpg", units="in", width=6, height=4, res=600)
+par(mfrow=c(3,4),
+    cex.lab=.5, cex.main=.7, cex.axis=.6,
+    xaxt='s', yaxt='s',
+    oma=c(2,2,0,0), mar=c(1,1,1,0.5), mgp=c(3, 0.2, 0))
+
+ROCplot(n1.roc, n2.roc, "N events", leg.cex=.7)
+ROCplot(i1mean.roc, i2mean.roc, "Inter-burst interval (mean)", leg.cex=.7)
+ROCplot(l1mean.roc, l2mean.roc, "Burst duration (mean)", leg.cex=.7)
+ROCplot(a1mean.roc, a2mean.roc, "Burst peak amplitude (mean)", leg.cex=.7)
+
+ROCplot(r1.roc, r2.roc, "Relative beta power", leg.cex=.7)
+ROCplot(i1medi.roc, i2medi.roc, "Inter-burst interval (median)", leg.cex=.7)
+ROCplot(l1medi.roc, l2medi.roc, "Burst duration (median)", leg.cex=.7)
+ROCplot(a1medi.roc, a2medi.roc, "Burst peak amplitude (median)", leg.cex=.7)
+
+plot(1,1)
+ROCplot(i1mode.roc, i2mode.roc, "Inter-burst interval (mode)", leg.cex=.7)
+ROCplot(l1mode.roc, l2mode.roc, "Burst duration (mode)", leg.cex=.7)
+ROCplot(a1mode.roc, a2mode.roc, "Burst peak amplitude (mode)", leg.cex=.7)
+
+mtext(text="Sensitivity (TPR)", side=2, line=.5, outer=TRUE, font=2, cex=.8)
+mtext(text="1-specificity (FPR)", side=1, line=1, outer=TRUE, font=2, cex=.8)
+dev.off()
+
+#################################################################################
+##### Plot without 3xIBI, Dur and Amp.
+par(oma=c(3,3,0,0),mar=c(2,2,2,2),mfrow=c(2,3),
+    cex.lab=.6, cex.main=1.2, cex.axis=.8,
+    oma=c(3,3,0,0),mar=c(2,1,2,2))
+
+ROCplot(n1.roc, n2.roc, "N events")
+ROCplot(r1.roc, r2.roc, "Relative beta power")
+plot(1,1)
+ROCplot(i1medi.roc, i2medi.roc, "Inter-burst interval")
+ROCplot(l1medi.roc, l2medi.roc, "Burst duration")
+ROCplot(a1medi.roc, a2medi.roc, "Burst peak amplitude")
+
+mtext(text="Sensitivity (TPR)", side=2, line=1.5, outer=TRUE, font=2)
+mtext(text="1-specificity (FPR)", side=1, line=1.5, outer=TRUE, font=2)
+
