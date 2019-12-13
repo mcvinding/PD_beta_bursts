@@ -15,8 +15,8 @@ axis_lnwdt          = 2;
 def_fontsize        = 12;
 label_fontsize      = 14; 
 xrange              = [0 45];
-yrange              = [0 0.01];
-yrange              = [-8.5 -4.5];
+% yrange              = [0 0.01];       % native range
+yrange              = [-8.5 -4.5];      % log range
 
 %% Plot
 close all
@@ -52,6 +52,6 @@ hold off
 
 %% Export
 export_fig(fullfile(dirs.figures,'PSD.png'), ...
-    '-r500', '-p0.05', '-CMYK')
+    '-r600', '-p0.05', '-CMYK')
 
 %END

@@ -8,6 +8,7 @@ Created on Wed Dec  4 16:19:05 2019. @author: mikkel
 import numpy as np
 import scipy.io
 import pandas
+import fooof
 from fooof.sim.params import param_sampler, param_iter, Stepper
 from fooof.sim.gen import gen_power_spectrum, gen_group_power_spectra
 from fooof.analysis import get_band_peak, get_band_peak_group
@@ -23,11 +24,17 @@ from fooof import FOOOFGroup
 #%% SETTINGS
 # Define frequency bands of interest
 theta_band = [4, 8]
-alpha_band = [8, 12]
+alpha_band = [8, 13]
 beta_band = [13, 30]
 
 groups = ['ctrl_dat1','ptns_dat1','ctrl_dat2','ptns_dat2']
 
+# Constrain analysis
+max_n_peaks = 8
+
+# Define frequency range across which to model the spectrum
+freq_range = [1, 45]
+        
 #%% Read data
 dat = scipy.io.loadmat('/home/mikkel/PD_motor/rest_ec/groupanalysis/PSD_data.mat')
 
@@ -60,10 +67,7 @@ for jj in groups:
         #plot_spectrum_shading(freq, psd_mat, [13, 30], log_powers=True)
     
         # Initialize FOOOF object
-        fm = FOOOF(max_n_peaks=6, min_peak_height=0.05, peak_width_limits = [.75, 20], aperiodic_mode='fixed')
-    
-        # Define frequency range across which to model the spectrum
-        freq_range = [1, 45]
+        fm = FOOOF(max_n_peaks=max_n_peaks, min_peak_height=0.025, peak_width_limits = [.75, 12], aperiodic_mode='fixed')
     
         # Fit model
         fm.fit(freq, psd, freq_range)
@@ -90,6 +94,7 @@ for jj in groups:
 df_beta = pandas.DataFrame()
 df_alpha = pandas.DataFrame()
 df_theta = pandas.DataFrame()
+df_aper = pandas.DataFrame()
 
 for con in beta_dict:
     temp = beta_dict[con].copy()
@@ -136,11 +141,26 @@ for con in theta_dict:
               'session': session}
     db_temp = pandas.DataFrame(d_temp)
     df_theta = df_theta.append(db_temp)
+    
+for con in aper_dict:
+    temp = aper_dict[con].copy()
+    print(con)
+    
+    session = np.ones(len(temp)) if con[-1]=='1' else np.ones(len(temp))*2
+    group = np.ones(len(temp)) if con[:4]=='ptns' else np.ones(len(temp))*2
+    
+    d_temp = {'intercept': temp[:,0],
+              'slope': temp[:,1],
+              'group': group,
+              'session': session}
+    db_temp = pandas.DataFrame(d_temp)
+    df_aper = df_aper.append(db_temp)    
 
 # Export    
 df_beta.to_csv('/home/mikkel/PD_motor/rest_ec/groupanalysis/df_beta.csv', index=False, sep=';')
 df_alpha.to_csv('/home/mikkel/PD_motor/rest_ec/groupanalysis/df_alpha.csv', index=False, sep=';')
 df_theta.to_csv('/home/mikkel/PD_motor/rest_ec/groupanalysis/df_theta.csv', index=False, sep=';')
+df_aper.to_csv('/home/mikkel/PD_motor/rest_ec/groupanalysis/df_aper.csv', index=False, sep=';')
 
 #%% Inspect
 for p in rsq_dict:
