@@ -208,15 +208,57 @@ r2.lmod <- glm(group~relpow, data=rel.dat2, family = 'binomial')
 r2.roc <- roc_fun(r2.lmod, rel.dat2)
 
 ################################################################################
-# 
+## Beta power substracted 1/f spectrum
+load(file="fooof_dat.R")
+b.dat$group <- relevel(b.dat$group, "ctrl")
+
+b.dat1 <- subset(b.dat, session=="1")
+b.dat2 <- subset(b.dat, session=="2")
+
+# SESSION 1
+b1.lmod <- glm(group~peak_pow, data=b.dat1, family = 'binomial')
+b1.roc <- roc_fun(b1.lmod, b.dat1)
+
+# SESSION 2
+b2.lmod <- glm(group~peak_pow, data=b.dat2, family = 'binomial')
+b2.roc <- roc_fun(b2.lmod, b.dat2)
+
+
+###################################################################
+# 1/f spectrum: slope
+f.dat$group <- relevel(f.dat$group, "ctrl")
+f.dat1 <- subset(f.dat, session=="1")
+f.dat2 <- subset(f.dat, session=="2")
+
+# SESSION 1
+fs1.lmod <- glm(group~slope, data=f.dat1, family = 'binomial')
+fs1.roc <- roc_fun(fs1.lmod, f.dat1)
+
+# SESSION 2
+fs2.lmod <- glm(group~slope, data=f.dat2, family = 'binomial')
+fs2.roc <- roc_fun(fs2.lmod, f.dat2)
+
+
+###################################################################
+# 1/f spectrum: intercept
+# SESSION 1
+fi1.lmod <- glm(group~intercept, data=f.dat1, family = 'binomial')
+fi1.roc <- roc_fun(fi1.lmod, f.dat1)
+
+# SESSION 2
+fi2.lmod <- glm(group~intercept, data=f.dat2, family = 'binomial')
+fi2.roc <- roc_fun(fi2.lmod, f.dat2)
 
 ################################################################################
 # Save
+# load(file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
 save("r1.roc", "r2.roc", 
      "n1.roc", "n2.roc",
      "l1mean.roc", "l2mean.roc", "l1medi.roc", "l2medi.roc", "l1mode.roc", "l2mode.roc",
      "i1mean.roc", "i2mean.roc", "i1medi.roc", "i2medi.roc", "i1mode.roc", "i2mode.roc",
      "a1mean.roc", "a2mean.roc", "a1medi.roc", "a2medi.roc", "a1mode.roc", "a2mode.roc",
+     "b1.roc", "b2.roc",
+     "fs1.roc", "fs2.roc", "fi1.roc", "fi2.roc",
      file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
 
 #END

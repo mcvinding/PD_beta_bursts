@@ -147,14 +147,40 @@ id.obs(rel.dat$relpow[rel.dat$group=="1" & rel.dat$session=="2"],
 
 ###################################################################
 # Beta power substracted 1/f spectrum
+load(file="fooof_dat.R")
 
+# Ptns vs. ctrl - session 1
+id.obs(b.dat$peak_pow[b.dat$group=="ptns" & b.dat$session=="1"],
+       b.dat$peak_pow[b.dat$group=="ctrl" & b.dat$session=="1"])
 
-
+# Ptns vs. ctrl - session 2
+id.obs(b.dat$peak_pow[b.dat$group=="ptns" & b.dat$session=="2"],
+       b.dat$peak_pow[b.dat$group=="ctrl" & b.dat$session=="2"])
 
 
 ###################################################################
+# 1/f spectrum: slope
+# Ptns vs. ctrl - session 1
+id.obs(f.dat$slope[f.dat$group=="ptns" & f.dat$session=="1"],
+       f.dat$slope[f.dat$group=="ctrl" & f.dat$session=="1"])
 
-# # Plot distribution
+# Ptns vs. ctrl - session 2
+id.obs(f.dat$slope[f.dat$group=="ptns" & f.dat$session=="2"],
+       f.dat$slope[f.dat$group=="ctrl" & f.dat$session=="2"])
+
+###################################################################
+# 1/f spectrum: intercept
+# Ptns vs. ctrl - session 1
+id.obs(f.dat$intercept[f.dat$group=="ptns" & f.dat$session=="1"],
+       f.dat$intercept[f.dat$group=="ctrl" & f.dat$session=="1"])
+
+# Ptns vs. ctrl - session 2
+id.obs(f.dat$intercept[f.dat$group=="ptns" & f.dat$session=="2"],
+       f.dat$intercept[f.dat$group=="ctrl" & f.dat$session=="2"])
+
+###################################################################
+
+# # Plot distributions for inspection
 # library(ggplot2)
 # d1 <- data.frame(val=r0)
 # d2 <- data.frame(val=r1)
@@ -162,6 +188,5 @@ id.obs(rel.dat$relpow[rel.dat$group=="1" & rel.dat$session=="2"],
 # d2$var <- 'r2'
 # dat <- rbind(d1, d2)
 # ggplot(dat, aes(val, fill = var)) + geom_histogram(bins=20, alpha=.8, position = 'identity')
-
 
 #END
