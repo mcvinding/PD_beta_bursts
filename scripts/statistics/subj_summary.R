@@ -56,9 +56,15 @@ range(bbpatients$UPDRS_on, na.rm=T)
 median(bbpatients$UPDRS_on, na.rm=T)
 
 bbpatients$UPDRS_diff <- bbpatients$UPDRS_off - bbpatients$UPDRS_on
+bbpatients$UPDRS_pctdiff <- bbpatients$UPDRS_diff*100 / bbpatients$UPDRS_off
+
 mean(bbpatients$UPDRS_diff)
 median(bbpatients$UPDRS_diff)
 range(bbpatients$UPDRS_diff)
+
+mean(bbpatients$UPDRS_pctdiff)
+median(bbpatients$UPDRS_pctdiff)
+range(bbpatients$UPDRS_pctdiff)
 
 ttestBF(bbpatients$UPDRS_off,bbpatients$UPDRS_on, paired = T)
 
