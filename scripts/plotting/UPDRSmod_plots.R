@@ -3,8 +3,8 @@ library(ggplot2)
 library(brms)
 
 ## Load data
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
-outdir <- "Z://PD_motor//rest_ec//figures//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
+outdir <- "C://Users//Mikkel//Documents//betabursts//Figures//"
 setwd(wrkdir)
 load(file = 'updrs_neve_mods.R')
 
