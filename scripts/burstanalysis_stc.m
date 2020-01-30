@@ -11,15 +11,12 @@ subs = find_subs(dirs.megDir);                     %Find subjects in folder
 cd(dirs.megDir);
 
 %% Settings
-overwrite = 0;   % Overwirte old files 0=false or 1=true
+overwrite = 1;   % Overwirte old files 0=false or 1=true
 
 steps = 0:0.1:5;
 
 %% Find peaks: testing multiple methods based on the litterature
-rho_sdamp = nan(length(subs),length(steps),2);
-rho_sdpow = nan(length(subs),length(steps),2);
-rho_mdamp = nan(length(subs),length(steps),2);
-rho_mdpow = nan(length(subs),length(steps),2);
+rho_mdamp = nan(length(subs), length(steps), 2);
 
 for ss = 1:length(subs)
     subID = subs{ss};
@@ -47,7 +44,7 @@ for ss = 1:length(subs)
         cfg.steps       = steps;
         cfg.cutofftype  = 'med';
         cfg.corrtype    = 'amp';
-        [~, rho_mdamp(ss,:,f)] = find_betaevents(cfg,lhdata);
+        [~, rho_mdamp(ss,:,f)] = find_betaevents(cfg, lhdata);
 
     end
 end
@@ -69,8 +66,8 @@ cfg.overlap     = 0;
 cfg.steps       = cutoff_mdamp;
 cfg.corrtype    = 'amp';
 cfg.cutofftype  = 'med'; 
-cfg.halfmax     = 'mixed';
-cfg.makeplot    = 'yes';
+cfg.halfmax     = 'yes';
+cfg.makeplot    = 'no';
 
 for ss = 1:length(subs)
     subvals  = [];
@@ -99,5 +96,5 @@ for ss = 1:length(subs)
 
         [subvals{f}] = find_betaevents(cfg,lhdata);
     end
-    save(outfname,'subvals')
+%     save(outfname,'subvals')
 end
