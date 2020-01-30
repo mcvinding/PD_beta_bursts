@@ -3,10 +3,9 @@ library(lme4)
 library(brms)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
-options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
+# options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
 
 # Define paths
-# wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 
