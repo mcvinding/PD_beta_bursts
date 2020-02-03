@@ -3,7 +3,7 @@ library(brms)
 # library(BayesFactor)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
-options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
+# options(mc.cores=parallel::detectCores)                   # Try run with multicores !!!
 
 # Define paths
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
@@ -60,6 +60,17 @@ n.bf6 <- bayes_factor(br.nev.uF6,br.nev.0)
 n.bf7 <- bayes_factor(br.nev.uF7,br.nev.0)
 n.bfT <- bayes_factor(br.nev.uFT,br.nev.0)
 
+# Kfold
+kf.nev.uF1 <- kfold(br.nev.uF1, save_fits = TRUE)
+
+kpred.nev.uF1 <- kfold_predict(kf.nev.uF1,  method = c("fitted"))
+
+rmse <- function(y, yrep) {
+  yrep_mean <- colMeans(yrep)
+  sqrt(mean((yrep_mean - y)^2))
+}
+
+rmse(y = kpred.nev.uF1$y, yrep = kpred.nev.uF1$yrep)
 
 ################################################################################
 ## ITI 

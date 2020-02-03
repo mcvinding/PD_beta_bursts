@@ -2,8 +2,8 @@
 library(ggplot2)
 
 # Load data
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
-outdir <- "Z://PD_motor//rest_ec//figures//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis//"
+outdir <- "C://Users//Mikkel//Documents//betabursts//figures//"
 setwd(wrkdir)
 
 #####################################################################################
@@ -38,7 +38,7 @@ nplt <- ggplot(neve.data, aes(x=task, y=nevent.min))+
 nplt
 
 ## Save
-ggsave(paste(outdir,"neve_group.jpeg",sep=""), plot=nplt, device="png", units="mm", width=60, height=40, dpi=600, scale=3)
+ggsave(paste(outdir,"neve_group.jpeg", sep=""), plot=nplt, device="png", units="mm", width=60, height=40, dpi=600, scale=3)
 
 
 #####################################################################################

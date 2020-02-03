@@ -5,7 +5,7 @@ Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
 # options(mc.cores=parallel::detectCores)  # Try run with multicores. For some reason, doing this means bridge sampling does not work later!
 
 # Define paths
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 load(file='uData.Rdata')
 
