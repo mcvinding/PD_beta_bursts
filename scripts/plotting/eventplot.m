@@ -22,9 +22,9 @@ for ii = 1:length(PD_subs)
     load(fullfile(dirs.megDir,PD_subs{ii},'subvals.mat'))
         
     % Session #1
-    load(fullfile(dirs.megDir,PD_subs{ii},[PD_subs{ii},'_RsEc1-rawft.mat']))
-    lhdata.trial = {[rwft_lh]};
-    lhdata.time = {[1:length(rwft_lh)]};
+    load(fullfile(dirs.megDir,PD_subs{ii},[PD_subs{ii},'_RsEc1-rawtc.mat']))
+    lhdata.trial = {[raw_lh]};
+    lhdata.time = {[1:length(raw_lh)]};
     lhdata.label = {'lh_roi'};
     lhdata.fsample = 1000;
     
@@ -33,15 +33,19 @@ for ii = 1:length(PD_subs)
     cfg = [];
     cfg.trl = trl(2:end-2,:); % Skip first/last tirals or NaN
 	mx_epo = ft_redefinetrial(cfg,lhdata);
-    mx_evo = ft_timelockanalysis([],mx_epo);
+    cfg = [];
+    cfg.demean          = 'yes';
+    cfg.baselinewindow  = [-0.150 -0.100];
+    mx_epo_bs = ft_preprocessing(cfg, mx_epo);
+    mx_evo = ft_timelockanalysis([],mx_epo_bs);
     
     ptns_epo1{ii} = mx_evo;
     clear rwft* lhdata* mx_*
 
     % Session #2
-    load(fullfile(dirs.megDir,PD_subs{ii},[PD_subs{ii},'_RsEc2-rawft.mat']))
-    lhdata.trial = {[rwft_lh]};
-    lhdata.time = {[1:length(rwft_lh)]};
+    load(fullfile(dirs.megDir,PD_subs{ii},[PD_subs{ii},'_RsEc2-rawtc.mat']))
+    lhdata.trial = {[raw_lh]};
+    lhdata.time = {[1:length(raw_lh)]};
     lhdata.label = {'lh_roi'};
     lhdata.fsample = 1000;
     
@@ -50,8 +54,14 @@ for ii = 1:length(PD_subs)
     cfg = [];
     cfg.trl = trl(2:end-2,:);
 	mx_epo = ft_redefinetrial(cfg,lhdata);
-    mx_evo = ft_timelockanalysis([],mx_epo);
+    cfg = [];
+    cfg.demean          = 'yes';
+    cfg.baselinewindow  = [-0.150 -0.100];
+    mx_epo_bs = ft_preprocessing(cfg, mx_epo);
+    mx_evo = ft_timelockanalysis([],mx_epo_bs);
+    
     ptns_epo2{ii} = mx_evo; 
+    clear rwft* lhdata* mx_*
 end
 
 % Ctrl
@@ -60,26 +70,30 @@ for ii = 1:length(ctrl_subs)
     load(fullfile(dirs.megDir,ctrl_subs{ii},'subvals.mat'))
         
     % Session #1
-    load(fullfile(dirs.megDir,ctrl_subs{ii},[ctrl_subs{ii},'_RsEc1-rawft.mat']))
-    lhdata.trial = {[rwft_lh]};
-    lhdata.time = {[1:length(rwft_lh)]};
+    load(fullfile(dirs.megDir,ctrl_subs{ii},[ctrl_subs{ii},'_RsEc1-rawtc.mat']))
+    lhdata.trial = {[raw_lh]};
+    lhdata.time = {[1:length(raw_lh)]};
     lhdata.label = {'lh_roi'};
     lhdata.fsample = 1000;
-    
+        
     mxidx = subvals{1}.bdat.maxidx; 
     trl = [mxidx-150, mxidx+150,repmat(-150,size(mxidx))];
     cfg = [];
     cfg.trl = trl(2:end-2,:); % Skip first/last tirals or NaN
 	mx_epo = ft_redefinetrial(cfg,lhdata);
-    mx_evo = ft_timelockanalysis([],mx_epo);
+    cfg = [];
+    cfg.demean          = 'yes';
+    cfg.baselinewindow  = [-0.150 -0.100];
+    mx_epo_bs = ft_preprocessing(cfg, mx_epo);
+    mx_evo = ft_timelockanalysis([],mx_epo_bs);
     
     ctrl_epo1{ii} = mx_evo;
     clear rwft* lhdata* mx_*
 
     % Session #2
-    load(fullfile(dirs.megDir,ctrl_subs{ii},[ctrl_subs{ii},'_RsEc2-rawft.mat']))
-    lhdata.trial = {[rwft_lh]};
-    lhdata.time = {[1:length(rwft_lh)]};
+    load(fullfile(dirs.megDir,ctrl_subs{ii},[ctrl_subs{ii},'_RsEc2-rawtc.mat']))
+    lhdata.trial = {[raw_lh]};
+    lhdata.time = {[1:length(raw_lh)]};
     lhdata.label = {'lh_roi'};
     lhdata.fsample = 1000;
     
@@ -88,9 +102,15 @@ for ii = 1:length(ctrl_subs)
     cfg = [];
     cfg.trl = trl(2:end-2,:);
 	mx_epo = ft_redefinetrial(cfg,lhdata);
-    mx_evo = ft_timelockanalysis([],mx_epo);
+    cfg = [];
+    cfg.demean          = 'yes';
+    cfg.baselinewindow  = [-0.150 -0.100];
+    mx_epo_bs = ft_preprocessing(cfg, mx_epo);
+    mx_evo = ft_timelockanalysis([],mx_epo_bs);
     
     ctrl_epo2{ii} = mx_evo; 
+    clear rwft* lhdata* mx_*
+
 end
 
 % Grand average
@@ -109,10 +129,10 @@ def_fontsize    = 9;
 label_fontsize  = 10; 
 ttl_fontsize    = 11;
 
-yrange          = [-0.7 1.1];
+yrange          = [-1.0 2.0];
 xrange          = [-150,150];
 xtck            = [-100:50:100];
-ytck            = [-0.5:0.5:1];
+ytck            = [-0.5:0.5:2.0];
 submargin       = [0.1 0.05];
 marg_h          = [.1 .05];
 marg_w          = [.1 .05];
