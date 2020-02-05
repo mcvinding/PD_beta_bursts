@@ -10,7 +10,7 @@ setwd(wrkdir)
 load(file='uData.Rdata')
 
 ################################################################################
-## N events (TEST1)
+## N events
 u.neve.data.PD <- subset(u.neve.data, group=="ptns")
 
 br.nev.uF1 <- brm(F1 ~ nevent.min+(1|subs:session), data = u.neve.data.PD, family = poisson,
