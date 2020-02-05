@@ -13,7 +13,7 @@ cd(dirs.megDir);
 [ctrl_subs] = intersect(subs, subjs.ctrl);
 
 %% Settings
-overwrite = 0;   % Overwirte old files 0=false or 1=true
+overwrite = 1;   % Overwirte old files 0=false or 1=true
 
 steps = 0.1:0.1:5;
 
@@ -25,7 +25,7 @@ cfg.overlap     = 0;
 cfg.steps       = steps;
 cfg.corrtype    = 'amp';
 cfg.cutofftype  = 'med'; 
-cfg.halfmax     = 'mixed';
+cfg.halfmax     = 'yes';
 cfg.makeplot    = 'no';
 
 % Init
@@ -47,7 +47,7 @@ for ss = 1:length(subs)
     infiles  = sort(infiles);
     outfname = fullfile(sub_dir,'subvals_ext.mat');
     if exist(outfname,'file') && ~overwrite
-        fprintf('File %s already exists.\Pass\n',outfname)
+        fprintf('File %s already exists.\nPass!\n',outfname)
         continue
     end
     
