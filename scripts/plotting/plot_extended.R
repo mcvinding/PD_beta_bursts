@@ -18,11 +18,11 @@ bf.dat$logBF <- log(bf.dat$BF)
 ## Plot BF across steps
 plt <- ggplot(bf.dat, aes(x=steps, y=logBF, fill=test))+
   annotate("rect", xmin=-Inf, xmax=Inf, ymin=log(1/3), ymax=log(3), alpha=0.1, fill="red") +
-  # geom_rect(aes(xmin=-Inf, xmax=Inf, ymin=log(1/3), ymax=log(3)), fill='red', alpha=0.1)+
-  geom_hline(yintercept=log(10),lty=2, color='blue')+
-  geom_hline(yintercept=log(1/10),lty=2, color='blue')+
-  geom_hline(yintercept=0,lty=2, alpha=0.5)+
-  geom_vline(xintercept=1.3, lty=3)+
+  geom_hline(yintercept=log(10),lty=2, color='blue') +
+  geom_hline(yintercept=log(1/10),lty=2, color='blue') +
+  geom_hline(yintercept=0,lty=2, alpha=0.5) +
+  geom_vline(xintercept=1.3, lty=3) +
+  scale_x_continuous(limits=c(0.45, 4.05), breaks=seq(1,4,1))+
   geom_line()+
   geom_point(shape=21, size=3)+theme_bw()+
   scale_fill_discrete(labels = c("Session", "Group","Session x Group"),
@@ -32,15 +32,19 @@ plt <- ggplot(bf.dat, aes(x=steps, y=logBF, fill=test))+
   ylim(c(-5,10))+
   theme(legend.position=c(0,1),
         legend.justification=c(0,1),
-        legend.background=element_blank(), #element_rect(fill='white',color=NA),
+        legend.background=element_blank(),
         legend.title = element_text(face="bold"),
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
         axis.title = element_text(face="bold", size=rel(1.5)),
-        axis.text = element_text(color="black", size=rel(1.2)))
+        axis.text = element_text(color="black", size=rel(1.2)),
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
 plt
 
 ## Save
-ggsave(paste(outdir,"extended_bf.png", sep=""), plt, dpi=600, width=8 ,height=5, units="cm", scale=3)
+ggsave(paste(outdir,"extended_bf.png", sep=""), plt, 
+       dpi=600, width=6, height=3, units="cm", scale=3)
+
 
 #######################################################################################
 # Plot N across steps
@@ -71,11 +75,13 @@ n.plt <- ggplot(neve.summary, aes(x=steps, y=mean, color=group, shape=session))+
         legend.title = element_text(face="bold"),
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
         axis.title = element_text(face="bold", size=rel(1.5)),
-        axis.text = element_text(color="black", size=rel(1.2)))
+        axis.text = element_text(color="black", size=rel(1.2)),
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))
 n.plt  
 
 # Save
-ggsave(paste(outdir,"extended_neve.png", sep=""), n.plt, dpi=600, width=8 ,height=5, units="cm", scale=3)
+ggsave(paste(outdir,"extended_neve.png", sep=""), n.plt, 
+       dpi=600, width=6, height=4.5, units="cm", scale=3)
 
 #######################################################################################
 # Plot ideal observer analysis across steps
@@ -97,7 +103,7 @@ ios.plt <- ggplot(roc.dat, aes(x=steps, y=ROC, color=test))+
   theme_bw()+
   labs(title="Ideal observer analysis",
        x='Threshold (median + median * x)',
-       y='AU-ROC',
+       y='AUROC',
        color="Session")+
   theme(legend.position=c(0.01,1),
         legend.justification=c(0,1),
@@ -105,9 +111,12 @@ ios.plt <- ggplot(roc.dat, aes(x=steps, y=ROC, color=test))+
         legend.title = element_text(face="bold"),
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
         axis.title = element_text(face="bold", size=rel(1.5)),
-        axis.text = element_text(color="black", size=rel(1.2)))
+        axis.text = element_text(color="black", size=rel(1.2)),
+        plot.margin = unit(c(0, 0, 0, 0), "cm"))
 ios.plt  
 
-ggsave(paste(outdir,"extended_ios.png", sep=""), ios.plt, dpi=600, width=8 ,height=4, units="cm", scale=3)
+ggsave(paste(outdir,"extended_ios.png", sep=""), ios.plt, 
+       dpi=600, width=6, height=3, units="cm", scale=3)
+
 
 # END  

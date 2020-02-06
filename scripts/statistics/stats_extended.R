@@ -1,5 +1,4 @@
 ## Statistics 1: between group-session analysis
-# library(BayesFactor)
 library(brms)
 Sys.setenv(PATH = paste("C:/Rtools/bin", Sys.getenv("PATH"), sep=";")) # Needed or there will be a pop-up everytime compiling C models.
 Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
@@ -21,7 +20,7 @@ BF10 <- rep(0, length(steps))
 BF21 <- rep(0, length(steps))
 BF32 <- rep(0, length(steps))
 
-for (i in 1:length(steps)){
+for (i in 1:2){ # #3:length(steps)){
   print(paste('################ step:', steps[i], ' ##################'))
   tempdat <- neve.data[neve.data$steps==steps[i],]
   br.nev3 <- brm(nevent.min ~ group*session+(1|subs), data = tempdat, family = poisson, 

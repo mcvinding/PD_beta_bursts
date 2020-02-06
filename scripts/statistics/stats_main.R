@@ -68,11 +68,16 @@ pp.neve <- predict(br.nev3, newdata=newdata, summary=T, re_formula=NA, robust=T)
 
 sam.nev3 <- posterior_samples(br.nev3, "^b")
 
-exp(fixef(br.nev3)[2])-1                                          # Ptns session 1 (rel change)
+mean(exp(sam.nev3[,2]))-1                                         # Ptns 1 vs ctrl 1 (rel change)
 quantile(exp(sam.nev3[,2]), probs=c(0.025,0.975))-1               # 95%CI
-mean(exp(sam.nev3[,3]+sam.nev3[,4]))-1                            # Ptns session 2 (rel change)
+
+mean(exp(sam.nev3[,2]+sam.nev3[,4]))-1                            # Ptns 1 vs 2 (rel change)
+quantile(exp(sam.nev3[,2]+sam.nev3[,4]), probs=c(0.025,0.975))-1  # 95%CI
+
+mean(exp(sam.nev3[,3]+sam.nev3[,4]))-1                            # Ptns 1 vs 2 (rel change)
 quantile(exp(sam.nev3[,3]+sam.nev3[,4]), probs=c(0.025,0.975))-1  # 95%CI
-mean(exp(sam.nev3[,3]))-1                                         # Ctrls session 2 (rel change)
+
+mean(exp(sam.nev3[,3]))-1                                         # Ctrls 1 vs 2 (rel change)
 quantile(exp(sam.nev3[,3]), probs=c(0.025,0.975))-1               # 95%CI
 
 ################################################################################

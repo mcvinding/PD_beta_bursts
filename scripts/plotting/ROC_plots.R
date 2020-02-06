@@ -2,7 +2,7 @@
 library(ROCR)
 
 # Load data
-loda(file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
+load(file="C:/Users/Mikkel/Documents/betabursts/groupanalysis/roc_results.Rdata")
 setwd("C:/Users/Mikkel/Documents/betabursts/Figures")
 
 #################################################################################
@@ -12,7 +12,7 @@ ROCplot <- function(roc1, roc2, heading, col.1="black", col.2="black", leg.cex=1
   # Plot 1
   plot(roc1$roc, colorize=F,  main = heading, lwd=1, col=col.1)
   legend(.4, .3, 
-         paste("- AUC: ", round(roc1$auc,2)), 
+         paste("\u2014 AUC: ", round(roc1$auc,2)), 
          text.font=2, text.col=col.1,
          bty="n", cex = leg.cex, xjust=0, yjust=.5)
 
@@ -37,7 +37,7 @@ par(mfrow=c(4,4),
     xaxt='s', yaxt='s',
     oma=c(2,2,0,0), mar=c(1,1,1,0.5), mgp=c(3, 0.2, 0))
 
-ROCplot(n1.roc, n2.roc, "N events", leg.cex=.7)
+ROCplot(n1.roc, n2.roc, "Burst rate", leg.cex=.7)
 ROCplot(i1mean.roc, i2mean.roc, "Inter-burst interval (mean)", leg.cex=.7)
 ROCplot(l1mean.roc, l2mean.roc, "Burst duration (mean)", leg.cex=.7)
 ROCplot(a1mean.roc, a2mean.roc, "Burst peak amplitude (mean)", leg.cex=.7)
@@ -67,7 +67,7 @@ par(oma=c(3,3,0,0),mar=c(2,2,2,2),mfrow=c(4,2),
     cex.lab=.6, cex.main=1.2, cex.axis=.8,
     oma=c(3,3,0,0),mar=c(2,1,2,2))
 
-ROCplot(n1.roc, n2.roc, "N events", leg.cex=.85)
+ROCplot(n1.roc, n2.roc, "Burst rate", leg.cex=.85)
 ROCplot(r1.roc, r2.roc, "Relative beta power", leg.cex=.85)
 ROCplot(i1medi.roc, i2medi.roc, "Inter-burst interval", leg.cex=.85)
 ROCplot(b1.roc, b2.roc, "Beta peak power", leg.cex=.85)
