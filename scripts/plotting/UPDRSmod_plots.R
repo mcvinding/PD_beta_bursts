@@ -35,8 +35,8 @@ pred.plot.kfold <- function(bms.mod, K=10){
     
     geom_point(data=data, aes_string(y=F.name, x="nevent.min", color="session"), size=1, inherit.aes = FALSE) +
     theme_bw() +
-    scale_color_manual(values=c('red','blue'))+
-    xlab('Burst/min') + ylab('Factor score')+
+    scale_color_manual(values=c('red','blue')) +
+    xlab('Burst/min') + ylab('Factor score') +
     theme_bw() + 
     theme(legend.position = "none",
           text = element_text(size = 11),
@@ -46,10 +46,10 @@ pred.plot.kfold <- function(bms.mod, K=10){
           # axis.title.x = element_text(face="plain", size=4),
           # axis.title.y = element_text(face="plain", size=4),
           axis.text = element_text(face="bold", size=11),
-          panel.grid = element_blank())
+          plot.margin = unit(c(0, 15, 0, 0), "pt"))
+  
   return(plt)
 }  
-    
 
 # Make a generic plot function (errors based on marginal effects)
 pred.plot <- function(bms.mod){
@@ -71,13 +71,14 @@ pred.plot <- function(bms.mod){
           # axis.title.x = element_text(face="plain", size=4),
           # axis.title.y = element_text(face="plain", size=4),
           axis.text = element_text(face="bold", size=11),
-          panel.grid = element_blank())
+          panel.grid = element_blank(),
+          plot.margin = )
   return(plt)
 }
 
 ############################################################################
 # Plot N event
-plt.f1 <- pred.plot.kfold(br.nev.uF1) + ggtitle('Midline function')
+plt.f1 <- pred.plot.kfold(br.nev.uF1) + ggtitle('Midline function') + theme(plot.margins= unit(c(6, 8, 6, 6), "pt"))
 plt.f2 <- pred.plot.kfold(br.nev.uF2) + ggtitle('Rest tremor')
 plt.f3 <- pred.plot.kfold(br.nev.uF3) + ggtitle('Rigidity')
 plt.f45 <- pred.plot.kfold(br.nev.uF45) + ggtitle('Bradykinesia')
@@ -85,11 +86,18 @@ plt.f6 <- pred.plot.kfold(br.nev.uF6) + ggtitle('Postural and kinetic tremor')
 plt.f7 <- pred.plot.kfold(br.nev.uF7) + ggtitle('Lower limb bradykinesia')
 plt.fT <- pred.plot.kfold(br.nev.uFT) + ggtitle('Total UPDRS-III') + ylab('Score')
 
+plt.f1 <- plt.f1 + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+plt.f3 <- plt.f3 + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+plt.f45 <- plt.f45 + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+plt.f6 <- plt.f6 + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+plt.f7 <- plt.f7 + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+plt.fT <- plt.fT + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
+
 # Save
 setwd(outdir)
 ggsave("new_neve_F1.jpeg", plot=plt.f1, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F2.jpeg", plot=plt.f2, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F3.jpeg", plot=plt.f3, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
+ggsave("new_neve_F3.jpeg", plot=plt.f3x, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F45.jpeg", plot=plt.f45, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F6.jpeg", plot=plt.f6, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
 ggsave("new_neve_F7.jpeg", plot=plt.f7, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
