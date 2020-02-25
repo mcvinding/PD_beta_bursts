@@ -4,7 +4,11 @@ misc/
 raw/
 summary/
 figures/
+<<<<<<< HEAD
+data/
+=======
 fs_stats/
+>>>>>>> 4c4a210688bd4c301d292f4dd85d98648e360c09
 
 # File extenstions to ignore
 *.m~

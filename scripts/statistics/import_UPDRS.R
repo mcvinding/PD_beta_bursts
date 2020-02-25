@@ -3,7 +3,7 @@ library(xlsx)
 library(reshape2)
 
 # Define paths
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 load(file = 'maxeve.RData')
 load(file = 'itieve.RData')
@@ -11,11 +11,11 @@ load(file = 'leneve.RData')
 load(file = 'neve.RData')
 
 #Load data
-raw.UPDRS <- read.xlsx('Z://PD_motor//subj_data//UPDRS_raw.xlsx',1,header=T)
+raw.UPDRS <- read.xlsx('UPDRS_raw.xlsx',1,header=T)
 raw.UPDRS$n.id = as.factor(raw.UPDRS$id)
 raw.UPDRS$session <- as.factor(raw.UPDRS$session)
 
-load(file='Z://PD_motor//subj_data//alldata.RData')
+load(file='alldata.RData')
 
 # Prepare data
 updrs.long <- data.frame(id = rep(alldata$MEG_ID,2),

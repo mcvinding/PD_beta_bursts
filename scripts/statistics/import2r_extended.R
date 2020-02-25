@@ -2,7 +2,7 @@
 library(R.matlab)
 
 # Define paths
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 
 # Read N event data
@@ -18,6 +18,7 @@ neve.data <- data.frame(nevent=nevent,
                         subs=subs,
                         group=group,
                         session=session)
+neve.data$nevent.min <- neve.data$nevent/3
 
 save(neve.data, file = 'neve_ext.RData')
 

@@ -1,7 +1,7 @@
 #### Data on participant for PAM1 (rebound) part ####
 library(BayesFactor)
 
-load(file='Z://PD_motor//subj_data///alldata.RData')
+load(file='C://Users//Mikkel//Documents//betabursts//subj_data//alldata.RData')
 
 # Descriptive summary: all subjects recruited
 aggregate(alldata$age,list(alldata$Sub_type),mean)
@@ -24,7 +24,7 @@ ttestBF(formula=age~Sub_type, data=bbdata, paired=F)
 ## Sex
 gendertab <- xtabs(~sex+Sub_type,bbdata)
 fisher.test(gendertab)
-contingencyTableBF(gendertab, sampleType = 'indepMulti',fixedMargin='cols')   # Testbetween colums (i.e group)
+contingencyTableBF(gendertab, sampleType = 'indepMulti',fixedMargin='cols')   # Test between colums (i.e group)
 
 ## MoCA
 aggregate(bbdata$MoCA, by=list(bbdata$Sub_type), mean)
