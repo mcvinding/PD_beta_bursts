@@ -39,13 +39,10 @@ pred.plot.kfold <- function(bms.mod, K=10){
     xlab('Burst/min') + ylab('Factor score') +
     theme_bw() + 
     theme(legend.position = "none",
-          text = element_text(size = 11),
-          title = element_text(size = 12, vjust = 1.5, face="bold",lineheight = NULL),
-          # axis.text = element_text(size=10),
-          axis.title = element_text(size = 11, vjust = .5, face="plain"),
-          # axis.title.x = element_text(face="plain", size=4),
-          # axis.title.y = element_text(face="plain", size=4),
-          axis.text = element_text(face="bold", size=11),
+          text = element_text(size = 12),
+          title = element_text(size = 16, vjust = 1.5, face="bold"),
+          axis.text = element_text(size=12),
+          axis.title = element_text(size = 13, vjust = .5, face="bold"),
           plot.margin = unit(c(0, 15, 0, 0), "pt"))
   
   return(plt)
@@ -65,20 +62,17 @@ pred.plot <- function(bms.mod){
     theme_bw() + 
     theme(legend.position = "none",
           text = element_text(size = 11),
-          title = element_text(size = 12, vjust = 1.5, face="bold",lineheight = NULL),
-          # axis.text = element_text(size=10),
-          axis.title = element_text(size = 11, vjust = .5, face="plain"),
-          # axis.title.x = element_text(face="plain", size=4),
-          # axis.title.y = element_text(face="plain", size=4),
+          title = element_text(size = 16, vjust = 1.5, face="bold",lineheight = NULL),
+          axis.text = element_text(size=12),
+          axis.title = element_text(size = 13, vjust = .5, face="bold"),
           axis.text = element_text(face="bold", size=11),
-          panel.grid = element_blank(),
-          plot.margin = )
+          panel.grid = element_blank())
   return(plt)
 }
 
 ############################################################################
 # Plot N event
-plt.f1 <- pred.plot.kfold(br.nev.uF1) + ggtitle('Midline function') + theme(plot.margins= unit(c(6, 8, 6, 6), "pt"))
+plt.f1 <- pred.plot.kfold(br.nev.uF1) + ggtitle('Midline function')
 plt.f2 <- pred.plot.kfold(br.nev.uF2) + ggtitle('Rest tremor')
 plt.f3 <- pred.plot.kfold(br.nev.uF3) + ggtitle('Rigidity')
 plt.f45 <- pred.plot.kfold(br.nev.uF45) + ggtitle('Bradykinesia')
@@ -95,12 +89,12 @@ plt.fT <- plt.fT + theme(plot.margin= unit(c(0, 15, 0, 0), "pt"))
 
 # Save
 setwd(outdir)
-ggsave("new_neve_F1.jpeg", plot=plt.f1, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F2.jpeg", plot=plt.f2, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F3.jpeg", plot=plt.f3x, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F45.jpeg", plot=plt.f45, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F6.jpeg", plot=plt.f6, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_F7.jpeg", plot=plt.f7, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
-ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=40, height=35, dpi=500, scale=2.5)
+ggsave("new_neve_F1.jpeg", plot=plt.f1, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_F2.jpeg", plot=plt.f2, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_F3.jpeg", plot=plt.f3x, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_F45.jpeg", plot=plt.f45, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_F6.jpeg", plot=plt.f6, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_F7.jpeg", plot=plt.f7, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
+ggsave("new_neve_Total.jpeg", plot=plt.fT, device="jpeg", units="mm", width=50, height=45, dpi=600, scale=2)
 
 #END

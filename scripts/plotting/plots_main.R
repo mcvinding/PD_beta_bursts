@@ -133,18 +133,18 @@ i.den <- ggplot(itieve.data, aes(x=eve.iti.ms, fill=group))+
   theme_bw() +
   scale_fill_manual(values=c('red','blue'), guide=FALSE)+
   theme(strip.background = element_rect(fill="white"),
-        strip.text = element_text(face="bold", lineheight=12),
+        strip.text = element_text(face="bold", lineheight=12, size=12),
         panel.grid.minor = element_blank(),
-        plot.title = element_text(hjust = 0.5, lineheight=12, face="bold"),
-        axis.title = element_text(face="bold", lineheight=11),
-        axis.text = element_text(color="black", lineheight=9),
+        plot.title = element_text(hjust = 0.5, lineheight=12, face="bold", size=16),
+        axis.title = element_text(face="bold", lineheight=11, size=12),
+        axis.text = element_text(color="black", lineheight=9, size=10),
         axis.ticks.y = element_blank(),
         axis.text.y = element_blank())+
   ggtitle('Inter-event interval')
 i.den
 
 ggsave(paste(outdir,"iti_denst.jpeg",sep=""),
-       plot=i.den, device="png", units="cm", width=8, height=4, dpi=500, scale=2)
+       plot=i.den, device="png", units="cm", width=8, height=4, dpi=600, scale=2)
 
 #####################################################################################
 ## Event duration
@@ -166,11 +166,11 @@ l.den <- ggplot(leneve.data, aes(x=eve.len.ms, fill=group))+
   theme_bw()+
   scale_fill_manual(values=c('red','blue'), guide=FALSE)+
   theme(strip.background = element_rect(fill="white"),
-        strip.text = element_text(face="bold", lineheight=12),
+        strip.text = element_text(face="bold", lineheight=12, size=12),
         panel.grid.minor = element_blank(),
-        plot.title = element_text(hjust = 0.5, lineheight=12, face="bold"),
-        axis.title = element_text(face="bold", lineheight=11),
-        axis.text = element_text(color="black", lineheight=9),
+        plot.title = element_text(hjust = 0.5, lineheight=12, face="bold", size=16),
+        axis.title = element_text(face="bold", lineheight=11, size=12),
+        axis.text = element_text(color="black", lineheight=9, size=10),
         axis.ticks.y = element_blank(),
         axis.text.y = element_blank()) +
   ggtitle('Beta event duration')
