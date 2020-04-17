@@ -11,6 +11,8 @@ import sys
 import mne
 sys.path.append('/home/mikkel/PD_motor/rest_ec/scripts/functions')
 from sensorymotorROI import make_sensorymotorROI
+from sensorymotorROI2 import make_sensorymotorROI2
+
 from scipy.signal import hilbert
 import scipy.io as sio
 
@@ -54,14 +56,14 @@ for sub in subjects:
         for hemi in ['lh','rh']:
 
             lab = make_sensorymotorROI(sub, subjects_dir, hemi=hemi)
-            
+
             # Save label
             lab.save(op.join(subjects_dir, sub, 'label',hemi+'.sensmotor.label'))
 
             # Extract label time-series
             label_tc = stc.extract_label_time_course(lab, src ,mode='pca_flip')[0,:]
             label_tc  = np.float64(label_tc)
-
+            
             lbft = mne.filter.filter_data(label_tc, 1000, 13, 30, method='fir',n_jobs=3)
 
             analytic = hilbert(lbft)

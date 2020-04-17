@@ -2,7 +2,7 @@
 library(R.matlab)
 
 # Define paths
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 
 # Read N event data

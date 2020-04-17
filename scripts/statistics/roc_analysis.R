@@ -3,10 +3,9 @@
 library(ROCR)
 library(lme4)
 library(arm)
-# library(R.matlab)
+library(plyr)
 source("C:/Users/Mikkel/Documents/betabursts/scripts/functions/misc_funs.R")
 
-# wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 
@@ -196,6 +195,8 @@ a2mode.roc <- roc_fun(a2mode.lmod,a.mode.dat2)
 ## Realtive beta power analysis
 load(file = 'reldat.RData')
 
+rel.dat$group <- relevel(rel.dat$group, 'ctrl')
+
 rel.dat1 <- subset(rel.dat, session=="1")
 rel.dat2 <- subset(rel.dat, session=="2")
 
@@ -208,7 +209,7 @@ r2.lmod <- glm(group~relpow, data=rel.dat2, family = 'binomial')
 r2.roc <- roc_fun(r2.lmod, rel.dat2)
 
 ################################################################################
-## Beta power substracted 1/f spectrum
+## Beta peak power (substracted 1/f spectrum)
 load(file="fooof_dat.R")
 b.dat$group <- relevel(b.dat$group, "ctrl")
 

@@ -1,8 +1,8 @@
 # Plot 1/f params and beta power in confetti plot
 library(ggplot2)
+library(plyr)
 
 # Define paths
-#wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
 wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 outdir <- "C://Users//Mikkel//Documents//betabursts//Figures//"
 setwd(wrkdir)
@@ -38,7 +38,7 @@ icp.plt <- ggplot(f.dat, aes(x=task, y=intercept))+
   labs(title="1/f intercept",
        x="",
        y = "")+
-  scale_x_discrete(labels=c("Ctrl/1","Ctrl/2","PD/1 (OFF)","PD/2 (ON)"))+
+  scale_x_discrete(labels=c("PD/1 (OFF)","PD/2 (ON)","Ctrl/1","Ctrl/2")) +
   theme_bw() +
   theme(legend.position="none",
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
@@ -64,7 +64,7 @@ slp.plt <- ggplot(f.dat, aes(x=task, y=slope))+
   labs(title="1/f slope",
        x="",
        y = "")+
-  scale_x_discrete(labels=c("Ctrl/1","Ctrl/2","PD/1 (OFF)","PD/2 (ON)"))+
+  scale_x_discrete(labels=c("PD/1 (OFF)","PD/2 (ON)","Ctrl/1","Ctrl/2"))+
   theme_bw() +
   theme(legend.position="none",
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
@@ -84,8 +84,6 @@ ggsave(paste(outdir,"oof_slope.jpeg",sep=""), plot=slp.plt,
 ## Plot beta
 # Load data
 b.dat <- read.csv("df_beta.csv", header=TRUE, sep=";")
-b.dat$group <- as.factor(b.dat$group)
-b.dat$group <- revalue(b.dat$group, c("1"="ptns", "2"="ctrl"))
 b.dat$session <- as.factor(b.dat$session)
 b.dat$subj <- as.factor(rep(1:(length(b.dat$peak_pow)/2),2))
 
@@ -103,10 +101,10 @@ bpk.plt <- ggplot(b.dat, aes(x=task, y=peak_pow))+
   geom_errorbar(data=b.summary, aes(x=task, y=mean, ymin=mean-sd, ymax=mean+sd), width=0.2) +
   geom_point(aes(fill=subj), position=position_jitter(width = 0.15), color='black', shape=21, size=2) +
   # scale_y_continuous(limits=c(0.1,0.85), breaks=seq(0.2,0.8,0.1))+
-  labs(title="Beta peak power (- 1/f)",
+  labs(title="Beta peak power",
        x="",
        y = "")+
-  scale_x_discrete(labels=c("Ctrl/1","Ctrl/2","PD/1 (OFF)","PD/2 (ON)"))+
+  scale_x_discrete(labels=c("PD/1 (OFF)","PD/2 (ON)","Ctrl/1","Ctrl/2"))+
   theme_bw() +
   theme(legend.position="none",
         plot.title = element_text(hjust = 0.5, size=rel(2), face="bold"),
