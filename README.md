@@ -1,6 +1,6 @@
 # Reduction of spontaneous cortical beta bursts in Parkinson's disease is linked to symptom severity
 
-This repository contains scripts for analysing data from the study below and producing the figures presented in the paper:
+This repository contains scripts for analyzing data from the study below and producing the figures presented in the paper:
 
 **Vinding, M. C., Tsitsi, P., Waldthaler, J., Oostenveld, R., Ingvar, M., Svenningsson, P., & Lundqvist, D. (2019). Reduction of spontaneous cortical beta bursts in Parkinson’s disease is linked to symptom severity. *biorXiv.org*. https://doi.org/10.1101/775494**
   
