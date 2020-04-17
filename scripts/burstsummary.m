@@ -54,29 +54,21 @@ ctrln1_2 = b1_2(ctrlidx);
 ctrln2_2 = b2_2(ctrlidx);
 ctrln3_2 = b3_2(ctrlidx);
 
-% PDnavg1 = nanmean(PDn1);
-% ctrlnavg1 = nanmean(ctrln1);
-% PDnavg2 = nanmean(PDn2);
-% ctrlnavg2 = nanmean(ctrln2);
-% 
-% PDnsd1 = nanstd(PDn1);
-% ctrlnsd1 = nanstd(ctrln1);
-% PDnsd2 = nanstd(PDn2);
-% ctrlnsd2 = nanstd(ctrln2);
+PDnavg1 = nanmean(PDn1);
+ctrlnavg1 = nanmean(ctrln1);
+PDnavg2 = nanmean(PDn2);
+ctrlnavg2 = nanmean(ctrln2);
 
-% [~, pt1,~,t1] = ttest2(PDn1,ctrln1);
-% [~, pt2,~,t2] = ttest2(PDn2,ctrln2);
-% [~, ptPt,~,tPt] = ttest(PDn1,PDn2);
-% [~, ptCt,~,tCt] = ttest(ctrln1,ctrln2);
+PDnsd1 = nanstd(PDn1);
+ctrlnsd1 = nanstd(ctrln1);
+PDnsd2 = nanstd(PDn2);
+ctrlnsd2 = nanstd(ctrln2);
 
 figure;
 subplot(1,2,1); histogram(PDn1,10); hold on
 subplot(1,2,1); histogram(ctrln1,10); hold off
 subplot(1,2,2); histogram(PDn2,10); hold on
 subplot(1,2,2); histogram(ctrln2,10); hold off
-
-% mns = [PDnavg1, ctrlnavg1; PDnavg2, ctrlnavg2];
-% sds = [PDnsd1, ctrlnsd1; PDnsd2, ctrlnsd2];
 
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/nevent.mat', ...
     'PDn1', 'ctrln1', 'PDn2', 'ctrln2','PD_subs','ctrl_subs');
@@ -133,19 +125,6 @@ subplot(1,2,1); histogram(ctrllenmn1,20); hold off
 subplot(1,2,2); histogram(PDlenmn2,20); hold on
 subplot(1,2,2); histogram(ctrllenmn2,20); hold off
 
-% Pooled errors t-test
-[~, pt1,~,t1] = ttest2(PDlenmn1,ctrllenmn1);
-[~, pt2,~,t2] = ttest2(PDlenmn2,ctrllenmn2);
-[~, ptPt,~,tPt] = ttest(PDlenmn1,PDlenmn2);
-[~, ptCt,~,tCt] = ttest(ctrllenmn1,ctrllenmn2);
-
-mns = [PDlenavg1, ctrllenavg1; PDlenavg2, ctrllenavg2];
-sds = [PDlensd1, ctrllensd1; PDlensd2, ctrllensd2];
-
-figure; hold on
-bar(1:2,mns,0.6,'b','grouped')
-set(gca,'xtick',[])
-
 % Save for export
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/lenevent.mat', ...
     'len1', 'len2', 'sub1', 'sub2');
@@ -198,11 +177,6 @@ PDtoeavg1 = mean(PDtoemn1);
 ctrltoeavg1 = mean(ctrltoemn1);
 PDtoesd1 = std(PDtoemn1);
 ctrltoesd1 = std(ctrltoemn1);
-
-[~, pt1,~,t1] = ttest2(PDtoemn1,ctrltoemn1);
-[~, pt2,~,t2] = ttest2(PDtoemn2,ctrltoemn2);
-[~, ptPt,~,tPt] = ttest(PDtoemn1,PDtoemn2);
-[~, ptCt,~,tCt] = ttest(ctrltoemn1,ctrltoemn2);
 
 % Save for export
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/toevent.mat', ...
@@ -257,13 +231,7 @@ subplot(1,2,1); histogram(ctrlmaxmn1,10); hold off
 subplot(1,2,2); histogram(PDmaxmn2,10); hold on
 subplot(1,2,2); histogram(ctrlmaxmn2,10); hold off
 
-[~, pt1,~,t1] = ttest2(PDmaxmn1,ctrlmaxmn1);
-[~, pt2,~,t2] = ttest2(PDmaxmn2,ctrlmaxmn2);
-[~, ptPt,~,tPt] = ttest(PDmaxmn1,PDmaxmn2);
-[~, ptCt,~,tCt] = ttest(ctrlmaxmn1,ctrlmaxmn2);
-
 save('/home/mikkel/PD_motor/rest_ec/groupanalysis/pkmaxevent.mat', ...
     'max1', 'max2', 'sub1', 'sub2');
-
 
 % END

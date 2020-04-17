@@ -5,12 +5,12 @@ Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
 # options(mc.cores=parallel::detectCores)  # Try run with multicores. For some reason, doing this means bridge sampling does not work later!
 
 # Define paths
-wrkdir <- "Z://PD_motor//rest_ec//groupanalysis//"
+wrkdir <- "C://Users//Mikkel//Documents//betabursts//groupanalysis"
 setwd(wrkdir)
 load(file='uData.Rdata')
 
 ################################################################################
-## N events (TEST1)
+## N events
 u.neve.data.PD <- subset(u.neve.data, group=="ptns")
 
 br.nev.uF1 <- brm(F1 ~ nevent.min+(1|subs:session), data = u.neve.data.PD, family = poisson,
