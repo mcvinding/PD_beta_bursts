@@ -44,7 +44,7 @@ plt
 
 ## Save
 ggsave(paste(outdir,"extended_bf.png", sep=""), plt, 
-       dpi=600, width=10, height=5, units="cm", scale=3)
+       dpi=600, width=10, height=5, units="cm", scale=2)
 
 
 #######################################################################################
@@ -83,7 +83,7 @@ n.plt
 
 # Save
 ggsave(paste(outdir,"extended_neve.png", sep=""), n.plt, 
-       dpi=600, width=10, height=5, units="cm", scale=3)
+       dpi=600, width=10, height=5, units="cm", scale=2)
 
 #######################################################################################
 # Plot ideal observer analysis across steps
@@ -119,6 +119,6 @@ ios.plt <- ggplot(roc.dat, aes(x=steps, y=ROC, color=test))+
 ios.plt  
 
 ggsave(paste(outdir,"extended_ios.png", sep=""), ios.plt, 
-       dpi=600, width=6, height=3, units="cm", scale=3)
+       dpi=600, width=10, height=5, units="cm", scale=2)
 
 # END  
