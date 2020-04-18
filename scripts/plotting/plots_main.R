@@ -177,7 +177,7 @@ l.den <- ggplot(leneve.data, aes(x=eve.len.ms, fill=group))+
 l.den
 
 ggsave(paste(outdir,"len_dens.jpeg",sep=""), 
-       plot=l.den, device="png", units="cm", width=8, height=4, dpi=500, scale=2)
+       plot=l.den, device="png", units="cm", width=8, height=4, dpi=600, scale=2)
 
 #####################################################################################
 load(file = 'maxeve.RData')
