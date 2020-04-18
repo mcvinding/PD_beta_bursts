@@ -125,9 +125,9 @@ ctrl_ga2 = ft_timelockgrandaverage(cfg,ctrl_epo2{:});
 sub_lnwdt       = 0.5;
 avg_lnwdt       = 2.5;
 axis_lnwdt      = 2;
-def_fontsize    = 9;
-label_fontsize  = 10; 
-ttl_fontsize    = 11;
+def_fontsize    = 12;
+label_fontsize  = 13; 
+ttl_fontsize    = 16;
 
 yrange          = [-1.0 2.0];
 xrange          = [-150,150];
@@ -198,6 +198,6 @@ xlabel('Time (ms)','fontsize',label_fontsize);
 title('Controls 2', 'fontsize', ttl_fontsize);
 
 %% Export
-export_fig(fullfile(dirs.figures,'timelockedEvent.png'), '-r500', '-p0.05', '-CMYK')
+export_fig(fullfile(dirs.figures,'timelockedEvent.png'), '-r600', '-p0.05', '-CMYK')
 
 %END
